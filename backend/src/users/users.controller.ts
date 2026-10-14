@@ -17,6 +17,7 @@ import {
 } from 'class-validator';
 import { UsersService } from './users.service';
 import { AuthTokenGuard, AuthenticatedRequest } from '../auth/auth-token.guard';
+import { AuthRateLimitGuard } from '../auth/auth-rate-limit.guard';
 
 class RegisterUserDto {
   @IsOptional()
@@ -51,12 +52,14 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('register')
+  @UseGuards(AuthRateLimitGuard)
   @HttpCode(HttpStatus.CREATED)
   register(@Body() input: RegisterUserDto) {
     return this.usersService.register(input);
   }
 
   @Post('login')
+  @UseGuards(AuthRateLimitGuard)
   @HttpCode(HttpStatus.OK)
   login(@Body() input: LoginUserDto) {
     return this.usersService.login(input);
