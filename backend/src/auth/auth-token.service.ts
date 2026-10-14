@@ -16,6 +16,7 @@ export interface AccessTokenClaims {
 export class AuthTokenService {
   private readonly issuer = 'rohny-api';
   private readonly lifetimeSeconds = 15 * 60;
+  private readonly maximumTokenLength = 4096;
 
   issueAccessToken(userId: string, role: string) {
     const now = Math.floor(Date.now() / 1000);
@@ -33,17 +34,28 @@ export class AuthTokenService {
   }
 
   verifyAccessToken(token: string): AccessTokenClaims {
-    const parts = token.split('.');
-    if (parts.length !== 3) {
+    if (
+      typeof token !== 'string' ||
+      token.length > this.maximumTokenLength ||
+      !/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token)
+    ) {
       throw new UnauthorizedException('Invalid or expired access token');
     }
 
-    const [headerPart, payloadPart, signature] = parts;
+    const [headerPart, payloadPart, signature] = token.split('.');
     try {
       const header = JSON.parse(this.decode(headerPart)) as { alg?: string; typ?: string };
       const payload = JSON.parse(this.decode(payloadPart)) as AccessTokenClaims & { iss?: string };
-      if (header.alg !== 'HS256' || header.typ !== 'JWT') {
-        throw new Error('Unexpected token header');
+      if (
+        !header ||
+        typeof header !== 'object' ||
+        header.alg !== 'HS256' ||
+        header.typ !== 'JWT' ||
+        !payload ||
+        typeof payload !== 'object' ||
+        Array.isArray(payload)
+      ) {
+        throw new Error('Unexpected token structure');
       }
 
       const expected = Buffer.from(this.sign(`${headerPart}.${payloadPart}`));
@@ -56,11 +68,15 @@ export class AuthTokenService {
       if (
         payload.iss !== this.issuer ||
         typeof payload.sub !== 'string' ||
+        payload.sub.length === 0 ||
         typeof payload.role !== 'string' ||
+        !['rider', 'driver', 'admin'].includes(payload.role) ||
         !Number.isInteger(payload.exp) ||
         payload.exp <= now ||
         !Number.isInteger(payload.iat) ||
-        payload.iat > now + 30
+        payload.iat > now + 30 ||
+        payload.exp <= payload.iat ||
+        payload.exp - payload.iat > this.lifetimeSeconds
       ) {
         throw new Error('Invalid token claims');
       }
