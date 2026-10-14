@@ -34,6 +34,14 @@ describe('AuthTokenService', () => {
     expect(() => service.verifyAccessToken('not.a.jwt')).toThrow(UnauthorizedException);
   });
 
+  it('rejects oversized tokens before decoding them', () => {
+    expect(() => service.verifyAccessToken('a'.repeat(4097))).toThrow(UnauthorizedException);
+  });
+
+  it('rejects tokens with invalid segment characters', () => {
+    expect(() => service.verifyAccessToken('abc.def$.ghi')).toThrow(UnauthorizedException);
+  });
+
   it('fails closed when no sufficiently long secret is configured', () => {
     process.env.JWT_SECRET = 'short';
     expect(() => service.issueAccessToken('user-123', 'rider')).toThrow(
