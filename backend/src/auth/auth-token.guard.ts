@@ -4,10 +4,10 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import type { Request } from 'express';
 import { AuthTokenService, AccessTokenClaims } from './auth-token.service';
 
-export interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest {
+  headers: { authorization?: string };
   authUser?: AccessTokenClaims;
 }
 
