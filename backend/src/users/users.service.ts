@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as argon2 from 'argon2';
 import { User, UserRole } from './entities/user.entity';
+import { AuthTokenService } from '../auth/auth-token.service';
 
 export interface RegisterUserInput {
   email?: string;
@@ -25,6 +26,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
+    private readonly authTokens: AuthTokenService,
   ) {}
 
   async register(input: RegisterUserInput) {
@@ -117,11 +119,14 @@ export class UsersService {
     }
 
     return {
-      id: user.id,
-      email: user.email,
-      phone: user.phone,
-      role: user.role,
-      createdAt: user.createdAt,
+      user: {
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        createdAt: user.createdAt,
+      },
+      ...this.authTokens.issueAccessToken(user.id, user.role),
     };
   }
 }
