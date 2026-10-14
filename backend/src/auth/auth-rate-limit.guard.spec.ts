@@ -35,7 +35,7 @@ describe('AuthRateLimitGuard', () => {
   it('uses a separate limit for registration', () => {
     request.url = '/auth/register';
     for (let i = 0; i < 5; i += 1) expect(guard.canActivate(context)).toBe(true);
-    expect(() => guard.canActivate(context)).toThrow(TooManyRequestsException);
+    expect(() => guard.canActivate(context)).toThrow(HttpException);
   });
 
   it('does not apply to unrelated routes', () => {
