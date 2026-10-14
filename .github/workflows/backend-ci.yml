@@ -38,5 +38,8 @@ jobs:
       - name: Build backend
         run: npm run build
 
+      - name: Install temporary test runner
+        run: npm install --no-save jest ts-jest @types/jest
+
       - name: Run backend unit tests
-        run: npm test -- --runInBand
+        run: npx jest --runInBand --transform='{"^.+\\.tsx?$":"ts-jest"}'
