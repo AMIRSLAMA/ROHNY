@@ -1,7 +1,8 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
-  BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,6 +12,11 @@ import { User, UserRole } from './entities/user.entity';
 export interface RegisterUserInput {
   email?: string;
   phone?: string;
+  password: string;
+}
+
+export interface LoginUserInput {
+  email: string;
   password: string;
 }
 
@@ -84,5 +90,38 @@ export class UsersService {
 
       throw error;
     }
+  }
+
+  async login(input: LoginUserInput) {
+    const email = input.email.trim().toLowerCase();
+    const password = input.password;
+
+    const user = await this.usersRepository
+      .createQueryBuilder('user')
+      .addSelect('user.passwordHash')
+      .where('user.email = :email', { email })
+      .getOne();
+
+    // Keep the response identical for unknown accounts and wrong passwords.
+    if (!user || !user.passwordHash || !user.isActive) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    const passwordMatches = await argon2.verify(
+      user.passwordHash,
+      password,
+    );
+
+    if (!passwordMatches) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      createdAt: user.createdAt,
+    };
   }
 }
