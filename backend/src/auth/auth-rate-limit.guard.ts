@@ -2,7 +2,8 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
-  TooManyRequestsException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 
 interface RateLimitRequest {
@@ -46,7 +47,7 @@ export class AuthRateLimitGuard implements CanActivate {
     if (entry.count >= limit) {
       const retryAfter = Math.max(1, Math.ceil((entry.resetAt - now) / 1000));
       response.setHeader('Retry-After', String(retryAfter));
-      throw new TooManyRequestsException('Too many authentication attempts. Try again later.');
+      throw new HttpException('Too many authentication attempts. Try again later.', HttpStatus.TOO_MANY_REQUESTS);
     }
 
     entry.count += 1;
