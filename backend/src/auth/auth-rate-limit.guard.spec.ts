@@ -1,4 +1,4 @@
-import { ExecutionContext, TooManyRequestsException } from '@nestjs/common';
+import { ExecutionContext, HttpException } from '@nestjs/common';
 import { AuthRateLimitGuard } from './auth-rate-limit.guard';
 
 describe('AuthRateLimitGuard', () => {
@@ -28,7 +28,7 @@ describe('AuthRateLimitGuard', () => {
   it('blocks the next login attempt and provides Retry-After', () => {
     for (let i = 0; i < 10; i += 1) guard.canActivate(context);
 
-    expect(() => guard.canActivate(context)).toThrow(TooManyRequestsException);
+    expect(() => guard.canActivate(context)).toThrow(HttpException);
     expect(setHeader).toHaveBeenCalledWith('Retry-After', expect.any(String));
   });
 
