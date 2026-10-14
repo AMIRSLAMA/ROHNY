@@ -5,7 +5,13 @@ import {
   HttpStatus,
   Post,
 } from '@nestjs/common';
-import { IsEmail, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { UsersService } from './users.service';
 
 class RegisterUserDto {
@@ -25,6 +31,17 @@ class RegisterUserDto {
   password!: string;
 }
 
+class LoginUserDto {
+  @IsEmail()
+  @MaxLength(254)
+  email!: string;
+
+  @IsString()
+  @MinLength(12)
+  @MaxLength(128)
+  password!: string;
+}
+
 @Controller('auth')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -33,5 +50,11 @@ export class UsersController {
   @HttpCode(HttpStatus.CREATED)
   register(@Body() input: RegisterUserDto) {
     return this.usersService.register(input);
+  }
+
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  login(@Body() input: LoginUserDto) {
+    return this.usersService.login(input);
   }
 }
