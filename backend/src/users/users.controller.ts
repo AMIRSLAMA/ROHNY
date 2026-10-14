@@ -4,6 +4,9 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Get,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import {
   IsEmail,
@@ -13,6 +16,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { UsersService } from './users.service';
+import { AuthTokenGuard, AuthenticatedRequest } from '../auth/auth-token.guard';
 
 class RegisterUserDto {
   @IsOptional()
@@ -56,5 +60,11 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   login(@Body() input: LoginUserDto) {
     return this.usersService.login(input);
+  }
+
+  @Get('me')
+  @UseGuards(AuthTokenGuard)
+  me(@Req() request: AuthenticatedRequest) {
+    return { userId: request.authUser!.sub, role: request.authUser!.role };
   }
 }
