@@ -10,7 +10,10 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,test}/**/*.ts\"",
-    "test": "jest"
+    "test": "jest",
+    "migration:run": "typeorm-ts-node-commonjs migration:run -d src/database/data-source.ts",
+    "migration:revert": "typeorm-ts-node-commonjs migration:revert -d src/database/data-source.ts",
+    "migration:show": "typeorm-ts-node-commonjs migration:show -d src/database/data-source.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.22",
@@ -34,6 +37,7 @@
     "prettier": "^3.0.0",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typeorm-ts-node-commonjs": "^0.3.20"
   }
 }
