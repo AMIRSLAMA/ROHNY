@@ -81,7 +81,7 @@
       token = result.accessToken;
       sessionStorage.setItem(tokenKey, token);
       setStatus('تم تسجيل الدخول: ' + (result.user.email || email), true);
-      await loadTripHistory();
+      loadTripHistory().catch(() => {});
     } catch (error) {
       setStatus(error.message || 'تعذّر تسجيل الدخول.', false);
     } finally {
@@ -183,6 +183,12 @@
       return;
     }
 
+    const scheduledDate = selectedSchedule === 'later' ? new Date(scheduledAtInput.value) : null;
+    if (selectedSchedule === 'later' && (!scheduledAtInput.value || Number.isNaN(scheduledDate.getTime()) || scheduledDate.getTime() < Date.now() + 5 * 60 * 1000)) {
+      bookingStatus.textContent = 'اختار موعدًا صحيحًا بعد خمس دقائق على الأقل قبل إرسال الرحلة.';
+      return;
+    }
+
     const pickup = pickupMarker.getLatLng();
     const destination = destinationMarker.getLatLng();
     const payload = {
@@ -195,7 +201,7 @@
       rideType: selectedRide,
       passengerCount: Number(document.getElementById('passengers').value),
       paymentMethod: selectedPayment,
-      scheduledAt: selectedSchedule === 'later' ? new Date(scheduledAtInput.value).toISOString() : null,
+      scheduledAt: scheduledDate ? scheduledDate.toISOString() : null,
       riderNote: document.getElementById('trip-note').value.trim() || null
     };
 
