@@ -39,6 +39,7 @@
       </section>
       <section class="booking" aria-labelledby="booking-title">
         <div class="booking-head"><div><h2 id="booking-title">احجز مشوارك</h2><p>ابدأ بتحديد مكانك ووجهتك</p></div><div class="badge">روحني معاك</div></div>
+        <section id="auth-panel" class="ride-review" aria-labelledby="auth-title"><h3 id="auth-title">حساب الراكب</h3><p class="note">سجّل الدخول لطلب الرحلة وحفظها في حسابك.</p><div class="field"><label for="auth-email">البريد الإلكتروني</label><input id="auth-email" type="email" autocomplete="email" maxlength="254" required></div><div class="field"><label for="auth-password">كلمة المرور</label><input id="auth-password" type="password" autocomplete="current-password" minlength="12" maxlength="128" required></div><div class="payment-options"><button type="button" id="auth-login" class="primary">تسجيل الدخول</button><button type="button" id="auth-register" class="map-toolbar-button">إنشاء حساب</button><button type="button" id="auth-logout" class="map-toolbar-button" hidden>تسجيل الخروج</button></div><p id="auth-status" class="note" role="status" aria-live="polite">سجّل الدخول أو أنشئ حسابًا.</p></section>
         <form id="ride-form">
           <div class="field"><label for="pickup">هتركب منين؟</label><span class="pin" aria-hidden="true">⌖</span><input id="pickup" name="pickup" placeholder="اكتب نقطة الانطلاق" autocomplete="street-address" required><button type="button" class="search-place-button" data-search-place="pickup">🔎 ابحث عن نقطة الانطلاق</button><div id="pickup-search-results" class="place-results" hidden></div></div>
           <div class="route-line" aria-hidden="true"></div>
@@ -63,7 +64,7 @@
           <div class="field trip-note-field"><label for="trip-note">ملاحظات للسائق (اختياري)</label><textarea id="trip-note" name="tripNote" rows="2" maxlength="240" placeholder="مثال: هكون عند البوابة الرئيسية"></textarea><small class="field-hint">حد أقصى 240 حرفًا</small></div>
           <div class="estimate"><div><small>السعر</small><div class="price">يُحدد لاحقًا <span>بعد ربط التسعير</span></div></div><div style="text-align:left"><small>الدفع</small><strong>اختيار لاحقًا</strong></div></div>
           <button class="primary" type="submit">مراجعة تفاصيل الرحلة ←</button>
-          <p class="note">دي مراجعة تجريبية للبيانات فقط؛ مفيش طلب حقيقي هيتبعت للسائق قبل ربط النظام بالخادم.</p>
+          <p class="note">راجع التفاصيل ثم أرسل طلب الرحلة إلى الخادم. السعر النهائي غير محسوب بعد.</p>
           <section id="ride-review" class="ride-review" hidden aria-live="polite" aria-labelledby="review-title">
             <h3 id="review-title">راجع تفاصيل مشوارك</h3>
             <div class="review-row"><span>من</span><strong id="review-pickup"></strong></div>
@@ -75,8 +76,7 @@
             <div class="review-row" id="review-note-row" hidden><span>ملاحظات للسائق</span><strong id="review-note"></strong></div>
             <div class="review-row" id="review-distance-row" hidden><span>المسافة التقريبية</span><strong id="review-distance"></strong></div>
             <div class="review-row" id="review-time-row" hidden><span>زمن القيادة التقريبي</span><strong id="review-time"></strong></div>
-            <p class="note">المراجعة دي لا تنشئ حجزًا حقيقيًا، والسعر النهائي لم يُحسب بعد.</p>
-            <button type="button" id="edit-ride" class="map-toolbar-button">تعديل البيانات</button>
+            <p class="note">سيُنشأ الطلب بحالة «قيد الانتظار»؛ السعر والتوزيع على السائق غير متاحين بعد.</p><div class="payment-options"><button type="button" id="confirm-ride" class="primary">تأكيد وطلب الرحلة</button><button type="button" id="edit-ride" class="map-toolbar-button">تعديل البيانات</button></div><p id="booking-status" class="note" role="status" aria-live="polite"></p>
           </section>
           <p id="form-message" role="status" aria-live="polite" style="display:none;color:var(--orange);font-size:13px;line-height:1.8"></p>
         </form>
