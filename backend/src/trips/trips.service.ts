@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateTripDto } from './dto/create-trip.dto';
@@ -12,6 +12,15 @@ export class TripsService {
   ) {}
 
   async createForRider(riderId: string, input: CreateTripDto) {
+    if (!input.pickupAddress.trim() || !input.destinationAddress.trim()) {
+      throw new BadRequestException('Pickup and destination addresses are required');
+    }
+
+    const scheduledAt = input.scheduledAt ? new Date(input.scheduledAt) : null;
+    if (scheduledAt && scheduledAt.getTime() < Date.now() + 5 * 60 * 1000) {
+      throw new BadRequestException('Scheduled trips must be at least five minutes in the future');
+    }
+
     const trip = this.tripsRepository.create({
       riderId,
       pickupAddress: input.pickupAddress.trim(),
@@ -23,7 +32,7 @@ export class TripsService {
       rideType: input.rideType,
       passengerCount: input.passengerCount,
       paymentMethod: input.paymentMethod,
-      scheduledAt: input.scheduledAt ? new Date(input.scheduledAt) : null,
+      scheduledAt,
       riderNote: input.riderNote?.trim() || null,
       estimatedDistanceMeters: input.estimatedDistanceMeters ?? null,
       estimatedDurationSeconds: input.estimatedDurationSeconds ?? null,
