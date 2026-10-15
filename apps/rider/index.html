@@ -306,7 +306,18 @@
       }
     }
     placeSearchButtons.forEach(button => button.addEventListener('click', () => searchPlace(button.dataset.searchPlace)));
+    const reverseGeocodeRequestIds = {pickup:0,destination:0};
+    function isCurrentGeocodePoint(target, latlng, requestId) {
+      if (reverseGeocodeRequestIds[target] !== requestId) return false;
+      const marker = target === 'pickup' ? pickupMarker : destinationMarker;
+      if (!marker) return false;
+      const current = marker.getLatLng();
+      return Math.abs(current.lat - latlng.lat) < 0.0000001 &&
+        Math.abs(current.lng - latlng.lng) < 0.0000001;
+    }
     async function reverseGeocode(latlng, input, label) {
+      const target = input === pickupInput ? 'pickup' : 'destination';
+      const requestId = ++reverseGeocodeRequestIds[target];
       mapStatus.textContent = 'جاري تحديد اسم المكان…';
       try {
         const url = new URL('https://nominatim.openstreetmap.org/reverse');
@@ -314,9 +325,11 @@
         const response = await fetch(url.toString(), {headers:{'Accept':'application/json'}});
         if (!response.ok) throw new Error('geocoder');
         const data = await response.json();
+        if (!isCurrentGeocodePoint(target, latlng, requestId)) return;
         input.value = data.display_name || (latlng.lat.toFixed(5) + ', ' + latlng.lng.toFixed(5));
         mapStatus.textContent = label + ': ' + input.value;
       } catch (_) {
+        if (!isCurrentGeocodePoint(target, latlng, requestId)) return;
         input.value = latlng.lat.toFixed(5) + ', ' + latlng.lng.toFixed(5);
         mapStatus.textContent = 'تم اختيار النقطة بالإحداثيات. تعذّر جلب اسم العنوان الآن.';
       }
