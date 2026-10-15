@@ -2,8 +2,6 @@ import {
   IsDateString,
   IsEnum,
   IsInt,
-  IsLatitude,
-  IsLongitude,
   IsNumber,
   IsOptional,
   IsString,
@@ -22,11 +20,13 @@ export class CreateTripDto {
   pickupAddress!: string;
 
   @IsNumber({ allowNaN: false, allowInfinity: false })
-  @IsLatitude()
+  @Min(-90)
+  @Max(90)
   pickupLatitude!: number;
 
   @IsNumber({ allowNaN: false, allowInfinity: false })
-  @IsLongitude()
+  @Min(-180)
+  @Max(180)
   pickupLongitude!: number;
 
   @IsString()
@@ -34,11 +34,13 @@ export class CreateTripDto {
   destinationAddress!: string;
 
   @IsNumber({ allowNaN: false, allowInfinity: false })
-  @IsLatitude()
+  @Min(-90)
+  @Max(90)
   destinationLatitude!: number;
 
   @IsNumber({ allowNaN: false, allowInfinity: false })
-  @IsLongitude()
+  @Min(-180)
+  @Max(180)
   destinationLongitude!: number;
 
   @IsEnum(TripRideType)
