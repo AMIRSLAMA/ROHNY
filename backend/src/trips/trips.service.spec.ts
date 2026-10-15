@@ -49,6 +49,29 @@ describe('TripsService', () => {
     expect(result.id).toBe('trip-id');
   });
 
+  it('creates a scooter trip for one passenger', async () => {
+    await service.createForRider('rider-id', {
+      ...validInput,
+      rideType: TripRideType.SCOOTER,
+      passengerCount: 1,
+    });
+
+    expect(repository.create).toHaveBeenCalledWith(expect.objectContaining({
+      rideType: TripRideType.SCOOTER,
+      passengerCount: 1,
+    }));
+  });
+
+  it('rejects scooter trips with more than one passenger', async () => {
+    await expect(service.createForRider('rider-id', {
+      ...validInput,
+      rideType: TripRideType.SCOOTER,
+      passengerCount: 2,
+    })).rejects.toThrow(BadRequestException);
+
+    expect(repository.save).not.toHaveBeenCalled();
+  });
+
   it('rejects blank pickup or destination addresses', async () => {
     await expect(service.createForRider('rider-id', {
       ...validInput,
