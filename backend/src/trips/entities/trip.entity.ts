@@ -9,6 +9,7 @@ import {
 
 export enum TripRideType {
   ECONOMY = 'economy',
+  SCOOTER = 'scooter',
   COMFORT = 'comfort',
   FAMILY = 'family',
 }
