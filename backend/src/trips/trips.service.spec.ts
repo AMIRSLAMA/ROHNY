@@ -6,7 +6,11 @@ import { TripsService } from './trips.service';
 
 describe('TripsService', () => {
   let service: TripsService;
-  let repository: jest.Mocked<Pick<Repository<Trip>, 'create' | 'save' | 'find'>>;
+  let repository: {
+    create: jest.Mock;
+    save: jest.Mock;
+    find: jest.Mock;
+  };
 
   const validInput: CreateTripDto = {
     pickupAddress: '  نقطة الانطلاق  ',
