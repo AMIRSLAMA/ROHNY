@@ -28,7 +28,8 @@ export class CreateTripsTable1792000000000 implements MigrationInterface {
         CONSTRAINT "FK_trips_rider_id_users_id" FOREIGN KEY ("rider_id")
           REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE NO ACTION,
         CONSTRAINT "CHK_trips_passenger_count" CHECK ("passenger_count" BETWEEN 1 AND 4),
-        CONSTRAINT "CHK_trips_ride_type" CHECK ("ride_type" IN ('economy','comfort','family')),
+        CONSTRAINT "CHK_trips_scooter_passengers" CHECK ("ride_type" <> 'scooter' OR "passenger_count" = 1),
+        CONSTRAINT "CHK_trips_ride_type" CHECK ("ride_type" IN ('economy','scooter','comfort','family')),
         CONSTRAINT "CHK_trips_payment_method" CHECK ("payment_method" IN ('cash','wallet','card')),
         CONSTRAINT "CHK_trips_status" CHECK ("status" IN ('pending','cancelled'))
       )
