@@ -35,7 +35,7 @@
         <h1>كل مشوار له طريق…<br><span>وروحني معاك.</span></h1>
         <p class="lead">تجربة تنقّل بسيطة وواضحة، من نقطة الانطلاق لحد وجهتك. اختار مشوارك وخلي الباقي علينا.</p>
         <div class="features"><div class="feature">✦ خطوات سهلة</div><div class="feature">⌖ تحديد الرحلة</div><div class="feature">◷ تفاصيل واضحة</div></div>
-        <div class="map-card" aria-label="خريطة اختيار الرحلة"><div class="map-toolbar"><button type="button" id="choose-pickup" aria-pressed="true">📍 اختار نقطة الانطلاق</button><button type="button" id="choose-destination" aria-pressed="false">🏁 اختار الوجهة</button></div><div id="location-options" class="map-toolbar" hidden><button type="button" id="use-current-location">◎ استخدام موقعي الحالي</button><button type="button" id="choose-on-map">⌖ اختيار من الخريطة</button></div><div class="map-help">اختار نقطة الانطلاق أو الوجهة، وبعدها اختار استخدام موقعك الحالي أو تحديد المكان من الخريطة.</div><div id="map" class="map-canvas" role="application" aria-label="خريطة تفاعلية لاختيار الانطلاق والوجهة"></div><div id="map-status" class="map-status" role="status" aria-live="polite">جاري تحميل الخريطة…</div><div id="route-summary" class="route-summary" aria-live="polite" hidden></div><div class="map-legend"><span><i class="legend-dot" style="background:#24a148"></i>نقطة الانطلاق</span><span><i class="legend-dot" style="background:#e05252"></i>الوجهة</span></div></div>
+        <div class="map-card" aria-label="خريطة اختيار الرحلة"><div class="map-toolbar"><button type="button" id="choose-pickup" aria-pressed="true">📍 اختار نقطة الانطلاق</button><button type="button" id="choose-destination" aria-pressed="false">🏁 اختار الوجهة</button><button type="button" id="clear-locations" class="map-toolbar-button">مسح النقطتين</button></div><div id="location-options" class="map-toolbar" hidden><button type="button" id="use-current-location">◎ استخدام موقعي الحالي</button><button type="button" id="choose-on-map">⌖ اختيار من الخريطة</button></div><div class="map-help">اختار نقطة الانطلاق أو الوجهة، وبعدها اختار استخدام موقعك الحالي أو تحديد المكان من الخريطة.</div><div id="map" class="map-canvas" role="application" aria-label="خريطة تفاعلية لاختيار الانطلاق والوجهة"></div><div id="map-status" class="map-status" role="status" aria-live="polite">جاري تحميل الخريطة…</div><div id="route-summary" class="route-summary" aria-live="polite" hidden></div><div class="map-legend"><span><i class="legend-dot" style="background:#24a148"></i>نقطة الانطلاق</span><span><i class="legend-dot" style="background:#e05252"></i>الوجهة</span></div></div>
       </section>
       <section class="booking" aria-labelledby="booking-title">
         <div class="booking-head"><div><h2 id="booking-title">احجز مشوارك</h2><p>ابدأ بتحديد مكانك ووجهتك</p></div><div class="badge">روحني معاك</div></div>
@@ -284,6 +284,25 @@
     useCurrentLocationButton.addEventListener('click', useCurrentLocation);
     pickupInput.addEventListener('focus', () => setActiveTarget('pickup', false));
     destinationInput.addEventListener('focus', () => setActiveTarget('destination', false));
+    pickupInput.addEventListener('input', () => {
+      if (pickupMarker) { map.removeLayer(pickupMarker); pickupMarker = null; refreshRoute(); }
+    });
+    destinationInput.addEventListener('input', () => {
+      if (destinationMarker) { map.removeLayer(destinationMarker); destinationMarker = null; refreshRoute(); }
+    });
+    document.getElementById('clear-locations').addEventListener('click', () => {
+      if (pickupMarker) map.removeLayer(pickupMarker);
+      if (destinationMarker) map.removeLayer(destinationMarker);
+      pickupMarker = null;
+      destinationMarker = null;
+      pickupInput.value = '';
+      destinationInput.value = '';
+      if (routeLine) { map.removeLayer(routeLine); routeLine = null; }
+      refreshRoute();
+      setActiveTarget('pickup', false);
+      mapStatus.textContent = 'تم مسح نقطتي الرحلة. اختار نقطة الانطلاق والوجهة من جديد.';
+      pickupInput.focus();
+    });
     const rideReview = document.getElementById('ride-review');
     const formMessage = document.getElementById('form-message');
     document.getElementById('ride-form').addEventListener('submit', event => {
