@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102c25">
+  <title>ROHNY | روحني — رحلتك تبدأ هنا</title>
+  <style>
+    :root{color-scheme:dark;--bg:#081713;--panel:#10241e;--panel2:#152e26;--line:#29473b;--green:#a8f06a;--muted:#a8bbb1;--text:#f5fbf7;--orange:#ffc078}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 85% 0%,#1b4535 0,transparent 38%),var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif;min-height:100vh}
+    button,input{font:inherit}button{cursor:pointer}.wrap{max-width:1180px;margin:auto;padding:24px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:34px}.brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border-radius:16px;background:var(--green);display:grid;place-items:center;color:#10251b;font-weight:900;font-size:24px;box-shadow:0 8px 30px #a8f06a22}.brand-name{font-size:24px;font-weight:900;letter-spacing:.5px}.brand-sub{font-size:12px;color:var(--muted);margin-top:4px}.top-pill{border:1px solid var(--line);border-radius:999px;padding:10px 14px;color:var(--muted);font-size:13px}
+    .hero{display:grid;grid-template-columns:1.03fr .97fr;gap:28px;align-items:stretch}.intro{padding:28px 4px}.eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--green);background:#a8f06a12;border:1px solid #a8f06a35;padding:9px 13px;border-radius:999px;font-size:13px}.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
+    h1{font-size:clamp(38px,5vw,62px);line-height:1.22;margin:22px 0 16px;letter-spacing:-1.5px}h1 span{color:var(--green)}.lead{font-size:17px;line-height:1.9;color:var(--muted);max-width:520px;margin:0}.features{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}.feature{padding:11px 13px;border:1px solid var(--line);background:#ffffff05;border-radius:13px;color:#d7e5dc;font-size:13px}
+    .booking{background:linear-gradient(145deg,#142e25,#0d201a);border:1px solid var(--line);border-radius:28px;padding:24px;box-shadow:0 24px 70px #0004}.booking-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:20px}.booking h2{font-size:23px;margin:0 0 7px}.booking-head p{font-size:13px;color:var(--muted);margin:0}.badge{font-size:12px;color:var(--green);background:#a8f06a13;border-radius:10px;padding:8px 10px;white-space:nowrap}
+    .field{position:relative;margin:12px 0}.field label{display:block;font-size:13px;color:var(--muted);margin:0 0 8px}.field input{width:100%;border:1px solid var(--line);border-radius:14px;background:#081713;color:var(--text);padding:15px 42px 15px 14px;outline:none}.field input:focus{border-color:var(--green);box-shadow:0 0 0 3px #a8f06a12}.field .pin{position:absolute;right:15px;top:39px;color:var(--green);font-size:17px}.route-line{height:17px;border-right:1px dashed #527564;margin:0 23px}
+    .section-title{font-size:14px;font-weight:700;margin:22px 0 12px}.rides{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.ride{background:#0b1c16;border:1px solid var(--line);border-radius:16px;padding:13px 8px;text-align:center;color:var(--text);transition:.15s}.ride[aria-pressed="true"]{border-color:var(--green);background:#a8f06a12;box-shadow:inset 0 0 0 1px #a8f06a35}.ride-icon{font-size:25px;margin-bottom:8px}.ride strong{display:block;font-size:13px}.ride small{display:block;color:var(--muted);font-size:11px;margin-top:6px}
+    .estimate{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--line);margin-top:18px;padding-top:17px}.estimate small{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}.price{font-size:24px;font-weight:900;color:var(--green)}.price span{font-size:12px;color:var(--muted);font-weight:400}.primary{width:100%;margin-top:17px;border:0;border-radius:15px;background:var(--green);color:#10251b;padding:16px;font-weight:900;font-size:16px;box-shadow:0 10px 24px #a8f06a20}.primary:hover{filter:brightness(1.05)}.note{font-size:11px;line-height:1.8;text-align:center;color:#8fa69a;margin:12px 0 0}
+    .map-card{margin-top:28px;min-height:145px;border:1px solid var(--line);border-radius:24px;overflow:hidden;position:relative;background-color:#0d201a;background-image:linear-gradient(30deg,transparent 47%,#2d5140 48%,#2d5140 50%,transparent 51%),linear-gradient(115deg,transparent 43%,#244536 44%,#244536 46%,transparent 47%),linear-gradient(90deg,transparent 48%,#1c392c 49%,#1c392c 51%,transparent 52%);background-size:130px 100px,180px 140px,80px 100%}.map-overlay{position:absolute;inset:0;background:linear-gradient(90deg,#081713e8,#08171380);display:flex;align-items:center;justify-content:space-between;gap:16px;padding:24px}.map-title{font-weight:800;font-size:18px}.map-sub{color:var(--muted);font-size:13px;margin-top:7px}.map-pin{width:48px;height:48px;flex:0 0 auto;display:grid;place-items:center;border-radius:16px;background:var(--green);color:#10251b;font-size:23px}
+    footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#80968a;font-size:12px;padding:24px 2px 8px}
+    @media(max-width:800px){.wrap{padding:17px}.hero{grid-template-columns:1fr;gap:18px}.intro{padding:12px 2px}.lead{font-size:15px}.booking{padding:19px}.map-overlay{align-items:flex-start}.top-pill{font-size:11px}header{margin-bottom:20px}h1{margin-top:18px}}
+    @media(max-width:390px){.rides{gap:6px}.ride{padding:12px 4px}.booking-head{display:block}.badge{display:inline-block;margin-top:12px}.brand-name{font-size:21px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand"><div class="logo" aria-hidden="true">ر</div><div><div class="brand-name">ROHNY <span style="color:var(--green)">| روحني</span></div><div class="brand-sub">مشوارك أسهل مما تتخيل</div></div></div>
+      <div class="top-pill">● تجربة الراكب — واجهة أولية</div>
+    </header>
+    <main class="hero">
+      <section class="intro">
+        <div class="eyebrow"><span class="dot"></span> رحلتك تبدأ بخطوة</div>
+        <h1>كل مشوار له طريق…<br><span>وروحني معاك.</span></h1>
+        <p class="lead">تجربة تنقّل بسيطة وواضحة، من نقطة الانطلاق لحد وجهتك. اختار مشوارك وخلي الباقي علينا.</p>
+        <div class="features"><div class="feature">✦ خطوات سهلة</div><div class="feature">⌖ تحديد الرحلة</div><div class="feature">◷ تفاصيل واضحة</div></div>
+        <div class="map-card"><div class="map-overlay"><div><div class="map-title">كل مدينة… أقرب ليك</div><div class="map-sub">هنضيف الخريطة الحية وتحديد الموقع في مرحلة ربط الرحلات.</div></div><div class="map-pin">⌖</div></div></div>
+      </section>
+      <section class="booking" aria-labelledby="booking-title">
+        <div class="booking-head"><div><h2 id="booking-title">احجز مشوارك</h2><p>ابدأ بتحديد مكانك ووجهتك</p></div><div class="badge">روحني معاك</div></div>
+        <form id="ride-form">
+          <div class="field"><label for="pickup">هتركب منين؟</label><span class="pin" aria-hidden="true">⌖</span><input id="pickup" name="pickup" placeholder="اكتب نقطة الانطلاق" autocomplete="street-address" required></div>
+          <div class="route-line" aria-hidden="true"></div>
+          <div class="field"><label for="destination">رايح فين؟</label><span class="pin" aria-hidden="true">◎</span><input id="destination" name="destination" placeholder="اكتب وجهتك" required></div>
+          <div class="section-title">اختار نوع الرحلة</div>
+          <div class="rides" role="group" aria-label="نوع الرحلة">
+            <button class="ride" type="button" data-ride="economy" aria-pressed="true"><div class="ride-icon">🚗</div><strong>اقتصادي</strong><small>مريح وعملي</small></button>
+            <button class="ride" type="button" data-ride="comfort" aria-pressed="false"><div class="ride-icon">🚘</div><strong>مريح</strong><small>مساحة أكبر</small></button>
+            <button class="ride" type="button" data-ride="family" aria-pressed="false"><div class="ride-icon">🚙</div><strong>عائلي</strong><small>للجميع</small></button>
+          </div>
+          <div class="estimate"><div><small>السعر</small><div class="price">يُحدد لاحقًا <span>حسب المسافة</span></div></div><div style="text-align:left"><small>الدفع</small><strong>اختيار لاحقًا</strong></div></div>
+          <button class="primary" type="submit">متابعة طلب الرحلة ←</button>
+          <p class="note">دي واجهة أولية للتصميم فقط؛ طلب الرحلات والخريطة والأسعار لسه هيتربطوا بالـ API قبل الاستخدام الفعلي.</p>
+          <p id="form-message" role="status" aria-live="polite" style="display:none;color:var(--orange);font-size:13px;line-height:1.8"></p>
+        </form>
+      </section>
+    </main>
+    <footer><span>© ROHNY — روحني</span><span>واجهة مستقلة عن Hesbah وHesbah Offer</span></footer>
+  </div>
+  <script>
+    const rideButtons = [...document.querySelectorAll('[data-ride]')];
+    rideButtons.forEach(button => button.addEventListener('click', () => {
+      rideButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    }));
+    document.getElementById('ride-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const message = document.getElementById('form-message');
+      message.textContent = 'تمام! التصميم جاهز للخطوة التالية. لسه محتاجين نربط تسجيل الدخول وواجهة الرحلات بالخادم قبل إرسال طلب حقيقي.';
+      message.style.display = 'block';
+    });
+  </script>
+</body>
+</html>
