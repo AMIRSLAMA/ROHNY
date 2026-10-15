@@ -105,6 +105,7 @@
     }
     setMinimumScheduleTime();
     scheduleButtons.forEach(button => button.addEventListener('click', () => {
+      invalidateRideReview();
       selectedSchedule = button.dataset.schedule;
       scheduleButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
       scheduleField.hidden = selectedSchedule !== 'later';
@@ -112,10 +113,12 @@
       if (selectedSchedule === 'later') setMinimumScheduleTime();
     }));
     rideButtons.forEach(button => button.addEventListener('click', () => {
+      invalidateRideReview();
       selectedRide = button.dataset.ride;
       rideButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
     }));
     paymentButtons.forEach(button => button.addEventListener('click', () => {
+      invalidateRideReview();
       selectedPayment = button.dataset.payment;
       paymentButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
     }));
@@ -204,6 +207,7 @@
         });
     }
     document.getElementById('swap-locations').addEventListener('click', () => {
+      invalidateRideReview();
       const oldPickup = pickupInput.value;
       pickupInput.value = destinationInput.value;
       destinationInput.value = oldPickup;
@@ -261,6 +265,7 @@
           option.className = 'place-result';
           option.textContent = place.display_name || (place.lat + ', ' + place.lon);
           option.addEventListener('click', () => {
+            invalidateRideReview();
             const point = L.latLng(Number(place.lat), Number(place.lon));
             const isPickup = target === 'pickup';
             const oldMarker = isPickup ? pickupMarker : destinationMarker;
@@ -304,6 +309,7 @@
       }
     }
     map.on('click', async event => {
+      invalidateRideReview();
       const target = activeTarget;
       const marker = target === 'pickup' ? pickupMarker : destinationMarker;
       if (marker) map.removeLayer(marker);
@@ -323,6 +329,7 @@
       mapStatus.textContent = 'بنطلب إذن تحديد موقعك…';
       useCurrentLocationButton.disabled = true;
       navigator.geolocation.getCurrentPosition(position => {
+        invalidateRideReview();
         const point = L.latLng(position.coords.latitude, position.coords.longitude);
         const isPickup = activeTarget === 'pickup';
         const oldMarker = isPickup ? pickupMarker : destinationMarker;
@@ -364,6 +371,7 @@
       if (destinationMarker) { map.removeLayer(destinationMarker); destinationMarker = null; refreshRoute(); }
     });
     document.getElementById('clear-locations').addEventListener('click', () => {
+      invalidateRideReview();
       if (pickupMarker) map.removeLayer(pickupMarker);
       if (destinationMarker) map.removeLayer(destinationMarker);
       pickupMarker = null;
@@ -378,6 +386,9 @@
     });
     const rideReview = document.getElementById('ride-review');
     const formMessage = document.getElementById('form-message');
+    document.getElementById('passengers').addEventListener('change', invalidateRideReview);
+    document.getElementById('trip-note').addEventListener('input', invalidateRideReview);
+    scheduledAtInput.addEventListener('change', invalidateRideReview);
     document.getElementById('ride-form').addEventListener('submit', event => {
       event.preventDefault();
       if (!pickupInput.value.trim() || !destinationInput.value.trim()) {
