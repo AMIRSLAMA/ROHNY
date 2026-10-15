@@ -16,6 +16,10 @@ export class TripsService {
       throw new BadRequestException('Pickup and destination addresses are required');
     }
 
+    if (input.rideType === 'scooter' && input.passengerCount !== 1) {
+      throw new BadRequestException('Scooter trips allow one passenger only');
+    }
+
     const scheduledAt = input.scheduledAt ? new Date(input.scheduledAt) : null;
     if (scheduledAt && scheduledAt.getTime() < Date.now() + 5 * 60 * 1000) {
       throw new BadRequestException('Scheduled trips must be at least five minutes in the future');
