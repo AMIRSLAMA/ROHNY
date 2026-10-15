@@ -3,14 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { User } from '../users/entities/user.entity';
 import { Trip } from './entities/trip.entity';
+import { AdminTripsController } from './admin-trips.controller';
 import { TripsController } from './trips.controller';
 import { TripsService } from './trips.service';
 
 @Module({
-  // AuthTokenGuard is used by TripsController in this module context.
-  // Register User here as well so its injected UserRepository is available.
+  // Register User here because AuthTokenGuard injects its repository.
   imports: [TypeOrmModule.forFeature([Trip, User]), AuthModule],
-  controllers: [TripsController],
+  controllers: [TripsController, AdminTripsController],
   providers: [TripsService],
 })
 export class TripsModule {}
