@@ -9,18 +9,18 @@
   <style>
     :root{color-scheme:dark;--bg:#081713;--panel:#10241e;--panel2:#152e26;--line:#29473b;--green:#a8f06a;--muted:#a8bbb1;--text:#f5fbf7;--orange:#ffc078}
     *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 85% 0%,#1b4535 0,transparent 38%),var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif;min-height:100vh}
-    button,input{font:inherit}button{cursor:pointer}.wrap{max-width:1180px;margin:auto;padding:24px}
+    button,input,select{font:inherit}button,select{cursor:pointer}.wrap{max-width:1180px;margin:auto;padding:24px}
     header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:34px}.brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border-radius:16px;background:var(--green);display:grid;place-items:center;color:#10251b;font-weight:900;font-size:24px;box-shadow:0 8px 30px #a8f06a22}.brand-name{font-size:24px;font-weight:900;letter-spacing:.5px}.brand-sub{font-size:12px;color:var(--muted);margin-top:4px}.top-pill{border:1px solid var(--line);border-radius:999px;padding:10px 14px;color:var(--muted);font-size:13px}
     .hero{display:grid;grid-template-columns:1.03fr .97fr;gap:28px;align-items:stretch}.intro{padding:28px 4px}.eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--green);background:#a8f06a12;border:1px solid #a8f06a35;padding:9px 13px;border-radius:999px;font-size:13px}.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
     h1{font-size:clamp(38px,5vw,62px);line-height:1.22;margin:22px 0 16px;letter-spacing:-1.5px}h1 span{color:var(--green)}.lead{font-size:17px;line-height:1.9;color:var(--muted);max-width:520px;margin:0}.features{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}.feature{padding:11px 13px;border:1px solid var(--line);background:#ffffff05;border-radius:13px;color:#d7e5dc;font-size:13px}
     .booking{background:linear-gradient(145deg,#142e25,#0d201a);border:1px solid var(--line);border-radius:28px;padding:24px;box-shadow:0 24px 70px #0004}.booking-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:20px}.booking h2{font-size:23px;margin:0 0 7px}.booking-head p{font-size:13px;color:var(--muted);margin:0}.badge{font-size:12px;color:var(--green);background:#a8f06a13;border-radius:10px;padding:8px 10px;white-space:nowrap}
-    .field{position:relative;margin:12px 0}.field label{display:block;font-size:13px;color:var(--muted);margin:0 0 8px}.field input{width:100%;border:1px solid var(--line);border-radius:14px;background:#081713;color:var(--text);padding:15px 42px 15px 14px;outline:none}.field input:focus{border-color:var(--green);box-shadow:0 0 0 3px #a8f06a12}.field .pin{position:absolute;right:15px;top:39px;color:var(--green);font-size:17px}.route-line{height:17px;border-right:1px dashed #527564;margin:0 23px}
-    .section-title{font-size:14px;font-weight:700;margin:22px 0 12px}.rides{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.ride{background:#0b1c16;border:1px solid var(--line);border-radius:16px;padding:13px 8px;text-align:center;color:var(--text);transition:.15s}.ride[aria-pressed="true"]{border-color:var(--green);background:#a8f06a12;box-shadow:inset 0 0 0 1px #a8f06a35}.ride-icon{font-size:25px;margin-bottom:8px}.ride strong{display:block;font-size:13px}.ride small{display:block;color:var(--muted);font-size:11px;margin-top:6px}
+    .field{position:relative;margin:12px 0}.field label{display:block;font-size:13px;color:var(--muted);margin:0 0 8px}.field input,.field select{width:100%;border:1px solid var(--line);border-radius:14px;background:#081713;color:var(--text);padding:15px 42px 15px 14px;outline:none}.field select{padding-right:14px}.field input:focus,.field select:focus{border-color:var(--green);box-shadow:0 0 0 3px #a8f06a12}.field .pin{position:absolute;right:15px;top:39px;color:var(--green);font-size:17px}.route-line{height:17px;border-right:1px dashed #527564;margin:0 23px}
+    .section-title{font-size:14px;font-weight:700;margin:22px 0 12px}.rides{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.ride{background:#0b1c16;border:1px solid var(--line);border-radius:16px;padding:13px 8px;text-align:center;color:var(--text);transition:.15s}.ride[aria-pressed="true"]{border-color:var(--green);background:#a8f06a12;box-shadow:inset 0 0 0 1px #a8f06a35}.trip-options{display:grid;grid-template-columns:.7fr 1.3fr;gap:12px;margin-top:18px}.payment-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.payment-option{border:1px solid var(--line);border-radius:11px;background:#0b1c16;color:var(--text);padding:11px 4px;font-size:12px}.payment-option[aria-pressed="true"]{border-color:var(--green);background:#a8f06a12;color:var(--green)}.ride-icon{font-size:25px;margin-bottom:8px}.ride strong{display:block;font-size:13px}.ride small{display:block;color:var(--muted);font-size:11px;margin-top:6px}
     .estimate{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--line);margin-top:18px;padding-top:17px}.estimate small{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}.price{font-size:24px;font-weight:900;color:var(--green)}.price span{font-size:12px;color:var(--muted);font-weight:400}.primary{width:100%;margin-top:17px;border:0;border-radius:15px;background:var(--green);color:#10251b;padding:16px;font-weight:900;font-size:16px;box-shadow:0 10px 24px #a8f06a20}.primary:hover{filter:brightness(1.05)}.note{font-size:11px;line-height:1.8;text-align:center;color:#8fa69a;margin:12px 0 0}
     .map-card{margin-top:28px;border:1px solid var(--line);border-radius:24px;overflow:hidden;background:#0d201a}.map-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px;background:#10241e;border-bottom:1px solid var(--line)}.map-toolbar button{border:1px solid var(--line);border-radius:11px;background:#081713;color:var(--text);padding:10px 12px;font-size:12px}.map-toolbar button[aria-pressed="true"]{border-color:var(--green);background:#a8f06a18;color:var(--green)}.map-toolbar button:disabled{opacity:.55;cursor:wait}.map-toolbar[hidden]{display:none}.map-help{padding:0 14px 10px;background:#10241e;color:var(--muted);font-size:12px;line-height:1.7}.map-canvas{height:330px;width:100%;background:#dfe8df}.map-status{padding:10px 13px;color:var(--muted);font-size:12px;line-height:1.7;min-height:40px}.route-summary{display:flex;gap:10px;flex-wrap:wrap;padding:0 13px 12px;color:var(--text);font-size:12px}.route-summary[hidden]{display:none}.route-chip{border:1px solid var(--line);background:#10241e;border-radius:10px;padding:8px 11px}.route-chip strong{color:var(--green);margin-right:4px}.ride-review{margin-top:16px;padding:16px;border:1px solid var(--green);border-radius:16px;background:#a8f06a0a}.ride-review[hidden]{display:none}.ride-review h3{margin:0 0 12px;font-size:17px}.review-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}.review-row span{color:var(--muted);flex:0 0 auto}.review-row strong{max-width:70%;overflow-wrap:anywhere;text-align:left}.map-toolbar-button{border:1px solid var(--line);border-radius:11px;background:#081713;color:var(--text);padding:10px 12px;font:inherit;font-size:13px;margin-top:10px;cursor:pointer}.map-legend{display:flex;gap:12px;flex-wrap:wrap;padding:0 13px 12px;color:var(--muted);font-size:11px}.legend-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-left:5px}.leaflet-container{font-family:Tahoma,Arial,sans-serif}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#10241e;color:#f5fbf7}.leaflet-control-zoom a{color:#10241e!important}
     footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#80968a;font-size:12px;padding:24px 2px 8px}
     @media(max-width:800px){.wrap{padding:17px}.hero{grid-template-columns:1fr;gap:18px}.intro{padding:12px 2px}.lead{font-size:15px}.booking{padding:19px}.map-overlay{align-items:flex-start}.top-pill{font-size:11px}header{margin-bottom:20px}h1{margin-top:18px}}
-    @media(max-width:390px){.rides{gap:6px}.ride{padding:12px 4px}.booking-head{display:block}.badge{display:inline-block;margin-top:12px}.brand-name{font-size:21px}}
+    @media(max-width:480px){.trip-options{grid-template-columns:1fr;gap:0}}@media(max-width:390px){.rides{gap:6px}.ride{padding:12px 4px}.booking-head{display:block}.badge{display:inline-block;margin-top:12px}.brand-name{font-size:21px}}
   </style>
 </head>
 <body>
@@ -49,6 +49,14 @@
             <button class="ride" type="button" data-ride="comfort" aria-pressed="false"><div class="ride-icon">🚘</div><strong>مريح</strong><small>مساحة أكبر</small></button>
             <button class="ride" type="button" data-ride="family" aria-pressed="false"><div class="ride-icon">🚙</div><strong>عائلي</strong><small>للجميع</small></button>
           </div>
+          <div class="trip-options">
+            <div class="field"><label for="passengers">عدد الركاب</label><select id="passengers" name="passengers"><option value="1">راكب واحد</option><option value="2">راكبان</option><option value="3">3 ركاب</option><option value="4">4 ركاب</option></select></div>
+            <div class="field"><label>طريقة الدفع المفضلة</label><div class="payment-options" role="group" aria-label="طريقة الدفع">
+              <button type="button" class="payment-option" data-payment="cash" aria-pressed="true">💵 كاش</button>
+              <button type="button" class="payment-option" data-payment="wallet" aria-pressed="false">📱 محفظة</button>
+              <button type="button" class="payment-option" data-payment="card" aria-pressed="false">💳 بطاقة</button>
+            </div></div>
+          </div>
           <div class="estimate"><div><small>السعر</small><div class="price">يُحدد لاحقًا <span>بعد ربط التسعير</span></div></div><div style="text-align:left"><small>الدفع</small><strong>اختيار لاحقًا</strong></div></div>
           <button class="primary" type="submit">مراجعة تفاصيل الرحلة ←</button>
           <p class="note">دي مراجعة تجريبية للبيانات فقط؛ مفيش طلب حقيقي هيتبعت للسائق قبل ربط النظام بالخادم.</p>
@@ -57,6 +65,8 @@
             <div class="review-row"><span>من</span><strong id="review-pickup"></strong></div>
             <div class="review-row"><span>إلى</span><strong id="review-destination"></strong></div>
             <div class="review-row"><span>نوع الرحلة</span><strong id="review-type"></strong></div>
+            <div class="review-row"><span>عدد الركاب</span><strong id="review-passengers"></strong></div>
+            <div class="review-row"><span>طريقة الدفع المفضلة</span><strong id="review-payment"></strong></div>
             <div class="review-row" id="review-distance-row" hidden><span>المسافة التقريبية</span><strong id="review-distance"></strong></div>
             <div class="review-row" id="review-time-row" hidden><span>زمن القيادة التقريبي</span><strong id="review-time"></strong></div>
             <p class="note">المراجعة دي لا تنشئ حجزًا حقيقيًا، والسعر النهائي لم يُحسب بعد.</p>
@@ -73,9 +83,16 @@
     const rideButtons = [...document.querySelectorAll('[data-ride]')];
     const rideNames = {economy:'اقتصادي',comfort:'مريح',family:'عائلي'};
     let selectedRide = 'economy';
+    let selectedPayment = 'cash';
+    const paymentNames = {cash:'كاش',wallet:'محفظة إلكترونية',card:'بطاقة بنكية'};
+    const paymentButtons = [...document.querySelectorAll('[data-payment]')];
     rideButtons.forEach(button => button.addEventListener('click', () => {
       selectedRide = button.dataset.ride;
       rideButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    }));
+    paymentButtons.forEach(button => button.addEventListener('click', () => {
+      selectedPayment = button.dataset.payment;
+      paymentButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
     }));
     const pickupInput = document.getElementById('pickup');
     const destinationInput = document.getElementById('destination');
@@ -236,6 +253,8 @@
       document.getElementById('review-pickup').textContent = pickupInput.value.trim();
       document.getElementById('review-destination').textContent = destinationInput.value.trim();
       document.getElementById('review-type').textContent = rideNames[selectedRide];
+      document.getElementById('review-passengers').textContent = document.getElementById('passengers').selectedOptions[0].textContent;
+      document.getElementById('review-payment').textContent = paymentNames[selectedPayment] + ' (اختيار مبدئي)';
       document.getElementById('review-distance').textContent = routeDistanceLabel;
       document.getElementById('review-time').textContent = routeTimeLabel;
       document.getElementById('review-distance-row').hidden = !routeDistanceLabel;
