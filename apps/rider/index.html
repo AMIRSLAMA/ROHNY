@@ -351,10 +351,16 @@
     useCurrentLocationButton.addEventListener('click', useCurrentLocation);
     pickupInput.addEventListener('focus', () => setActiveTarget('pickup', false));
     destinationInput.addEventListener('focus', () => setActiveTarget('destination', false));
+    function invalidateRideReview() {
+      rideReview.hidden = true;
+      formMessage.style.display = 'none';
+    }
     pickupInput.addEventListener('input', () => {
+      invalidateRideReview();
       if (pickupMarker) { map.removeLayer(pickupMarker); pickupMarker = null; refreshRoute(); }
     });
     destinationInput.addEventListener('input', () => {
+      invalidateRideReview();
       if (destinationMarker) { map.removeLayer(destinationMarker); destinationMarker = null; refreshRoute(); }
     });
     document.getElementById('clear-locations').addEventListener('click', () => {
@@ -375,8 +381,20 @@
     document.getElementById('ride-form').addEventListener('submit', event => {
       event.preventDefault();
       if (!pickupInput.value.trim() || !destinationInput.value.trim()) {
-        formMessage.textContent = 'حدد نقطة الانطلاق والوجهة من الخريطة أو اكتب العنوانين أولًا.';
+        formMessage.textContent = 'اكتب عنوان نقطة الانطلاق والوجهة أولًا.';
         formMessage.style.display = 'block';
+        return;
+      }
+      if (!pickupMarker || !destinationMarker) {
+        const missingTarget = !pickupMarker ? 'pickup' : 'destination';
+        formMessage.textContent = !pickupMarker && !destinationMarker
+          ? 'أكد نقطة الانطلاق والوجهة باختيار نتيجة البحث أو تحديد كل نقطة على الخريطة.'
+          : (!pickupMarker
+            ? 'أكد نقطة الانطلاق باختيار نتيجة البحث أو تحديدها على الخريطة.'
+            : 'أكد الوجهة باختيار نتيجة البحث أو تحديدها على الخريطة.');
+        formMessage.style.display = 'block';
+        setActiveTarget(missingTarget, true);
+        document.getElementById('map').scrollIntoView({behavior:'smooth',block:'center'});
         return;
       }
       if (selectedSchedule === 'later' && (!scheduledAtInput.value || new Date(scheduledAtInput.value).getTime() < Date.now() + 5 * 60 * 1000)) {
