@@ -239,11 +239,20 @@
       mapStatus.textContent = 'تم تبديل نقطة الانطلاق والوجهة.';
     });
     const placeSearchButtons = [...document.querySelectorAll('[data-search-place]')];
+    const placeSearchRequestIds = {pickup:0,destination:0};
+    function cancelPlaceSearch(target) {
+      placeSearchRequestIds[target]++;
+      const button = placeSearchButtons.find(item => item.dataset.searchPlace === target);
+      if (button) button.disabled = false;
+      const resultsBox = document.getElementById(target + '-search-results');
+      if (resultsBox) { resultsBox.hidden = true; resultsBox.replaceChildren(); }
+    }
     async function searchPlace(target) {
       const input = target === 'pickup' ? pickupInput : destinationInput;
       const resultsBox = document.getElementById(target + '-search-results');
       const button = placeSearchButtons.find(item => item.dataset.searchPlace === target);
       const query = input.value.trim();
+      const requestId = ++placeSearchRequestIds[target];
       resultsBox.replaceChildren();
       resultsBox.hidden = false;
       if (query.length < 3) {
@@ -264,6 +273,7 @@
         const response = await fetch(url.toString(), {headers:{'Accept':'application/json'}});
         if (!response.ok) throw new Error('search');
         const places = await response.json();
+        if (requestId !== placeSearchRequestIds[target] || input.value.trim() !== query) return;
         resultsBox.replaceChildren();
         if (!places.length) {
           const message = document.createElement('div');
@@ -296,13 +306,14 @@
           resultsBox.append(option);
         });
       } catch (_) {
+        if (requestId !== placeSearchRequestIds[target] || input.value.trim() !== query) return;
         resultsBox.replaceChildren();
         const message = document.createElement('div');
         message.className = 'place-search-message';
         message.textContent = 'تعذّر البحث الآن. جرّب مرة أخرى أو اختار المكان من الخريطة.';
         resultsBox.append(message);
       } finally {
-        button.disabled = false;
+        if (requestId === placeSearchRequestIds[target]) button.disabled = false;
       }
     }
     placeSearchButtons.forEach(button => button.addEventListener('click', () => searchPlace(button.dataset.searchPlace)));
@@ -337,6 +348,7 @@
     map.on('click', async event => {
       invalidateRideReview();
       const target = activeTarget;
+      cancelPlaceSearch(target);
       const marker = target === 'pickup' ? pickupMarker : destinationMarker;
       if (marker) map.removeLayer(marker);
       const icon = target === 'pickup' ? pickupIcon : destinationIcon;
@@ -389,14 +401,18 @@
       formMessage.style.display = 'none';
     }
     pickupInput.addEventListener('input', () => {
+      cancelPlaceSearch('pickup');
       invalidateRideReview();
       if (pickupMarker) { map.removeLayer(pickupMarker); pickupMarker = null; refreshRoute(); }
     });
     destinationInput.addEventListener('input', () => {
+      cancelPlaceSearch('destination');
       invalidateRideReview();
       if (destinationMarker) { map.removeLayer(destinationMarker); destinationMarker = null; refreshRoute(); }
     });
     document.getElementById('clear-locations').addEventListener('click', () => {
+      cancelPlaceSearch('pickup');
+      cancelPlaceSearch('destination');
       invalidateRideReview();
       if (pickupMarker) map.removeLayer(pickupMarker);
       if (destinationMarker) map.removeLayer(destinationMarker);
