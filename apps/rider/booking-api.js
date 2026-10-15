@@ -111,7 +111,7 @@
     delivered: 'مكتملة',
     cancelled: 'ملغاة'
   };
-  const rideTypeLabels = { economy: 'اقتصادي', comfort: 'مريح', family: 'عائلي' };
+  const rideTypeLabels = { economy: 'اقتصادي', scooter: 'اسكوتر', comfort: 'مريح', family: 'عائلي' };
   const paymentLabels = { cash: 'كاش', wallet: 'محفظة', card: 'بطاقة' };
 
   function addHistoryRow(container, label, value) {
