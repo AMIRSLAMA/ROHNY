@@ -206,7 +206,7 @@
       bookingStatus.textContent = 'تم إرسال طلب الرحلة بنجاح. الحالة: قيد الانتظار.' +
         (trip.id ? ' رقم الطلب: ' + trip.id : '');
       confirmButton.textContent = 'تم إرسال الطلب';
-      await loadTripHistory();
+      loadTripHistory().catch(() => {});
     } catch (error) {
       bookingStatus.textContent = error.message || 'تعذّر إرسال طلب الرحلة.';
       confirmButton.textContent = 'إعادة المحاولة';
