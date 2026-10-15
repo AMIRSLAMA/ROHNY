@@ -17,7 +17,7 @@
     .field{position:relative;margin:12px 0}.field label{display:block;font-size:13px;color:var(--muted);margin:0 0 8px}.field input{width:100%;border:1px solid var(--line);border-radius:14px;background:#081713;color:var(--text);padding:15px 42px 15px 14px;outline:none}.field input:focus{border-color:var(--green);box-shadow:0 0 0 3px #a8f06a12}.field .pin{position:absolute;right:15px;top:39px;color:var(--green);font-size:17px}.route-line{height:17px;border-right:1px dashed #527564;margin:0 23px}
     .section-title{font-size:14px;font-weight:700;margin:22px 0 12px}.rides{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.ride{background:#0b1c16;border:1px solid var(--line);border-radius:16px;padding:13px 8px;text-align:center;color:var(--text);transition:.15s}.ride[aria-pressed="true"]{border-color:var(--green);background:#a8f06a12;box-shadow:inset 0 0 0 1px #a8f06a35}.ride-icon{font-size:25px;margin-bottom:8px}.ride strong{display:block;font-size:13px}.ride small{display:block;color:var(--muted);font-size:11px;margin-top:6px}
     .estimate{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--line);margin-top:18px;padding-top:17px}.estimate small{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}.price{font-size:24px;font-weight:900;color:var(--green)}.price span{font-size:12px;color:var(--muted);font-weight:400}.primary{width:100%;margin-top:17px;border:0;border-radius:15px;background:var(--green);color:#10251b;padding:16px;font-weight:900;font-size:16px;box-shadow:0 10px 24px #a8f06a20}.primary:hover{filter:brightness(1.05)}.note{font-size:11px;line-height:1.8;text-align:center;color:#8fa69a;margin:12px 0 0}
-    .map-card{margin-top:28px;border:1px solid var(--line);border-radius:24px;overflow:hidden;background:#0d201a}.map-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px;background:#10241e;border-bottom:1px solid var(--line)}.map-toolbar button{border:1px solid var(--line);border-radius:11px;background:#081713;color:var(--text);padding:10px 12px;font-size:12px}.map-toolbar button[aria-pressed="true"]{border-color:var(--green);background:#a8f06a18;color:var(--green)}.map-toolbar button:disabled{opacity:.55;cursor:wait}.map-help{padding:0 14px 10px;background:#10241e;color:var(--muted);font-size:12px;line-height:1.7}.map-canvas{height:330px;width:100%;background:#dfe8df}.map-status{padding:10px 13px;color:var(--muted);font-size:12px;line-height:1.7;min-height:40px}.map-legend{display:flex;gap:12px;flex-wrap:wrap;padding:0 13px 12px;color:var(--muted);font-size:11px}.legend-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-left:5px}.leaflet-container{font-family:Tahoma,Arial,sans-serif}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#10241e;color:#f5fbf7}.leaflet-control-zoom a{color:#10241e!important}
+    .map-card{margin-top:28px;border:1px solid var(--line);border-radius:24px;overflow:hidden;background:#0d201a}.map-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px;background:#10241e;border-bottom:1px solid var(--line)}.map-toolbar button{border:1px solid var(--line);border-radius:11px;background:#081713;color:var(--text);padding:10px 12px;font-size:12px}.map-toolbar button[aria-pressed="true"]{border-color:var(--green);background:#a8f06a18;color:var(--green)}.map-toolbar button:disabled{opacity:.55;cursor:wait}.map-toolbar[hidden]{display:none}.map-help{padding:0 14px 10px;background:#10241e;color:var(--muted);font-size:12px;line-height:1.7}.map-canvas{height:330px;width:100%;background:#dfe8df}.map-status{padding:10px 13px;color:var(--muted);font-size:12px;line-height:1.7;min-height:40px}.map-legend{display:flex;gap:12px;flex-wrap:wrap;padding:0 13px 12px;color:var(--muted);font-size:11px}.legend-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-left:5px}.leaflet-container{font-family:Tahoma,Arial,sans-serif}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#10241e;color:#f5fbf7}.leaflet-control-zoom a{color:#10241e!important}
     footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#80968a;font-size:12px;padding:24px 2px 8px}
     @media(max-width:800px){.wrap{padding:17px}.hero{grid-template-columns:1fr;gap:18px}.intro{padding:12px 2px}.lead{font-size:15px}.booking{padding:19px}.map-overlay{align-items:flex-start}.top-pill{font-size:11px}header{margin-bottom:20px}h1{margin-top:18px}}
     @media(max-width:390px){.rides{gap:6px}.ride{padding:12px 4px}.booking-head{display:block}.badge{display:inline-block;margin-top:12px}.brand-name{font-size:21px}}
@@ -35,7 +35,7 @@
         <h1>كل مشوار له طريق…<br><span>وروحني معاك.</span></h1>
         <p class="lead">تجربة تنقّل بسيطة وواضحة، من نقطة الانطلاق لحد وجهتك. اختار مشوارك وخلي الباقي علينا.</p>
         <div class="features"><div class="feature">✦ خطوات سهلة</div><div class="feature">⌖ تحديد الرحلة</div><div class="feature">◷ تفاصيل واضحة</div></div>
-        <div class="map-card" aria-label="خريطة اختيار الرحلة"><div class="map-toolbar"><button type="button" id="choose-pickup" aria-pressed="true">📍 اختار نقطة الانطلاق</button><button type="button" id="choose-destination" aria-pressed="false">🏁 اختار الوجهة</button><button type="button" id="locate-me">◎ تحديد موقعي</button></div><div class="map-help">اختار «من» أو «إلى»، وبعدها اضغط على المكان المناسب في الخريطة. تقدر تغيّر النقاط في أي وقت.</div><div id="map" class="map-canvas" role="application" aria-label="خريطة تفاعلية لاختيار الانطلاق والوجهة"></div><div id="map-status" class="map-status" role="status" aria-live="polite">جاري تحميل الخريطة…</div><div class="map-legend"><span><i class="legend-dot" style="background:#24a148"></i>نقطة الانطلاق</span><span><i class="legend-dot" style="background:#e05252"></i>الوجهة</span></div></div>
+        <div class="map-card" aria-label="خريطة اختيار الرحلة"><div class="map-toolbar"><button type="button" id="choose-pickup" aria-pressed="true">📍 اختار نقطة الانطلاق</button><button type="button" id="choose-destination" aria-pressed="false">🏁 اختار الوجهة</button></div><div id="location-options" class="map-toolbar" hidden><button type="button" id="use-current-location">◎ استخدام موقعي الحالي</button><button type="button" id="choose-on-map">⌖ اختيار من الخريطة</button></div><div class="map-help">اختار نقطة الانطلاق أو الوجهة، وبعدها اختار استخدام موقعك الحالي أو تحديد المكان من الخريطة.</div><div id="map" class="map-canvas" role="application" aria-label="خريطة تفاعلية لاختيار الانطلاق والوجهة"></div><div id="map-status" class="map-status" role="status" aria-live="polite">جاري تحميل الخريطة…</div><div class="map-legend"><span><i class="legend-dot" style="background:#24a148"></i>نقطة الانطلاق</span><span><i class="legend-dot" style="background:#e05252"></i>الوجهة</span></div></div>
       </section>
       <section class="booking" aria-labelledby="booking-title">
         <div class="booking-head"><div><h2 id="booking-title">احجز مشوارك</h2><p>ابدأ بتحديد مكانك ووجهتك</p></div><div class="badge">روحني معاك</div></div>
@@ -69,6 +69,10 @@
     const mapStatus = document.getElementById('map-status');
     const choosePickup = document.getElementById('choose-pickup');
     const chooseDestination = document.getElementById('choose-destination');
+    const locationOptions = document.getElementById('location-options');
+    const useCurrentLocationButton = document.getElementById('use-current-location');
+    const chooseOnMapButton = document.getElementById('choose-on-map');
+    const locateMeButton = document.createElement('button');
     let activeTarget = 'pickup';
     let pickupMarker = null;
     let destinationMarker = null;
@@ -80,14 +84,23 @@
     }).addTo(map);
     const pickupIcon = L.divIcon({className:'',html:'<div style="width:20px;height:20px;border:3px solid white;border-radius:50%;background:#24a148;box-shadow:0 1px 7px #0008"></div>',iconSize:[20,20],iconAnchor:[10,10]});
     const destinationIcon = L.divIcon({className:'',html:'<div style="width:20px;height:20px;border:3px solid white;border-radius:50%;background:#e05252;box-shadow:0 1px 7px #0008"></div>',iconSize:[20,20],iconAnchor:[10,10]});
-    function setActiveTarget(target) {
+    function setActiveTarget(target, showOptions = true) {
       activeTarget = target;
       choosePickup.setAttribute('aria-pressed', String(target === 'pickup'));
       chooseDestination.setAttribute('aria-pressed', String(target === 'destination'));
-      mapStatus.textContent = target === 'pickup' ? 'اضغط على الخريطة لتحديد نقطة الانطلاق.' : 'اضغط على الخريطة لتحديد الوجهة.';
+      locationOptions.hidden = !showOptions;
+      mapStatus.textContent = target === 'pickup'
+        ? 'نقطة الانطلاق: اختار استخدام موقعك الحالي أو تحديد المكان من الخريطة.'
+        : 'الوجهة: اختار تحديد المكان من الخريطة، أو استخدم موقعك الحالي لو ده مكان وصولك.';
     }
     choosePickup.addEventListener('click', () => setActiveTarget('pickup'));
     chooseDestination.addEventListener('click', () => setActiveTarget('destination'));
+    chooseOnMapButton.addEventListener('click', () => {
+      locationOptions.hidden = true;
+      mapStatus.textContent = activeTarget === 'pickup'
+        ? 'اضغط على الخريطة لتحديد نقطة الانطلاق.'
+        : 'اضغط على الخريطة لتحديد الوجهة.';
+    });
     function refreshRoute() {
       const points = [];
       if (pickupMarker) points.push(pickupMarker.getLatLng());
@@ -122,20 +135,27 @@
       const input = target === 'pickup' ? pickupInput : destinationInput;
       await reverseGeocode(event.latlng, input, label);
     });
-    document.getElementById('locate-me').addEventListener('click', () => {
+    function useCurrentLocation() {
       if (!navigator.geolocation) {
         mapStatus.textContent = 'المتصفح لا يدعم تحديد الموقع.';
         return;
       }
       mapStatus.textContent = 'بنطلب إذن تحديد موقعك…';
+      useCurrentLocationButton.disabled = true;
       navigator.geolocation.getCurrentPosition(position => {
         const point = L.latLng(position.coords.latitude, position.coords.longitude);
+        const isPickup = activeTarget === 'pickup';
+        const oldMarker = isPickup ? pickupMarker : destinationMarker;
+        if (oldMarker) map.removeLayer(oldMarker);
+        const icon = isPickup ? pickupIcon : destinationIcon;
+        const label = isPickup ? 'نقطة الانطلاق' : 'الوجهة';
+        const marker = L.marker(point, {icon}).addTo(map).bindPopup(isPickup ? 'موقعك الحالي — نقطة الانطلاق' : 'موقعك الحالي — الوجهة').openPopup();
+        if (isPickup) pickupMarker = marker; else destinationMarker = marker;
         map.setView(point, 16);
-        setActiveTarget('pickup');
-        if (pickupMarker) map.removeLayer(pickupMarker);
-        pickupMarker = L.marker(point, {icon:pickupIcon}).addTo(map).bindPopup('موقعك الحالي').openPopup();
         refreshRoute();
-        reverseGeocode(point, pickupInput, 'موقعك الحالي');
+        locationOptions.hidden = true;
+        reverseGeocode(point, isPickup ? pickupInput : destinationInput, label);
+        useCurrentLocationButton.disabled = false;
       }, error => {
         const messages = {
           1:'إذن الموقع مرفوض. اسمح للموقع باستخدام موقعك من إعدادات المتصفح.',
@@ -145,10 +165,12 @@
         mapStatus.textContent = error.code === 1 && !window.isSecureContext
           ? 'تحديد الموقع يحتاج اتصال HTTPS آمن. اختيار النقاط بالضغط على الخريطة متاح حاليًا.'
           : (messages[error.code] || 'تعذّر تحديد موقعك. اختار نقطة من الخريطة بدلًا من ذلك.');
+        useCurrentLocationButton.disabled = false;
       }, {enableHighAccuracy:true,timeout:12000,maximumAge:30000});
-    });
-    pickupInput.addEventListener('focus', () => setActiveTarget('pickup'));
-    destinationInput.addEventListener('focus', () => setActiveTarget('destination'));
+    }
+    useCurrentLocationButton.addEventListener('click', useCurrentLocation);
+    pickupInput.addEventListener('focus', () => setActiveTarget('pickup', false));
+    destinationInput.addEventListener('focus', () => setActiveTarget('destination', false));
     document.getElementById('ride-form').addEventListener('submit', event => {
       event.preventDefault();
       const message = document.getElementById('form-message');
@@ -160,7 +182,7 @@
       message.style.display = 'block';
     });
     window.addEventListener('load', () => setTimeout(() => map.invalidateSize(), 100));
-    setActiveTarget('pickup');
+    setActiveTarget('pickup', false);
   </script>
 </body>
 </html>
