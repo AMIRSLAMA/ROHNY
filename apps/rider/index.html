@@ -163,6 +163,7 @@
     let routeDistanceLabel = '';
     let routeTimeLabel = '';
     function refreshRoute() {
+      const requestId = ++routeRequestId;
       const points = [];
       if (pickupMarker) points.push(pickupMarker.getLatLng());
       if (destinationMarker) points.push(destinationMarker.getLatLng());
@@ -172,7 +173,6 @@
       routeDistanceLabel = '';
       routeTimeLabel = '';
       if (points.length !== 2) return;
-      const requestId = ++routeRequestId;
       routeLine = L.polyline(points, {color:'#a8f06a',weight:4,dashArray:'7 7',opacity:.85}).addTo(map);
       mapStatus.textContent = 'تم تحديد النقطتين. جاري حساب مسار الطريق والمسافة التقريبية…';
       const start = points[0];
