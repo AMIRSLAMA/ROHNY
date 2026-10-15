@@ -125,6 +125,11 @@
     const pickupInput = document.getElementById('pickup');
     const destinationInput = document.getElementById('destination');
     const mapStatus = document.getElementById('map-status');
+    const originalMapStatus = mapStatus.textContent;
+    let mapInitialized = false;
+    function setMapStatus(message) {
+      mapStatus.textContent = message;
+    }
     const choosePickup = document.getElementById('choose-pickup');
     const chooseDestination = document.getElementById('choose-destination');
     const locationOptions = document.getElementById('location-options');
@@ -135,10 +140,18 @@
     let destinationMarker = null;
     let routeLine = null;
     const map = L.map('map', { zoomControl: true }).setView([30.0131, 31.2089], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    const mapTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>'
-    }).addTo(map);
+    });
+    mapTiles.on('load', () => {
+      mapInitialized = true;
+      setMapStatus('الخريطة جاهزة. اختار نقطة الانطلاق والوجهة لبدء تجهيز الرحلة.');
+    });
+    mapTiles.on('tileerror', () => {
+      if (!mapInitialized) setMapStatus('الخريطة بتواجه مشكلة في تحميل الصور. تأكد من الاتصال، أو أعد تحميل الصفحة.');
+    });
+    mapTiles.addTo(map);
     const pickupIcon = L.divIcon({className:'',html:'<div style="width:20px;height:20px;border:3px solid white;border-radius:50%;background:#24a148;box-shadow:0 1px 7px #0008"></div>',iconSize:[20,20],iconAnchor:[10,10]});
     const destinationIcon = L.divIcon({className:'',html:'<div style="width:20px;height:20px;border:3px solid white;border-radius:50%;background:#e05252;box-shadow:0 1px 7px #0008"></div>',iconSize:[20,20],iconAnchor:[10,10]});
     function setActiveTarget(target, showOptions = true) {
@@ -146,9 +159,9 @@
       choosePickup.setAttribute('aria-pressed', String(target === 'pickup'));
       chooseDestination.setAttribute('aria-pressed', String(target === 'destination'));
       locationOptions.hidden = !showOptions;
-      mapStatus.textContent = target === 'pickup'
+      setMapStatus(target === 'pickup'
         ? 'نقطة الانطلاق: اختار استخدام موقعك الحالي أو تحديد المكان من الخريطة.'
-        : 'الوجهة: اختار تحديد المكان من الخريطة، أو استخدم موقعك الحالي لو ده مكان وصولك.';
+        : 'الوجهة: اختار تحديد المكان من الخريطة، أو استخدم موقعك الحالي لو ده مكان وصولك.');
     }
     choosePickup.addEventListener('click', () => setActiveTarget('pickup'));
     chooseDestination.addEventListener('click', () => setActiveTarget('destination'));
