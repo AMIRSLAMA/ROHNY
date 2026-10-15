@@ -15,6 +15,9 @@
   const logoutButton = document.getElementById('auth-logout');
   const bookingStatus = document.getElementById('booking-status');
   const confirmButton = document.getElementById('confirm-ride');
+  const historyStatus = document.getElementById('trip-history-status');
+  const historyList = document.getElementById('trip-history-list');
+  const refreshHistoryButton = document.getElementById('refresh-trip-history');
 
   function setStatus(message, signedIn) {
     status.textContent = message;
@@ -23,6 +26,11 @@
     logoutButton.hidden = !signedIn;
     emailInput.disabled = signedIn;
     passwordInput.disabled = signedIn;
+    refreshHistoryButton.hidden = !signedIn;
+    if (!signedIn) {
+      historyList.replaceChildren();
+      historyStatus.textContent = 'سجّل الدخول لعرض رحلاتك السابقة.';
+    }
   }
 
   function clearSession(message) {
@@ -73,6 +81,7 @@
       token = result.accessToken;
       sessionStorage.setItem(tokenKey, token);
       setStatus('تم تسجيل الدخول: ' + (result.user.email || email), true);
+      await loadTripHistory();
     } catch (error) {
       setStatus(error.message || 'تعذّر تسجيل الدخول.', false);
     } finally {
@@ -90,6 +99,76 @@
   } else {
     setStatus('سجّل الدخول أو أنشئ حسابًا قبل طلب الرحلة.', false);
   }
+
+  const tripStatusLabels = {
+    pending: 'قيد الانتظار',
+    accepted: 'تم قبول الرحلة',
+    preparing: 'جارٍ التجهيز',
+    ready_for_pickup: 'السائق جاهز للاستلام',
+    driver_assigned: 'تم تعيين سائق',
+    picked_up: 'تم الاستلام',
+    out_for_delivery: 'في الطريق',
+    delivered: 'مكتملة',
+    cancelled: 'ملغاة'
+  };
+  const rideTypeLabels = { economy: 'اقتصادي', comfort: 'مريح', family: 'عائلي' };
+  const paymentLabels = { cash: 'كاش', wallet: 'محفظة', card: 'بطاقة' };
+
+  function addHistoryRow(container, label, value) {
+    const row = document.createElement('div');
+    row.className = 'review-row';
+    const key = document.createElement('span');
+    key.textContent = label;
+    const val = document.createElement('strong');
+    val.textContent = value || '—';
+    row.append(key, val);
+    container.append(row);
+  }
+
+  async function loadTripHistory() {
+    if (!token) return;
+    historyStatus.textContent = 'جارٍ تحميل سجل الرحلات…';
+    refreshHistoryButton.disabled = true;
+    try {
+      const trips = await api('/trips/mine');
+      if (!Array.isArray(trips)) throw new Error('صيغة سجل الرحلات من الخادم غير متوقعة.');
+      historyList.replaceChildren();
+      if (trips.length === 0) {
+        historyStatus.textContent = 'لا توجد رحلات محفوظة في حسابك حتى الآن.';
+        return;
+      }
+      historyStatus.textContent = 'عدد الرحلات: ' + trips.length;
+      trips.forEach((trip) => {
+        const card = document.createElement('article');
+        card.className = 'ride-review';
+        const title = document.createElement('h3');
+        title.textContent = 'رحلة ' + (trip.id ? String(trip.id).slice(0, 8) : '');
+        card.append(title);
+        addHistoryRow(card, 'من', trip.pickupAddress);
+        addHistoryRow(card, 'إلى', trip.destinationAddress);
+        addHistoryRow(card, 'الحالة', tripStatusLabels[trip.status] || 'غير معروفة');
+        addHistoryRow(card, 'نوع الرحلة', rideTypeLabels[trip.rideType] || trip.rideType);
+        addHistoryRow(card, 'طريقة الدفع', paymentLabels[trip.paymentMethod] || trip.paymentMethod);
+        const when = trip.scheduledAt || trip.createdAt;
+        let dateLabel = '—';
+        if (when) {
+          const date = new Date(when);
+          if (!Number.isNaN(date.getTime())) dateLabel = date.toLocaleString('ar-EG');
+        }
+        addHistoryRow(card, trip.scheduledAt ? 'موعد الرحلة' : 'تاريخ الطلب', dateLabel);
+        historyList.append(card);
+      });
+    } catch (error) {
+      historyStatus.textContent = error.message || 'تعذّر تحميل سجل الرحلات.';
+      throw error;
+    } finally {
+      refreshHistoryButton.disabled = false;
+    }
+  }
+
+  refreshHistoryButton.addEventListener('click', () => {
+    loadTripHistory().catch(() => {});
+  });
 
   confirmButton.addEventListener('click', async () => {
     bookingStatus.textContent = '';
@@ -127,6 +206,7 @@
       bookingStatus.textContent = 'تم إرسال طلب الرحلة بنجاح. الحالة: قيد الانتظار.' +
         (trip.id ? ' رقم الطلب: ' + trip.id : '');
       confirmButton.textContent = 'تم إرسال الطلب';
+      await loadTripHistory();
     } catch (error) {
       bookingStatus.textContent = error.message || 'تعذّر إرسال طلب الرحلة.';
       confirmButton.textContent = 'إعادة المحاولة';
