@@ -49,11 +49,12 @@
           <div class="section-title">اختار نوع الرحلة</div>
           <div class="rides" role="group" aria-label="نوع الرحلة">
             <button class="ride" type="button" data-ride="economy" aria-pressed="true"><div class="ride-icon">🚗</div><strong>اقتصادي</strong><small>مريح وعملي</small></button>
+            <button class="ride" type="button" data-ride="scooter" aria-pressed="false"><div class="ride-icon">🛵</div><strong>اسكوتر</strong><small>مشوار فردي سريع</small></button>
             <button class="ride" type="button" data-ride="comfort" aria-pressed="false"><div class="ride-icon">🚘</div><strong>مريح</strong><small>مساحة أكبر</small></button>
             <button class="ride" type="button" data-ride="family" aria-pressed="false"><div class="ride-icon">🚙</div><strong>عائلي</strong><small>للجميع</small></button>
           </div>
           <div class="trip-options">
-            <div class="field"><label for="passengers">عدد الركاب</label><select id="passengers" name="passengers"><option value="1">راكب واحد</option><option value="2">راكبان</option><option value="3">3 ركاب</option><option value="4">4 ركاب</option></select></div>
+            <div class="field"><label for="passengers">عدد الركاب</label><select id="passengers" name="passengers"><option value="1">راكب واحد</option><option value="2">راكبان</option><option value="3">3 ركاب</option><option value="4">4 ركاب</option></select><small id="passenger-hint" class="field-hint">اختار عدد الركاب المناسب لنوع الرحلة.</small></div>
             <div class="field"><label>طريقة الدفع المفضلة</label><div class="payment-options" role="group" aria-label="طريقة الدفع">
               <button type="button" class="payment-option" data-payment="cash" aria-pressed="true">💵 كاش</button>
               <button type="button" class="payment-option" data-payment="wallet" aria-pressed="false">📱 محفظة</button>
@@ -88,7 +89,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script>
     const rideButtons = [...document.querySelectorAll('[data-ride]')];
-    const rideNames = {economy:'اقتصادي',comfort:'مريح',family:'عائلي'};
+    const rideNames = {economy:'اقتصادي',scooter:'اسكوتر',comfort:'مريح',family:'عائلي'};
     let selectedRide = 'economy';
     let selectedPayment = 'cash';
     let selectedSchedule = 'now';
@@ -113,11 +114,25 @@
       scheduledAtInput.required = selectedSchedule === 'later';
       if (selectedSchedule === 'later') setMinimumScheduleTime();
     }));
+    const passengerSelect = document.getElementById('passengers');
+    function syncPassengerOptions() {
+      [...passengerSelect.options].forEach(option => {
+        option.disabled = selectedRide === 'scooter' && option.value !== '1';
+      });
+      if (selectedRide === 'scooter') passengerSelect.value = '1';
+      passengerSelect.setAttribute('aria-describedby', 'passenger-hint');
+      document.getElementById('passenger-hint').textContent = selectedRide === 'scooter'
+        ? 'رحلة الاسكوتر متاحة لراكب واحد.'
+        : 'اختار عدد الركاب المناسب لنوع الرحلة.';
+    }
     rideButtons.forEach(button => button.addEventListener('click', () => {
       invalidateRideReview();
       selectedRide = button.dataset.ride;
       rideButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      syncPassengerOptions();
     }));
+    passengerSelect.addEventListener('change', invalidateRideReview);
+    syncPassengerOptions();
     paymentButtons.forEach(button => button.addEventListener('click', () => {
       invalidateRideReview();
       selectedPayment = button.dataset.payment;
