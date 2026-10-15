@@ -57,6 +57,8 @@
               <button type="button" class="payment-option" data-payment="card" aria-pressed="false">💳 بطاقة</button>
             </div></div>
           </div>
+          <div class="field"><label>موعد الرحلة</label><div class="payment-options schedule-options" role="group" aria-label="موعد الرحلة"><button type="button" class="payment-option" data-schedule="now" aria-pressed="true">⚡ دلوقتي</button><button type="button" class="payment-option" data-schedule="later" aria-pressed="false">🗓️ حجز لاحقًا</button></div></div>
+          <div class="field" id="schedule-field" hidden><label for="scheduled-at">حدد اليوم والوقت</label><input type="datetime-local" id="scheduled-at" name="scheduledAt"><small class="field-hint">اختار موعدًا في المستقبل</small></div>
           <div class="field trip-note-field"><label for="trip-note">ملاحظات للسائق (اختياري)</label><textarea id="trip-note" name="tripNote" rows="2" maxlength="240" placeholder="مثال: هكون عند البوابة الرئيسية"></textarea><small class="field-hint">حد أقصى 240 حرفًا</small></div>
           <div class="estimate"><div><small>السعر</small><div class="price">يُحدد لاحقًا <span>بعد ربط التسعير</span></div></div><div style="text-align:left"><small>الدفع</small><strong>اختيار لاحقًا</strong></div></div>
           <button class="primary" type="submit">مراجعة تفاصيل الرحلة ←</button>
@@ -68,6 +70,7 @@
             <div class="review-row"><span>نوع الرحلة</span><strong id="review-type"></strong></div>
             <div class="review-row"><span>عدد الركاب</span><strong id="review-passengers"></strong></div>
             <div class="review-row"><span>طريقة الدفع المفضلة</span><strong id="review-payment"></strong></div>
+            <div class="review-row"><span>موعد الرحلة</span><strong id="review-schedule"></strong></div>
             <div class="review-row" id="review-note-row" hidden><span>ملاحظات للسائق</span><strong id="review-note"></strong></div>
             <div class="review-row" id="review-distance-row" hidden><span>المسافة التقريبية</span><strong id="review-distance"></strong></div>
             <div class="review-row" id="review-time-row" hidden><span>زمن القيادة التقريبي</span><strong id="review-time"></strong></div>
@@ -86,8 +89,27 @@
     const rideNames = {economy:'اقتصادي',comfort:'مريح',family:'عائلي'};
     let selectedRide = 'economy';
     let selectedPayment = 'cash';
+    let selectedSchedule = 'now';
     const paymentNames = {cash:'كاش',wallet:'محفظة إلكترونية',card:'بطاقة بنكية'};
     const paymentButtons = [...document.querySelectorAll('[data-payment]')];
+    const scheduleButtons = [...document.querySelectorAll('[data-schedule]')];
+    const scheduleField = document.getElementById('schedule-field');
+    const scheduledAtInput = document.getElementById('scheduled-at');
+    function setMinimumScheduleTime() {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() + 5);
+      now.setSeconds(0, 0);
+      const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0,16);
+      scheduledAtInput.min = localDate;
+    }
+    setMinimumScheduleTime();
+    scheduleButtons.forEach(button => button.addEventListener('click', () => {
+      selectedSchedule = button.dataset.schedule;
+      scheduleButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      scheduleField.hidden = selectedSchedule !== 'later';
+      scheduledAtInput.required = selectedSchedule === 'later';
+      if (selectedSchedule === 'later') setMinimumScheduleTime();
+    }));
     rideButtons.forEach(button => button.addEventListener('click', () => {
       selectedRide = button.dataset.ride;
       rideButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
@@ -252,11 +274,20 @@
         formMessage.style.display = 'block';
         return;
       }
+      if (selectedSchedule === 'later' && (!scheduledAtInput.value || new Date(scheduledAtInput.value).getTime() < Date.now() + 5 * 60 * 1000)) {
+        formMessage.textContent = 'اختار موعدًا صحيحًا بعد خمس دقائق على الأقل، أو اختار «دلوقتي».';
+        formMessage.style.display = 'block';
+        scheduledAtInput.focus();
+        return;
+      }
       document.getElementById('review-pickup').textContent = pickupInput.value.trim();
       document.getElementById('review-destination').textContent = destinationInput.value.trim();
       document.getElementById('review-type').textContent = rideNames[selectedRide];
       document.getElementById('review-passengers').textContent = document.getElementById('passengers').selectedOptions[0].textContent;
       document.getElementById('review-payment').textContent = paymentNames[selectedPayment] + ' (اختيار مبدئي)';
+      document.getElementById('review-schedule').textContent = selectedSchedule === 'now'
+        ? 'دلوقتي'
+        : new Date(scheduledAtInput.value).toLocaleString('ar-EG', {dateStyle:'medium',timeStyle:'short'});
       const tripNote = document.getElementById('trip-note').value.trim();
       document.getElementById('review-note').textContent = tripNote;
       document.getElementById('review-note-row').hidden = !tripNote;
