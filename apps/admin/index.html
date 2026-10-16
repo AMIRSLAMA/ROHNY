@@ -49,7 +49,8 @@ main{max-width:1200px;margin:auto;padding:24px}.top{display:flex;align-items:cen
 </form>
 <div class="tablewrap"><table style="min-width:900px"><thead><tr><th>المدينة</th><th>الدولة</th><th>العملة</th><th>البداية</th><th>/ كم</th><th>/ دقيقة</th><th>الحد الأدنى</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="pricingRows"><tr><td colspan="9" class="empty">جارٍ تحميل الإعدادات…</td></tr></tbody></table></div>
 </section>
-<section class="panel" style="margin-bottom:16px"><div class="top"><div><h2 style="margin:0">ملفات الكباتن والمستندات</h2><div class="sub">راجع البيانات والصور ثم اعتمد الملف أو اطلب تعديله. الصور لا تُتاح إلا للإدارة والكابتن صاحب الملف.</div></div><button class="secondary" id="refreshDriverProfiles" type="button">تحديث الملفات</button></div><div id="driverProfilesMsg" class="msg" role="status"></div><div id="driverProfilesList"><div class="empty">اضغط تحديث الملفات لعرض الطلبات.</div></div></section>\n<section class="panel"><div class="top"><div><h2 style="margin:0">الرحلات</h2><div class="sub">سجل الرحلات وأسعارها المحفوظة.</div></div><div class="sub" id="lastUpdated"></div></div><div class="tablewrap"><table><thead><tr><th>رقم الرحلة</th><th>الانطلاق</th><th>الوجهة</th><th>النوع</th><th>السعر</th><th>الدفع</th><th>الحالة</th><th>وقت الطلب</th></tr></thead><tbody id="tripRows"><tr><td colspan="8" class="empty">جارٍ تحميل الرحلات…</td></tr></tbody></table></div><div id="dashMsg" class="msg" role="status"></div></section>
+<section class="panel" style="margin-bottom:16px"><div class="top"><div><h2 style="margin:0">ملفات الكباتن والمستندات</h2><div class="sub">راجع البيانات والصور ثم اعتمد الملف أو اطلب تعديله. الصور لا تُتاح إلا للإدارة والكابتن صاحب الملف.</div></div><button class="secondary" id="refreshDriverProfiles" type="button">تحديث الملفات</button></div><div id="driverProfilesMsg" class="msg" role="status"></div><div id="driverProfilesList"><div class="empty">اضغط تحديث الملفات لعرض الطلبات.</div></div></section>\n<section class="panel" style="margin-bottom:16px"><div class="top"><div><h2 style="margin:0">طلبات إيداع محفظة الركاب</h2><div class="sub">راجع الطلب وتأكد من استلام المبلغ فعليًا قبل الموافقة؛ الموافقة تضيف الرصيد مرة واحدة.</div></div><button class="secondary" id="refreshWalletDeposits" type="button">تحديث الطلبات</button></div><div id="walletDepositsMsg" class="msg" role="status"></div><div class="tablewrap"><table><thead><tr><th>الراكب</th><th>المبلغ</th><th>ملاحظة الراكب</th><th>الحالة</th><th>تاريخ الطلب</th><th>رد الإدارة</th><th>الإجراء</th></tr></thead><tbody id="walletDepositRows"><tr><td colspan="7" class="empty">اضغط تحديث الطلبات لعرضها.</td></tr></tbody></table></div></section>
+<section class="panel"><div class="top"><div><h2 style="margin:0">الرحلات</h2><div class="sub">سجل الرحلات وأسعارها المحفوظة.</div></div><div class="sub" id="lastUpdated"></div></div><div class="tablewrap"><table><thead><tr><th>رقم الرحلة</th><th>الانطلاق</th><th>الوجهة</th><th>النوع</th><th>السعر</th><th>الدفع</th><th>الحالة</th><th>وقت الطلب</th></tr></thead><tbody id="tripRows"><tr><td colspan="8" class="empty">جارٍ تحميل الرحلات…</td></tr></tbody></table></div><div id="dashMsg" class="msg" role="status"></div></section>
 </section></main>
 <script>
 const API_BASE='';
@@ -83,6 +84,42 @@ $('driverForm').addEventListener('submit',async e=>{
 $('pricingForm').addEventListener('submit',async e=>{e.preventDefault();$('savePricingBtn').disabled=true;$('pricingMsg').textContent='جارٍ حفظ إعدادات التسعير…';$('pricingMsg').classList.remove('error');try{const payload={cityCode:$('cityCode').value.trim().toUpperCase(),cityName:$('cityName').value.trim(),countryCode:$('countryCode').value.trim().toUpperCase(),currency:$('currency').value.trim().toUpperCase(),baseFare:Number($('baseFare').value),perKilometer:Number($('perKilometer').value),perMinute:Number($('perMinute').value),minimumFare:Number($('minimumFare').value),rideMultipliers:{economy:Number($('economyMultiplier').value),scooter:Number($('scooterMultiplier').value),comfort:Number($('comfortMultiplier').value),family:Number($('familyMultiplier').value)},isActive:$('cityActive').checked};await request('/admin/pricing/cities',{method:'POST',body:JSON.stringify(payload)});$('pricingMsg').textContent='تم حفظ إعدادات المدينة بنجاح.';await loadPricing();}catch(e){$('pricingMsg').textContent=e.message;$('pricingMsg').classList.add('error');}finally{$('savePricingBtn').disabled=false;}});
 $('clearPricingBtn').addEventListener('click',clearPricingForm);
 
+
+async function loadWalletDeposits(){
+  $('walletDepositsMsg').textContent='جارٍ تحميل طلبات الإيداع…';
+  $('walletDepositsMsg').classList.remove('error');
+  try{
+    const requests=await request('/wallet/deposits/admin');
+    const rows=$('walletDepositRows');
+    rows.replaceChildren();
+    if(!Array.isArray(requests)||!requests.length){rows.innerHTML='<tr><td colspan="7" class="empty">لا توجد طلبات إيداع.</td></tr>';$('walletDepositsMsg').textContent='لا توجد طلبات إيداع.';return;}
+    requests.forEach(item=>{
+      const tr=document.createElement('tr');
+      const values=[item.rider,new Intl.NumberFormat('ar-EG',{style:'currency',currency:item.currency}).format(Number(item.amount)),item.note||'—',({pending:'قيد المراجعة',approved:'تم الاعتماد',rejected:'مرفوض'}[item.status]||item.status),when(item.createdAt),item.adminNote||'—'];
+      values.forEach(value=>{const td=document.createElement('td');td.textContent=String(value);tr.append(td);});
+      const actions=document.createElement('td');
+      if(item.status==='pending'){
+        const approve=document.createElement('button');approve.type='button';approve.textContent='تأكيد الاستلام والموافقة';approve.addEventListener('click',()=>reviewWalletDeposit(item.id,'approved'));
+        const reject=document.createElement('button');reject.type='button';reject.className='secondary';reject.style.marginInlineStart='6px';reject.textContent='رفض';reject.addEventListener('click',()=>reviewWalletDeposit(item.id,'rejected'));
+        actions.append(approve,reject);
+      }else{actions.textContent='تمت المراجعة';}
+      tr.append(actions);rows.append(tr);
+    });
+    $('walletDepositsMsg').textContent='طلبات الإيداع: '+requests.length;
+  }catch(e){$('walletDepositsMsg').textContent=e.message;$('walletDepositsMsg').classList.add('error');}
+}
+async function reviewWalletDeposit(id,decision){
+  const note=prompt(decision==='approved'?'تأكيد: هل تحققت من استلام المبلغ فعلًا؟ اكتب ملاحظة اختيارية.':'سبب رفض طلب الإيداع (اختياري):');
+  if(note===null)return;
+  if(decision==='approved'&&!confirm('تأكيد اعتماد الإيداع وإضافة الرصيد إلى محفظة الراكب؟ لا توافق إلا بعد استلام المبلغ فعليًا.'))return;
+  try{
+    await request('/wallet/deposits/'+encodeURIComponent(id)+'/review',{method:'PATCH',body:JSON.stringify({decision,note})});
+    $('walletDepositsMsg').textContent=decision==='approved'?'تم اعتماد الإيداع وإضافة الرصيد.':'تم رفض طلب الإيداع.';
+    await loadWalletDeposits();
+  }catch(e){$('walletDepositsMsg').textContent=e.message;$('walletDepositsMsg').classList.add('error');}
+}
+$('refreshWalletDeposits').addEventListener('click',loadWalletDeposits);
+
 async function loadDriverProfiles(){
   $('driverProfilesMsg').textContent='جارٍ تحميل ملفات الكباتن…';
   try{
@@ -114,6 +151,6 @@ async function reviewDriverProfile(id,status,note){
 }
 $('refreshDriverProfiles').addEventListener('click',loadDriverProfiles);
 
-$('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBtn').disabled=true;$('loginMsg').textContent='جارٍ التحقق من الحساب…';$('loginMsg').classList.remove('error');try{const data=await request('/auth/login',{method:'POST',body:JSON.stringify({email:$('email').value.trim(),password:$('password').value})});if(data.user?.role!=='admin')throw new Error('هذا الحساب ليس حساب إدارة. يلزم حساب بصلاحية admin.');token=data.accessToken;$('loginPanel').classList.add('hidden');$('dashboard').classList.remove('hidden');$('headerActions').classList.remove('hidden');await Promise.all([loadTrips(),loadPricing(),loadDriverProfiles()]);}catch(e){$('loginMsg').textContent=e.message;$('loginMsg').classList.add('error');}finally{$('loginBtn').disabled=false;}});
-$('refreshBtn').addEventListener('click',()=>Promise.all([loadTrips(),loadPricing(),loadDriverProfiles()]));$('logoutBtn').addEventListener('click',()=>{token=null;showLogin('تم تسجيل الخروج.');$('password').value='';});
+$('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBtn').disabled=true;$('loginMsg').textContent='جارٍ التحقق من الحساب…';$('loginMsg').classList.remove('error');try{const data=await request('/auth/login',{method:'POST',body:JSON.stringify({email:$('email').value.trim(),password:$('password').value})});if(data.user?.role!=='admin')throw new Error('هذا الحساب ليس حساب إدارة. يلزم حساب بصلاحية admin.');token=data.accessToken;$('loginPanel').classList.add('hidden');$('dashboard').classList.remove('hidden');$('headerActions').classList.remove('hidden');await Promise.all([loadTrips(),loadPricing(),loadDriverProfiles(),loadWalletDeposits()]);}catch(e){$('loginMsg').textContent=e.message;$('loginMsg').classList.add('error');}finally{$('loginBtn').disabled=false;}});
+$('refreshBtn').addEventListener('click',()=>Promise.all([loadTrips(),loadPricing(),loadDriverProfiles(),loadWalletDeposits()]));$('logoutBtn').addEventListener('click',()=>{token=null;showLogin('تم تسجيل الخروج.');$('password').value='';});
 </script></body></html>
