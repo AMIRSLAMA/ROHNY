@@ -14,7 +14,21 @@ main{max-width:1200px;margin:auto;padding:24px}.top{display:flex;align-items:cen
 <section id="loginPanel" class="panel login"><h2>تسجيل دخول الإدارة</h2><p class="sub">استخدم حسابًا مُفعّلًا بصلاحية admin.</p><form id="loginForm"><label class="field">البريد الإلكتروني<input id="email" type="email" autocomplete="username" required maxlength="254"></label><label class="field">كلمة المرور<input id="password" type="password" autocomplete="current-password" required minlength="12" maxlength="128"></label><button id="loginBtn" type="submit">دخول لوحة الإدارة</button><div id="loginMsg" class="msg" role="status"></div></form></section>
 <section id="dashboard" class="hidden">
 <div class="stats"><div class="stat"><span>إجمالي الرحلات المعروضة</span><strong id="total">—</strong></div><div class="stat"><span>قيد الانتظار</span><strong id="pending">—</strong></div><div class="stat"><span>حالات أخرى</span><strong id="other">—</strong></div></div>
-<section class="panel" style="margin-bottom:16px"><h2>إعداد تسعير مدينة</h2><p class="help">السعر = الأكبر بين الحد الأدنى، ومجموع سعر البداية + (المسافة بالكيلومتر × سعر الكيلومتر) + (المدة بالدقيقة × سعر الدقيقة)، ثم يُطبق معامل نوع الرحلة. استخدم العملة المحلية للدولة (مثل EGP أو SAR أو USD). لا توجد أسعار افتراضية مفروضة.</p>
+
+<section class="panel" style="margin-bottom:16px">
+<h2>إضافة كابتن جديد</h2>
+<p class="help">أنشئ حساب كابتن مفعّلًا لتجربة تطبيق الكابتن. كلمة المرور لا تقل عن 12 حرفًا، ولن تظهر مرة أخرى بعد الحفظ.</p>
+<form id="driverForm">
+<div class="pricing-grid">
+<label class="field">البريد الإلكتروني (اختياري)<input id="driverEmail" type="email" maxlength="254" autocomplete="off" placeholder="captain@example.com"></label>
+<label class="field">رقم الموبايل (اختياري)<input id="driverPhone" type="tel" maxlength="20" autocomplete="off" placeholder="+20..."></label>
+<label class="field">كلمة مرور مؤقتة (12 حرفًا على الأقل)<input id="driverPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></label>
+</div>
+<div class="actions"><button id="createDriverBtn" type="submit">إنشاء حساب الكابتن</button></div>
+<div id="driverMsg" class="msg" role="status" aria-live="polite"></div>
+</form>
+</section>
+\n<section class="panel" style="margin-bottom:16px"><h2>إعداد تسعير مدينة</h2><p class="help">السعر = الأكبر بين الحد الأدنى، ومجموع سعر البداية + (المسافة بالكيلومتر × سعر الكيلومتر) + (المدة بالدقيقة × سعر الدقيقة)، ثم يُطبق معامل نوع الرحلة. استخدم العملة المحلية للدولة (مثل EGP أو SAR أو USD). لا توجد أسعار افتراضية مفروضة.</p>
 <form id="pricingForm">
 <div class="pricing-grid">
 <label class="field">رمز المدينة (فريد، مثل CAI)<input id="cityCode" required maxlength="12" pattern="[A-Za-z0-9_-]{2,12}" placeholder="CAI"></label>
@@ -48,7 +62,23 @@ async function loadTrips(){ $('dashMsg').textContent='جارٍ تحميل الر
 function clearPricingForm(){$('pricingForm').reset();$('cityCode').readOnly=false;$('cityActive').checked=true;$('pricingMsg').textContent='';}
 function editCity(city){$('cityCode').value=city.cityCode;$('cityCode').readOnly=true;$('cityName').value=city.cityName;$('countryCode').value=city.countryCode;$('currency').value=city.currency;$('baseFare').value=city.baseFare;$('perKilometer').value=city.perKilometer;$('perMinute').value=city.perMinute;$('minimumFare').value=city.minimumFare;$('economyMultiplier').value=city.rideMultipliers?.economy??1;$('scooterMultiplier').value=city.rideMultipliers?.scooter??0.8;$('comfortMultiplier').value=city.rideMultipliers?.comfort??1.35;$('familyMultiplier').value=city.rideMultipliers?.family??1.5;$('cityActive').checked=Boolean(city.isActive);$('pricingMsg').textContent='تعديل المدينة '+city.cityCode+'؛ الحفظ سيحدّث إعداداتها.';window.scrollTo({top:0,behavior:'smooth'});}
 async function loadPricing(){try{pricingCities=await request('/admin/pricing/cities');$('pricingRows').innerHTML=pricingCities.length?pricingCities.map(c=>'<tr><td>'+safe(c.cityName)+' ('+safe(c.cityCode)+')</td><td>'+safe(c.countryCode)+'</td><td>'+safe(c.currency)+'</td><td>'+safe(c.baseFare)+'</td><td>'+safe(c.perKilometer)+'</td><td>'+safe(c.perMinute)+'</td><td>'+safe(c.minimumFare)+'</td><td>'+ (c.isActive?'مفعّلة':'متوقفة')+'</td><td><button type="button" class="secondary" data-edit-city="'+safe(c.cityCode)+'">تعديل</button></td></tr>').join(''):'<tr><td colspan="9" class="empty">لم تُضف مدن بعد. أدخل إعدادات أول مدينة أعلاه.</td></tr>';$('pricingRows').querySelectorAll('[data-edit-city]').forEach(btn=>btn.addEventListener('click',()=>{const city=pricingCities.find(c=>c.cityCode===btn.dataset.editCity);if(city)editCity(city);}));}catch(e){$('pricingMsg').textContent=e.message;$('pricingMsg').classList.add('error');}}
-$('pricingForm').addEventListener('submit',async e=>{e.preventDefault();$('savePricingBtn').disabled=true;$('pricingMsg').textContent='جارٍ حفظ إعدادات التسعير…';$('pricingMsg').classList.remove('error');try{const payload={cityCode:$('cityCode').value.trim().toUpperCase(),cityName:$('cityName').value.trim(),countryCode:$('countryCode').value.trim().toUpperCase(),currency:$('currency').value.trim().toUpperCase(),baseFare:Number($('baseFare').value),perKilometer:Number($('perKilometer').value),perMinute:Number($('perMinute').value),minimumFare:Number($('minimumFare').value),rideMultipliers:{economy:Number($('economyMultiplier').value),scooter:Number($('scooterMultiplier').value),comfort:Number($('comfortMultiplier').value),family:Number($('familyMultiplier').value)},isActive:$('cityActive').checked};await request('/admin/pricing/cities',{method:'POST',body:JSON.stringify(payload)});$('pricingMsg').textContent='تم حفظ إعدادات المدينة بنجاح.';await loadPricing();}catch(e){$('pricingMsg').textContent=e.message;$('pricingMsg').classList.add('error');}finally{$('savePricingBtn').disabled=false;}});
+
+$('driverForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const email=$('driverEmail').value.trim();
+  const phone=$('driverPhone').value.trim();
+  if(!email&&!phone){$('driverMsg').textContent='أدخل البريد الإلكتروني أو رقم الموبايل على الأقل.';$('driverMsg').classList.add('error');return;}
+  $('createDriverBtn').disabled=true;
+  $('driverMsg').classList.remove('error');
+  $('driverMsg').textContent='جارٍ إنشاء حساب الكابتن…';
+  try{
+    const data=await request('/admin/drivers',{method:'POST',body:JSON.stringify({...(email?{email}:{}),...(phone?{phone}:{}),password:$('driverPassword').value})});
+    $('driverMsg').textContent='تم إنشاء حساب الكابتن بنجاح. الدور: '+data.role+' — الحساب مفعّل. احتفظ بكلمة المرور التي أدخلتها.';
+    $('driverForm').reset();
+  }catch(e){$('driverMsg').textContent=e.message;$('driverMsg').classList.add('error');}
+  finally{$('createDriverBtn').disabled=false;}
+});
+\n$('pricingForm').addEventListener('submit',async e=>{e.preventDefault();$('savePricingBtn').disabled=true;$('pricingMsg').textContent='جارٍ حفظ إعدادات التسعير…';$('pricingMsg').classList.remove('error');try{const payload={cityCode:$('cityCode').value.trim().toUpperCase(),cityName:$('cityName').value.trim(),countryCode:$('countryCode').value.trim().toUpperCase(),currency:$('currency').value.trim().toUpperCase(),baseFare:Number($('baseFare').value),perKilometer:Number($('perKilometer').value),perMinute:Number($('perMinute').value),minimumFare:Number($('minimumFare').value),rideMultipliers:{economy:Number($('economyMultiplier').value),scooter:Number($('scooterMultiplier').value),comfort:Number($('comfortMultiplier').value),family:Number($('familyMultiplier').value)},isActive:$('cityActive').checked};await request('/admin/pricing/cities',{method:'POST',body:JSON.stringify(payload)});$('pricingMsg').textContent='تم حفظ إعدادات المدينة بنجاح.';await loadPricing();}catch(e){$('pricingMsg').textContent=e.message;$('pricingMsg').classList.add('error');}finally{$('savePricingBtn').disabled=false;}});
 $('clearPricingBtn').addEventListener('click',clearPricingForm);
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBtn').disabled=true;$('loginMsg').textContent='جارٍ التحقق من الحساب…';$('loginMsg').classList.remove('error');try{const data=await request('/auth/login',{method:'POST',body:JSON.stringify({email:$('email').value.trim(),password:$('password').value})});if(data.user?.role!=='admin')throw new Error('هذا الحساب ليس حساب إدارة. يلزم حساب بصلاحية admin.');token=data.accessToken;$('loginPanel').classList.add('hidden');$('dashboard').classList.remove('hidden');$('headerActions').classList.remove('hidden');await Promise.all([loadTrips(),loadPricing()]);}catch(e){$('loginMsg').textContent=e.message;$('loginMsg').classList.add('error');}finally{$('loginBtn').disabled=false;}});
 $('refreshBtn').addEventListener('click',()=>Promise.all([loadTrips(),loadPricing()]));$('logoutBtn').addEventListener('click',()=>{token=null;showLogin('تم تسجيل الخروج.');$('password').value='';});
