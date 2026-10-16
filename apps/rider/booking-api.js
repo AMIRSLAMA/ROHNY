@@ -18,6 +18,11 @@
   const historyStatus = document.getElementById('trip-history-status');
   const historyList = document.getElementById('trip-history-list');
   const refreshHistoryButton = document.getElementById('refresh-trip-history');
+  const walletPanel = document.getElementById('wallet-panel');
+  const walletBalance = document.getElementById('wallet-balance');
+  const walletStatus = document.getElementById('wallet-status');
+  const walletTransactions = document.getElementById('wallet-transactions');
+  const refreshWalletButton = document.getElementById('refresh-wallet');
 
   function setStatus(message, signedIn) {
     status.textContent = message;
@@ -27,7 +32,12 @@
     emailInput.disabled = signedIn;
     passwordInput.disabled = signedIn;
     refreshHistoryButton.hidden = !signedIn;
+    walletPanel.hidden = !signedIn;
+    refreshWalletButton.hidden = !signedIn;
     if (!signedIn) {
+      walletBalance.textContent = '— جنيه';
+      walletTransactions.replaceChildren();
+      walletStatus.textContent = 'سجّل الدخول لعرض محفظتك.';
       historyList.replaceChildren();
       historyStatus.textContent = 'سجّل الدخول لعرض رحلاتك السابقة.';
     }
@@ -82,6 +92,7 @@
       sessionStorage.setItem(tokenKey, token);
       setStatus('تم تسجيل الدخول: ' + (result.user.email || email), true);
       loadTripHistory().catch(() => {});
+      loadWallet().catch(() => {});
     } catch (error) {
       setStatus(error.message || 'تعذّر تسجيل الدخول.', false);
     } finally {
@@ -96,6 +107,7 @@
 
   if (token) {
     setStatus('جلسة دخول محفوظة مؤقتًا. سيتم التحقق منها عند إرسال طلب الرحلة.', true);
+    loadWallet().catch(() => {});
   } else {
     setStatus('سجّل الدخول أو أنشئ حسابًا قبل طلب الرحلة.', false);
   }
@@ -168,6 +180,58 @@
 
   refreshHistoryButton.addEventListener('click', () => {
     loadTripHistory().catch(() => {});
+  });
+
+  const walletTransactionLabels = {
+    transfer: 'تحويل محفظة',
+    trip_payment: 'دفع رحلة',
+    platform_commission: 'عمولة المنصة',
+    card_top_up: 'شحن إلكتروني',
+    refund: 'استرداد',
+    cash_out: 'سحب'
+  };
+
+  async function loadWallet() {
+    if (!token) return;
+    walletStatus.textContent = 'جارٍ تحميل المحفظة…';
+    refreshWalletButton.disabled = true;
+    try {
+      const wallet = await api('/wallet/me');
+      walletBalance.textContent = Number(wallet.balanceEgp).toLocaleString('ar-EG', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) + ' جنيه';
+      const entries = await api('/wallet/transactions?limit=10');
+      walletTransactions.replaceChildren();
+      if (!Array.isArray(entries) || entries.length === 0) {
+        walletStatus.textContent = 'رصيدك الداخلي ظاهر أعلاه. لا توجد حركات مالية مسجلة حتى الآن.';
+        return;
+      }
+      walletStatus.textContent = 'آخر الحركات المالية:';
+      entries.forEach((entry) => {
+        const row = document.createElement('div');
+        row.className = 'review-row';
+        const label = document.createElement('span');
+        label.textContent = (entry.direction === 'credit' ? '＋ ' : '− ') +
+          (walletTransactionLabels[entry.type] || 'حركة مالية');
+        const amount = document.createElement('strong');
+        amount.textContent = Number(entry.amountEgp).toLocaleString('ar-EG', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }) + ' جنيه';
+        row.append(label, amount);
+        walletTransactions.append(row);
+      });
+    } catch (error) {
+      walletStatus.textContent = error.message || 'تعذّر تحميل المحفظة.';
+      throw error;
+    } finally {
+      refreshWalletButton.disabled = false;
+    }
+  }
+
+  refreshWalletButton.addEventListener('click', () => {
+    loadWallet().catch(() => {});
   });
 
   confirmButton.addEventListener('click', async () => {

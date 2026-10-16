@@ -41,6 +41,14 @@
         <div class="booking-head"><div><h2 id="booking-title">احجز مشوارك</h2><p>ابدأ بتحديد مكانك ووجهتك</p></div><div class="badge">روحني معاك</div></div>
         <section id="auth-panel" class="ride-review" aria-labelledby="auth-title"><h3 id="auth-title">حساب الراكب</h3><p class="note">سجّل الدخول لطلب الرحلة وحفظها في حسابك.</p><div class="field"><label for="auth-email">البريد الإلكتروني</label><input id="auth-email" type="email" autocomplete="email" maxlength="254" required></div><div class="field"><label for="auth-password">كلمة المرور</label><input id="auth-password" type="password" autocomplete="current-password" minlength="12" maxlength="128" required></div><div class="payment-options"><button type="button" id="auth-login" class="primary">تسجيل الدخول</button><button type="button" id="auth-register" class="map-toolbar-button">إنشاء حساب</button><button type="button" id="auth-logout" class="map-toolbar-button" hidden>تسجيل الخروج</button></div><p id="auth-status" class="note" role="status" aria-live="polite">سجّل الدخول أو أنشئ حسابًا.</p></section>
         <section id="trip-history-panel" class="ride-review" aria-labelledby="trip-history-title"><h3 id="trip-history-title">رحلاتي</h3><p id="trip-history-status" class="note" role="status" aria-live="polite">سجّل الدخول لعرض رحلاتك السابقة.</p><div id="trip-history-list"></div><button type="button" id="refresh-trip-history" class="map-toolbar-button" hidden>تحديث سجل الرحلات</button></section>
+        <section id="wallet-panel" class="ride-review" aria-labelledby="wallet-title">
+          <h3 id="wallet-title">محفظتي الإلكترونية</h3>
+          <div class="review-row"><span>الرصيد الداخلي</span><strong id="wallet-balance">— جنيه</strong></div>
+          <p id="wallet-status" class="note" role="status" aria-live="polite">سجّل الدخول لعرض محفظتك.</p>
+          <div id="wallet-transactions"></div>
+          <button type="button" id="refresh-wallet" class="map-toolbar-button" hidden>تحديث المحفظة</button>
+          <p class="note">المحفظة الداخلية لا تعني إيداع أموال فعلية. شحن المحفظة والدفع بالفيزا سيتاحان بعد ربط مزود دفع معتمد.</p>
+        </section>
         <form id="ride-form">
           <div class="field"><label for="pickup">هتركب منين؟</label><span class="pin" aria-hidden="true">⌖</span><input id="pickup" name="pickup" placeholder="اضغط استخدام موقعي لتحديد مكانك تلقائيًا" autocomplete="street-address" required><button type="button" id="use-pickup-current-location" class="search-place-button">📍 استخدام موقعي الحالي كنقطة انطلاق</button><button type="button" class="search-place-button" data-search-place="pickup">🔎 البحث عن عنوان يدويًا</button><div id="pickup-search-results" class="place-results" hidden></div></div>
           <div class="route-line" aria-hidden="true"></div>

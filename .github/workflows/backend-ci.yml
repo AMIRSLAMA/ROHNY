@@ -5,6 +5,7 @@ on:
     paths:
       - "backend/**"
       - "apps/rider/**"
+      - "apps/preview-server.cjs"
       - ".github/workflows/backend-ci.yml"
   push:
     branches:
@@ -19,6 +20,26 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: rohny_test
+          POSTGRES_PASSWORD: rohny_test_password
+          POSTGRES_DB: rohny_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rohny_test -d rohny_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_USERNAME: rohny_test
+      DB_PASSWORD: rohny_test_password
+      DB_DATABASE: rohny_test
     defaults:
       run:
         working-directory: backend
@@ -36,11 +57,20 @@ jobs:
       - name: Check rider booking JavaScript syntax
         run: node --check ../apps/rider/booking-api.js
 
+      - name: Check preview server JavaScript syntax
+        run: node --check ../apps/preview-server.cjs
+
       - name: Install locked dependencies
         run: npm ci
 
       - name: Build backend
         run: npm run build
+
+      - name: Apply all migrations to a disposable PostgreSQL database
+        run: npm run migration:run
+
+      - name: Verify wallet schema and platform account
+        run: node scripts/verify-wallet-schema.cjs
 
       - name: Install temporary test runner
         run: npm install --no-save jest ts-jest @types/jest
