@@ -358,13 +358,17 @@
         confirmButton.disabled = false;
         return;
       }
+      payload.quotedFareAmount = Number(quote.fareAmount);
+      payload.quotedCurrency = quote.currency;
       const trip = await api('/trips', { method: 'POST', body: JSON.stringify(payload) });
       bookingStatus.textContent = 'تم إرسال طلب الرحلة بنجاح. السعر المحفوظ: ' + new Intl.NumberFormat('ar', { style: 'currency', currency: trip.fareCurrency || selectedFareQuote.currency }).format(Number(trip.fareAmount)) + ' — الحالة: قيد الانتظار.' +
         (trip.id ? ' رقم الطلب: ' + trip.id : '');
       confirmButton.textContent = 'تم إرسال الطلب';
       loadTripHistory().catch(() => {});
     } catch (error) {
-      bookingStatus.textContent = error.message || 'تعذّر إرسال طلب الرحلة.';
+      bookingStatus.textContent = /Fare or currency changed/i.test(error.message)
+        ? 'تغيّر السعر أثناء المراجعة. راجع السعر المحدّث ثم اضغط تأكيد مرة أخرى.'
+        : (error.message || 'تعذّر إرسال طلب الرحلة.');
       confirmButton.textContent = 'إعادة المحاولة';
       confirmButton.disabled = false;
     }
