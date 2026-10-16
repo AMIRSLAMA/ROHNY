@@ -33,7 +33,7 @@ export class AddCityFarePricing1792400000000 implements MigrationInterface {
     await queryRunner.query('ALTER TABLE "trips" ADD COLUMN "fare_distance_meters" integer');
     await queryRunner.query('ALTER TABLE "trips" ADD COLUMN "fare_duration_seconds" integer');
     await queryRunner.query('ALTER TABLE "trips" ADD CONSTRAINT "FK_trips_pricing_city" FOREIGN KEY ("city_code") REFERENCES "pricing_cities"("city_code") ON DELETE RESTRICT');
-    await queryRunner.query('ALTER TABLE "trips" ADD CONSTRAINT "CHK_trips_fare_snapshot" CHECK (("fare_amount" IS NULL AND "fare_currency" IS NULL AND "city_code" IS NULL) OR ("fare_amount" >= 0 AND "fare_currency" ~ \'^[A-Z]{3}$\' AND "city_code" IS NOT NULL AND "fare_distance_meters" > 0 AND "fare_duration_seconds" > 0))');
+    await queryRunner.query('ALTER TABLE "trips" ADD CONSTRAINT "CHK_trips_fare_snapshot" CHECK (("fare_amount" IS NULL AND "fare_currency" IS NULL AND "city_code" IS NULL AND "fare_distance_meters" IS NULL AND "fare_duration_seconds" IS NULL) OR ("fare_amount" IS NOT NULL AND "fare_amount" >= 0 AND "fare_currency" IS NOT NULL AND "fare_currency" ~ \'^[A-Z]{3}$\' AND "city_code" IS NOT NULL AND "fare_distance_meters" IS NOT NULL AND "fare_distance_meters" > 0 AND "fare_duration_seconds" IS NOT NULL AND "fare_duration_seconds" > 0))');
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
