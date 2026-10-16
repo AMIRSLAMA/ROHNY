@@ -52,9 +52,9 @@ jobs:
         run: |
           set -eu
           install -m 700 -d "$HOME/.ssh"
-          printf '%s\\n' "$ROHNY_SSH_KEY" > "$HOME/.ssh/rohny_deploy"
+          printf '%s\n' "$ROHNY_SSH_KEY" > "$HOME/.ssh/rohny_deploy"
           chmod 600 "$HOME/.ssh/rohny_deploy"
-          printf '%s\\n' "$ROHNY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          printf '%s\n' "$ROHNY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
           chmod 600 "$HOME/.ssh/known_hosts"
           {
             echo "ROHNY_HOST=$ROHNY_HOST"
@@ -64,10 +64,10 @@ jobs:
       - name: Deploy main safely, back up database, migrate and restart API
         run: |
           set -eu
-          ssh -i "$HOME/.ssh/rohny_deploy" \\
-            -o BatchMode=yes \\
-            -o IdentitiesOnly=yes \\
-            -o StrictHostKeyChecking=yes \\
+          ssh -i "$HOME/.ssh/rohny_deploy" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
             "$ROHNY_USER@$ROHNY_HOST" 'bash -s' <<'REMOTE_SCRIPT'
           set -euo pipefail
 
