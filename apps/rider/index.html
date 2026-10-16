@@ -203,10 +203,22 @@
             <p id="wallet-currency-help" class="note">اكتب رمز العملة المكوّن من 3 أحرف. لكل عملة رصيد وسجل مستقلان؛ لا يحدث تحويل بين العملات تلقائيًا.</p>
           </div>
           <div class="review-row"><span>الرصيد الداخلي</span><strong id="wallet-balance">—</strong></div>
+          <div class="wallet-topup-card" style="margin:16px 0;padding:16px;border:1px solid var(--line,#d9e3df);border-radius:16px">
+            <h3 style="margin-top:0">شحن محفظتي</h3>
+            <p class="note">قدّم طلب إيداع يدوي. لن يُضاف الرصيد إلا بعد مراجعة الإدارة وتأكيد استلام المبلغ.</p>
+            <form id="wallet-deposit-form">
+              <div class="field"><label for="wallet-deposit-amount">مبلغ الإيداع</label><input id="wallet-deposit-amount" type="number" min="1" max="1000000" step="0.01" required inputmode="decimal" placeholder="مثال: 200"></div>
+              <div class="field"><label for="wallet-deposit-note">ملاحظة (اختياري)</label><input id="wallet-deposit-note" maxlength="240" placeholder="تفاصيل تساعد الإدارة في مراجعة الطلب"></div>
+              <button type="submit" id="wallet-deposit-submit" class="map-toolbar-button">إرسال طلب الإيداع</button>
+              <p id="wallet-deposit-form-status" class="note" role="status" aria-live="polite"></p>
+            </form>
+          </div>
+          <h3>طلبات الإيداع</h3>
+          <div id="wallet-deposit-requests"><p class="note">سجّل الدخول لعرض طلبات الإيداع.</p></div>
           <p id="wallet-status" class="note" role="status" aria-live="polite">سجّل الدخول لعرض محفظتك.</p>
           <div id="wallet-transactions"></div>
           <button type="button" id="refresh-wallet" class="map-toolbar-button" hidden>تحديث المحفظة</button>
-          <p class="note">المحفظة الداخلية لا تعني إيداع أموال فعلية. شحن المحفظة والدفع بالفيزا والتحويل بين العملات يحتاج ربط مزود دفع/صرف معتمد.</p>
+          <p class="note">الإيداع اليدوي قيد المراجعة حتى تعتمد الإدارة استلام المبلغ. لا يوجد سحب من محفظة الراكب.</p>
         </section>
         <form id="ride-form">
           <div class="field"><label for="pickup">هتركب منين؟</label><span class="pin" aria-hidden="true">⌖</span><input id="pickup" name="pickup" placeholder="اضغط استخدام موقعي لتحديد مكانك تلقائيًا" autocomplete="street-address" required><button type="button" id="use-pickup-current-location" class="search-place-button">📍 استخدام موقعي الحالي كنقطة انطلاق</button><button type="button" class="search-place-button" data-search-place="pickup">🔎 البحث عن عنوان يدويًا</button><div id="pickup-search-results" class="place-results" hidden></div></div>
