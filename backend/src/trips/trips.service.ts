@@ -40,6 +40,9 @@ export class TripsService {
       destinationLatitude: input.destinationLatitude,
       destinationLongitude: input.destinationLongitude,
     });
+    if (Math.abs(fare.fareAmount - input.quotedFareAmount) >= 0.01 || fare.currency !== input.quotedCurrency.toUpperCase()) {
+      throw new ConflictException('Fare or currency changed since your quote. Please review the updated fare and try again.');
+    }
 
     const trip = this.tripsRepository.create({
       riderId,
