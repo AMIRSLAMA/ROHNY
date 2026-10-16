@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, ConflictException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { CreateTripDto } from './dto/create-trip.dto';
 import { Trip, TripPaymentMethod, TripRideType, TripStatus } from './entities/trip.entity';
@@ -6,10 +6,13 @@ import { TripsService } from './trips.service';
 
 describe('TripsService', () => {
   let service: TripsService;
+  let queryBuilder: Record<string, jest.Mock>;
   let repository: {
     create: jest.Mock;
     save: jest.Mock;
     find: jest.Mock;
+    findOne: jest.Mock;
+    createQueryBuilder: jest.Mock;
   };
 
   const validInput: CreateTripDto = {
@@ -25,10 +28,18 @@ describe('TripsService', () => {
   };
 
   beforeEach(() => {
+    queryBuilder = {};
+    for (const method of ['update', 'set', 'where', 'andWhere', 'orderBy', 'take']) {
+      queryBuilder[method] = jest.fn(() => queryBuilder);
+    }
+    queryBuilder.execute = jest.fn(async () => ({ affected: 1 }));
+    queryBuilder.getMany = jest.fn(async () => []);
     repository = {
       create: jest.fn((value) => value as Trip),
       save: jest.fn(async (value) => ({ ...value, id: 'trip-id' }) as Trip),
       find: jest.fn(async () => []),
+      findOne: jest.fn(async ({ where }) => ({ id: where?.id ?? 'trip-id', riderId: where?.riderId ?? 'rider-id', driverId: 'driver-id', status: TripStatus.ACCEPTED }) as Trip),
+      createQueryBuilder: jest.fn(() => queryBuilder),
     };
     service = new TripsService(repository as unknown as Repository<Trip>);
   });
@@ -103,6 +114,30 @@ describe('TripsService', () => {
       scheduledAt: new Date(future),
       riderNote: 'اتصل عند الوصول',
     }));
+  });
+
+
+  it('atomically assigns a pending trip to one driver', async () => {
+    await service.acceptForDriver('driver-id', 'trip-id');
+    expect(queryBuilder.update).toHaveBeenCalledWith(Trip);
+    expect(queryBuilder.set).toHaveBeenCalledWith(expect.objectContaining({ driverId: 'driver-id', status: TripStatus.ACCEPTED }));
+    expect(queryBuilder.andWhere).toHaveBeenCalledWith('"driver_id" IS NULL');
+  });
+
+  it('rejects a trip that another driver already accepted', async () => {
+    queryBuilder.execute.mockResolvedValueOnce({ affected: 0 });
+    await expect(service.acceptForDriver('driver-id', 'trip-id')).rejects.toThrow(ConflictException);
+  });
+
+  it('allows only the assigned driver to advance a trip through valid states', async () => {
+    await service.updateStatusForDriver('driver-id', 'trip-id', TripStatus.DRIVER_ARRIVING);
+    expect(queryBuilder.where).toHaveBeenCalledWith('"id" = :tripId', { tripId: 'trip-id' });
+    expect(queryBuilder.andWhere).toHaveBeenCalledWith('"driver_id" = :driverId', { driverId: 'driver-id' });
+    expect(queryBuilder.andWhere).toHaveBeenCalledWith('"status" = :expectedStatus', { expectedStatus: TripStatus.ACCEPTED });
+  });
+
+  it('rejects skipping the trip lifecycle', async () => {
+    await expect(service.updateStatusForDriver('driver-id', 'trip-id', TripStatus.COMPLETED)).rejects.toThrow(BadRequestException);
   });
 
   it('returns only the requested rider trips, newest first, capped at 50', async () => {
