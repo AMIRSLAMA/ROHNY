@@ -86,12 +86,29 @@
     .rider-bottom-nav button span{font-size:21px;line-height:1.1}
     .rider-bottom-nav button.active{color:var(--green);font-weight:800}
     #riderAppShell{padding-bottom:100px}
+    #riderAppShell .rider-account-page{display:none}
+    #riderAppShell.rider-view-home .hero>.intro{display:none!important}
+    #riderAppShell.rider-view-home .booking{grid-column:1/-1;width:100%;max-width:900px;margin:0 auto}
+    #riderAppShell.rider-view-home .booking>:not(.booking-head):not(form){display:none!important}
+    #riderAppShell.rider-view-map .hero>.booking{display:none!important}
+    #riderAppShell.rider-view-map .hero>.intro{grid-column:1/-1;width:100%;max-width:1000px;margin:0 auto}
+    #riderAppShell.rider-view-map .hero>.intro>*:not(.map-card){display:none!important}
+    #riderAppShell.rider-view-map .map-card{width:100%;min-height:65vh}
     #riderAppShell.rider-view-trips .hero>.intro{display:none!important}
     #riderAppShell.rider-view-trips .hero>.booking{grid-column:1/-1;width:100%;max-width:900px;margin:0 auto}
     #riderAppShell.rider-view-trips .booking>:not(#trip-history-panel){display:none!important}
     #riderAppShell.rider-view-trips #trip-history-panel{display:block!important;margin:0;min-height:65vh;padding:clamp(20px,4vw,34px);border-radius:24px}
     #riderAppShell.rider-view-trips #trip-history-panel>h3{font-size:25px}
     #riderAppShell.rider-view-trips #trip-history-panel #trip-history-list{display:grid;gap:14px}
+    #riderAppShell.rider-view-wallet .hero>.intro{display:none!important}
+    #riderAppShell.rider-view-wallet .hero>.booking{grid-column:1/-1;width:100%;max-width:900px;margin:0 auto}
+    #riderAppShell.rider-view-wallet .booking>:not(#wallet-panel){display:none!important}
+    #riderAppShell.rider-view-wallet #wallet-panel{display:block!important;min-height:65vh;margin:0;padding:clamp(20px,4vw,34px);border-radius:24px}
+    #riderAppShell.rider-view-account .hero{display:none!important}
+    #riderAppShell.rider-view-account .rider-account-page{display:block!important;max-width:900px;margin:24px auto;padding:clamp(24px,5vw,40px);min-height:65vh;background:var(--card,#fff);border:1px solid var(--line,#dbe5dd);border-radius:24px}
+    #riderAppShell.rider-view-account .rider-account-page h2{margin-top:0;font-size:26px}
+    #riderAppShell.rider-view-account .rider-account-page p{line-height:1.9}
+    #riderAppShell.rider-view-account .rider-account-page button{margin-top:16px}
     #auth-panel{display:none}
     @media(max-width:800px){.rider-login-screen{padding:20px 14px}.login-card{border-radius:24px}.rider-bottom-nav button{font-size:10px}}
   </style>
@@ -235,6 +252,12 @@
           </section>
           <p id="form-message" role="status" aria-live="polite" style="display:none;color:var(--orange);font-size:13px;line-height:1.8"></p>
         </form>
+      </section>
+      <section id="rider-account-page" class="rider-account-page" aria-labelledby="rider-account-title">
+        <h2 id="rider-account-title">حسابي</h2>
+        <p>أهلاً بيك في روحني. من هنا تقدر تدير جلسة حسابك وتخرج بأمان من التطبيق.</p>
+        <p class="note">بيانات الحساب والرحلات تفضل مرتبطة بحسابك بعد تسجيل الدخول.</p>
+        <button type="button" id="riderAccountLogout" class="primary">تسجيل الخروج</button>
       </section>
     </main>
     <footer><span>© ROHNY — روحني</span><span>واجهة مستقلة عن Hesbah وHesbah Offer</span></footer>
@@ -710,28 +733,15 @@
       nav.addEventListener('click', event => {
         const button = event.target.closest('button[data-rider-tab]');
         if (!button) return;
-        const requestedTab = button.dataset.riderTab;
+        const tab = button.dataset.riderTab;
         const shell = document.getElementById('riderAppShell');
-        const alreadyOnTrips = shell.classList.contains('rider-view-trips');
-        const tab = requestedTab === 'trips' && alreadyOnTrips ? 'home' : requestedTab;
-        const targets = {home:document.querySelector('.booking'),map:document.querySelector('.map-card'),trips:document.getElementById('trip-history-panel'),wallet:document.getElementById('wallet-panel'),account:document.querySelector('header')};
-        shell.classList.toggle('rider-view-trips', tab === 'trips');
-        if (tab === 'account') document.getElementById('riderAppLogout').focus();
-        nav.querySelectorAll('button').forEach(item => item.classList.toggle('active', item.dataset.riderTab === tab));
-        const target = targets[tab];
-        if (target) {
-          if (tab === 'account') {
-            target.hidden = false;
-            target.style.display = 'block';
-          }
-          if (tab === 'trips' || tab === 'home') {
-            window.scrollTo({top:0,behavior:'smooth'});
-          } else {
-            target.scrollIntoView({behavior:'smooth',block:'start'});
-          }
-        }
+        ['home','map','trips','wallet','account'].forEach(view => shell.classList.toggle('rider-view-' + view, view === tab));
+        nav.querySelectorAll('button').forEach(item => item.classList.toggle('active', item === button));
+        if (tab === 'account') document.getElementById('riderAccountLogout').focus();
+        window.scrollTo({top:0,behavior:'smooth'});
       });
       document.getElementById('riderAppLogout').addEventListener('click', () => document.getElementById('auth-logout').click());
+      document.getElementById('riderAccountLogout').addEventListener('click', () => document.getElementById('auth-logout').click());
     })();
   </script>
 
