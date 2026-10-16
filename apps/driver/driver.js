@@ -352,6 +352,106 @@
     }
   }
 
+  let driverMap = null;
+  let driverMapMarkers = [];
+  let driverRouteLine = null;
+  let driverNavigationTripId = '';
+  let driverNavigationStatus = '';
+  let driverLocation = null;
+  let driverRouteKey = '';
+
+  function ensureDriverMap() {
+    if (driverMap || !window.L || !$('driverNavigationMap')) return;
+    driverMap = L.map('driverNavigationMap', { zoomControl: true }).setView([30.0131, 31.2089], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(driverMap);
+  }
+
+  function requestDriverLocation(onReady) {
+    if (!navigator.geolocation) { onReady(null); return; }
+    navigator.geolocation.getCurrentPosition(position => {
+      driverLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+      onReady(driverLocation);
+    }, () => onReady(driverLocation), { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 });
+  }
+
+  async function drawDriverRoute(trip, location) {
+    ensureDriverMap();
+    if (!driverMap) { $('driverNavigationInfo').textContent = 'تعذّر تحميل مكتبة الخريطة. تأكد من الاتصال بالإنترنت ثم أعد تحميل الصفحة.'; return; }
+    const pickup = [Number(trip.pickupLatitude), Number(trip.pickupLongitude)];
+    const destination = [Number(trip.destinationLatitude), Number(trip.destinationLongitude)];
+    if (![...pickup, ...destination].every(Number.isFinite)) { $('driverNavigationInfo').textContent = 'إحداثيات الرحلة غير مكتملة؛ لا يمكن رسم خط السير.'; return; }
+    const isRideStarted = trip.status === 'in_progress';
+    const target = isRideStarted ? destination : pickup;
+    const origin = location ? [location.lat, location.lng] : pickup;
+    const key = [trip.id, trip.status, location ? location.lat.toFixed(3) : 'no-gps', location ? location.lng.toFixed(3) : 'no-gps'].join(':');
+    if (key === driverRouteKey) return;
+    driverRouteKey = key;
+    driverNavigationTripId = trip.id;
+    driverNavigationStatus = trip.status;
+    driverNavigationSubtitle.textContent = isRideStarted ? 'الرحلة جارية — الاتجاه إلى وجهة الراكب' : 'في طريقك إلى الراكب — نقطة الالتقاء محددة على الخريطة';
+    $('driverNavigationInfo').textContent = location ? 'جارٍ حساب خط السير حسب موقعك الحالي…' : 'لم نتمكن من تحديد موقعك الحالي؛ يعرض المسار من نقطة الركوب مؤقتًا. فعّل إذن الموقع لتوجيه أدق.';
+    driverMapMarkers.forEach(marker => driverMap.removeLayer(marker));
+    driverMapMarkers = [];
+    if (driverRouteLine) { driverMap.removeLayer(driverRouteLine); driverRouteLine = null; }
+    driverMapMarkers.push(L.marker(pickup).addTo(driverMap).bindPopup('نقطة ركوب الراكب: ' + (trip.pickupAddress || 'نقطة الركوب')));
+    driverMapMarkers.push(L.marker(destination).addTo(driverMap).bindPopup('وجهة الراكب: ' + (trip.destinationAddress || 'الوجهة')));
+    if (location) driverMapMarkers.push(L.circleMarker([location.lat, location.lng], { radius: 8, color: '#ffffff', weight: 3, fillColor: '#287cff', fillOpacity: 1 }).addTo(driverMap).bindPopup('موقعك الحالي'));
+    const waypoints = [origin, target];
+    try {
+      const coords = waypoints.map(point => point[1] + ',' + point[0]).join(';');
+      const response = await fetch('https://router.project-osrm.org/route/v1/driving/' + coords + '?overview=full&geometries=geojson&steps=false', { headers: { Accept: 'application/json' } });
+      if (!response.ok) throw new Error('route');
+      const data = await response.json();
+      if (data.code !== 'Ok' || !data.routes || !data.routes.length) throw new Error('route');
+      const route = data.routes[0];
+      const points = route.geometry.coordinates.map(point => [point[1], point[0]]);
+      driverRouteLine = L.polyline(points, { color: '#c4ff62', weight: 6, opacity: 0.95 }).addTo(driverMap);
+      driverMap.fitBounds(driverRouteLine.getBounds(), { padding: [25, 25], maxZoom: 16 });
+      const km = (route.distance / 1000).toLocaleString('ar-EG', { maximumFractionDigits: 1 });
+      const mins = Math.max(1, Math.round(route.duration / 60)).toLocaleString('ar-EG');
+      $('driverNavigationInfo').textContent = (isRideStarted ? 'المتبقي إلى الوجهة: ' : 'المسافة إلى الراكب: ') + km + ' كم — وقت قيادة تقديري: ' + mins + ' دقيقة.';
+    } catch (_) {
+      driverMap.fitBounds([pickup, destination], { padding: [25, 25], maxZoom: 15 });
+      $('driverNavigationInfo').textContent = 'تعذّر حساب المسار على الطرق حاليًا. تظهر نقطتا الرحلة على الخريطة؛ يمكنك فتح الاتجاهات الخارجية.';
+    }
+    const externalUrl = 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(origin.join(',')) + '&destination=' + encodeURIComponent(target.join(',')) + '&travelmode=driving';
+    const external = $('openNavigationExternal');
+    external.href = externalUrl;
+    external.style.display = 'inline-block';
+  }
+
+  const driverNavigationSubtitle = $('driverNavigationSubtitle');
+  function renderDriverNavigation(activeTrips) {
+    const panel = $('driverNavigationPanel');
+    const trip = activeTrips.find(item => ['accepted', 'driver_arriving', 'in_progress'].includes(item.status));
+    if (!trip) {
+      panel.classList.add('hidden');
+      driverNavigationTripId = ''; driverNavigationStatus = ''; driverRouteKey = '';
+      return;
+    }
+    panel.classList.remove('hidden');
+    ensureDriverMap();
+    requestDriverLocation(location => {
+      if (driverNavigationTripId !== trip.id || driverNavigationStatus !== trip.status || !driverRouteKey) {
+        drawDriverRoute(trip, location);
+        return;
+      }
+      const key = [trip.id, trip.status, location ? location.lat.toFixed(3) : 'no-gps', location ? location.lng.toFixed(3) : 'no-gps'].join(':');
+      if (key !== driverRouteKey) drawDriverRoute(trip, location);
+    });
+    window.setTimeout(() => { if (driverMap) driverMap.invalidateSize(); }, 120);
+  }
+
+  $('refreshDriverLocation').addEventListener('click', () => {
+    driverRouteKey = '';
+    const tripId = driverNavigationTripId;
+    requestDriverLocation(location => {
+      const current = window.__rohnyActiveDriverTrip;
+      if (current && current.id === tripId) drawDriverRoute(current, location);
+      else $('driverNavigationInfo').textContent = 'جارٍ تحديث الرحلات للحصول على مسارك…';
+    });
+  });
+
   async function loadTrips() {
     if (!token || tripsLoadInProgress) return;
     tripsLoadInProgress = true;
@@ -367,6 +467,8 @@
       availableList.replaceChildren();
       historyTrips = assigned.filter((trip) => ['completed', 'cancelled'].includes(trip.status));
       const activeTrips = assigned.filter((trip) => !['completed', 'cancelled'].includes(trip.status));
+      window.__rohnyActiveDriverTrip = activeTrips.find(item => ['accepted', 'driver_arriving', 'in_progress'].includes(item.status)) || null;
+      renderDriverNavigation(activeTrips);
       assignedCount.textContent = String(activeTrips.length);
       historyCount.textContent = String(historyTrips.length);
       availableCount.textContent = String(available.length);
