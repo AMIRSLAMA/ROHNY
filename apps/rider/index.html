@@ -42,7 +42,7 @@
       header{align-items:center;gap:8px;padding:5px 2px 14px;margin-bottom:16px}
       .brand{gap:9px}.logo{width:43px;height:43px;border-radius:14px}
       .brand-name{font-size:21px}.brand-sub{font-size:11px}
-      .top-pill{max-width:145px;text-align:center;line-height:1.5;padding:7px 9px;font-size:10px}
+      .top-pill{max-width:145px;text-align:center;line-height:1.5;padding:7px 9px;font-size:10px}.rider-header-actions{gap:5px}.rider-header-actions button{padding:7px 8px;font-size:10px}
       .hero{gap:14px}
       .intro{padding:6px 1px}
       h1{font-size:clamp(32px,8vw,44px);line-height:1.25;letter-spacing:-.7px;margin:15px 0 10px}
@@ -105,7 +105,7 @@
   <div class="wrap" id="riderAppShell">
     <header>
       <div class="brand"><div class="logo" aria-hidden="true">ر</div><div><div class="brand-name">ROHNY <span style="color:var(--green)">| روحني</span></div><div class="brand-sub">مشوارك أسهل مما تتخيل</div></div></div>
-      <div class="top-pill">● رحلتك بأمان مع روحني</div>
+      <div class="rider-header-actions"><div class="top-pill">● رحلتك بأمان مع روحني</div><button id="riderAppLogout" type="button">تسجيل الخروج</button></div>
     </header>
     <main class="hero">
       <section class="intro">
@@ -679,18 +679,15 @@
         screen.hidden = !!signedIn;
         shell.hidden = !signedIn;
         nav.hidden = !signedIn;
+        document.body.classList.toggle('rider-authenticated', !!signedIn);
         if (signedIn) window.scrollTo({top:0,behavior:'instant'});
       };
       nav.addEventListener('click', event => {
         const button = event.target.closest('button[data-rider-tab]');
         if (!button) return;
         const tab = button.dataset.riderTab;
-        const targets = {home:document.querySelector('.booking'),map:document.querySelector('.map-card'),trips:document.getElementById('trip-history-panel'),wallet:document.getElementById('wallet-panel'),account:document.getElementById('auth-panel')};
-        if (tab === 'account') {
-          const status = document.getElementById('auth-status');
-          status.textContent = 'حسابك مسجّل الدخول. لتسجيل الخروج استخدم زر تسجيل الخروج من قسم الحساب.';
-          document.getElementById('auth-logout').hidden = false;
-        }
+        const targets = {home:document.querySelector('.booking'),map:document.querySelector('.map-card'),trips:document.getElementById('trip-history-panel'),wallet:document.getElementById('wallet-panel'),account:document.querySelector('header')};
+        if (tab === 'account') document.getElementById('riderAppLogout').focus();
         nav.querySelectorAll('button').forEach(item => item.classList.toggle('active', item === button));
         const target = targets[tab];
         if (target) {
@@ -701,10 +698,7 @@
           target.scrollIntoView({behavior:'smooth',block:'start'});
         }
       });
-      window.addEventListener('DOMContentLoaded', () => {
-        const logout = document.getElementById('auth-logout');
-        logout.addEventListener('click', () => window.ROHNY_SET_RIDER_SESSION_VIEW(false));
-      });
+      document.getElementById('riderAppLogout').addEventListener('click', () => document.getElementById('auth-logout').click());
     })();
   </script>
 
