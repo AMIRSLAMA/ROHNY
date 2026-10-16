@@ -1,0 +1,51 @@
+name: Test ROHNY SSH Connectivity
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ssh-connectivity:
+    name: Tailscale and SSH connectivity only
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Connect GitHub Actions runner to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          tags: tag:ci
+
+      - name: Configure SSH credentials
+        shell: bash
+        env:
+          ROHNY_SSH_KEY: ${{ secrets.ROHNY_SSH_KEY }}
+          ROHNY_KNOWN_HOSTS: ${{ secrets.ROHNY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          test -n "$ROHNY_SSH_KEY" || { echo "ROHNY_SSH_KEY secret is empty"; exit 1; }
+          test -n "$ROHNY_KNOWN_HOSTS" || { echo "ROHNY_KNOWN_HOSTS secret is empty"; exit 1; }
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s\n' "$ROHNY_SSH_KEY" > "$HOME/.ssh/rohny_deploy"
+          printf '%s\n' "$ROHNY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/rohny_deploy" "$HOME/.ssh/known_hosts"
+
+      - name: Verify SSH access and ROHNY directory
+        shell: bash
+        env:
+          ROHNY_HOST: ${{ secrets.ROHNY_HOST }}
+          ROHNY_USER: ${{ secrets.ROHNY_USER }}
+        run: |
+          set -euo pipefail
+          test -n "$ROHNY_HOST" || { echo "ROHNY_HOST secret is empty"; exit 1; }
+          test -n "$ROHNY_USER" || { echo "ROHNY_USER secret is empty"; exit 1; }
+          ssh -i "$HOME/.ssh/rohny_deploy" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o ConnectTimeout=10 \
+            "$ROHNY_USER@$ROHNY_HOST" \
+            'echo SSH_OK; hostname; test -d /home/amir/rohny && echo ROHNY_DIR_OK'
