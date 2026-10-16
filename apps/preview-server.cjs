@@ -84,6 +84,7 @@ const server = http.createServer((req, res) => {
   catch { return send(res, 400, 'Bad request'); }
 
   const isApi = pathname.startsWith('/auth/')
+    || pathname.startsWith('/wallet/')
     || pathname === '/trips'
     || pathname.startsWith('/trips/')
     || pathname === '/admin/trips'
