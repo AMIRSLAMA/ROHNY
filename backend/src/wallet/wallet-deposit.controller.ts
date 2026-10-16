@@ -2,7 +2,6 @@ import { BadRequestException, Body, Controller, ForbiddenException, Get, Patch, 
 import { DataSource } from 'typeorm';
 import { AuthTokenGuard, AuthenticatedRequest } from '../auth/auth-token.guard';
 import { UserRole } from '../users/entities/user.entity';
-import { WalletService } from './wallet.service';
 
 @Controller('wallet/deposits')
 @UseGuards(AuthTokenGuard)
