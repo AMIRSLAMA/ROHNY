@@ -43,11 +43,50 @@
         <section id="trip-history-panel" class="ride-review" aria-labelledby="trip-history-title"><h3 id="trip-history-title">رحلاتي</h3><p id="trip-history-status" class="note" role="status" aria-live="polite">سجّل الدخول لعرض رحلاتك السابقة.</p><div id="trip-history-list"></div><button type="button" id="refresh-trip-history" class="map-toolbar-button" hidden>تحديث سجل الرحلات</button></section>
         <section id="wallet-panel" class="ride-review" aria-labelledby="wallet-title">
           <h3 id="wallet-title">محفظتي الإلكترونية</h3>
-          <div class="review-row"><span>الرصيد الداخلي</span><strong id="wallet-balance">— جنيه</strong></div>
+          <div class="field">
+            <label for="wallet-currency">عملة المحفظة (رمز ISO 4217)</label>
+            <input id="wallet-currency" list="wallet-currency-options" value="EGP" maxlength="3" pattern="[A-Za-z]{3}" autocomplete="off" aria-describedby="wallet-currency-help">
+            <datalist id="wallet-currency-options">
+              <option value="EGP" label="الجنيه المصري"></option>
+              <option value="USD" label="الدولار الأمريكي"></option>
+              <option value="EUR" label="اليورو"></option>
+              <option value="GBP" label="الجنيه الإسترليني"></option>
+              <option value="SAR" label="الريال السعودي"></option>
+              <option value="AED" label="الدرهم الإماراتي"></option>
+              <option value="KWD" label="الدينار الكويتي"></option>
+              <option value="QAR" label="الريال القطري"></option>
+              <option value="BHD" label="الدينار البحريني"></option>
+              <option value="OMR" label="الريال العماني"></option>
+              <option value="JOD" label="الدينار الأردني"></option>
+              <option value="IQD" label="الدينار العراقي"></option>
+              <option value="TRY" label="الليرة التركية"></option>
+              <option value="CAD" label="الدولار الكندي"></option>
+              <option value="AUD" label="الدولار الأسترالي"></option>
+              <option value="JPY" label="الين الياباني"></option>
+              <option value="CNY" label="اليوان الصيني"></option>
+              <option value="INR" label="الروبية الهندية"></option>
+              <option value="CHF" label="الفرنك السويسري"></option>
+              <option value="ZAR" label="الراند الجنوب أفريقي"></option>
+              <option value="NGN" label="النيرة النيجيرية"></option>
+              <option value="KES" label="الشلن الكيني"></option>
+              <option value="MAD" label="الدرهم المغربي"></option>
+              <option value="TND" label="الدينار التونسي"></option>
+              <option value="DZD" label="الدينار الجزائري"></option>
+              <option value="BRL" label="الريال البرازيلي"></option>
+              <option value="MXN" label="البيزو المكسيكي"></option>
+              <option value="SGD" label="الدولار السنغافوري"></option>
+              <option value="SEK" label="الكرونة السويدية"></option>
+              <option value="NOK" label="الكرونة النرويجية"></option>
+              <option value="PLN" label="الزلوتي البولندي"></option>
+              <option value="KRW" label="الوون الكوري"></option>
+            </datalist>
+            <p id="wallet-currency-help" class="note">اكتب رمز العملة المكوّن من 3 أحرف. لكل عملة رصيد وسجل مستقلان؛ لا يحدث تحويل بين العملات تلقائيًا.</p>
+          </div>
+          <div class="review-row"><span>الرصيد الداخلي</span><strong id="wallet-balance">—</strong></div>
           <p id="wallet-status" class="note" role="status" aria-live="polite">سجّل الدخول لعرض محفظتك.</p>
           <div id="wallet-transactions"></div>
           <button type="button" id="refresh-wallet" class="map-toolbar-button" hidden>تحديث المحفظة</button>
-          <p class="note">المحفظة الداخلية لا تعني إيداع أموال فعلية. شحن المحفظة والدفع بالفيزا سيتاحان بعد ربط مزود دفع معتمد.</p>
+          <p class="note">المحفظة الداخلية لا تعني إيداع أموال فعلية. شحن المحفظة والدفع بالفيزا والتحويل بين العملات يحتاج ربط مزود دفع/صرف معتمد.</p>
         </section>
         <form id="ride-form">
           <div class="field"><label for="pickup">هتركب منين؟</label><span class="pin" aria-hidden="true">⌖</span><input id="pickup" name="pickup" placeholder="اضغط استخدام موقعي لتحديد مكانك تلقائيًا" autocomplete="street-address" required><button type="button" id="use-pickup-current-location" class="search-place-button">📍 استخدام موقعي الحالي كنقطة انطلاق</button><button type="button" class="search-place-button" data-search-place="pickup">🔎 البحث عن عنوان يدويًا</button><div id="pickup-search-results" class="place-results" hidden></div></div>
