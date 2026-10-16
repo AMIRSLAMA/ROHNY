@@ -60,6 +60,14 @@ export class TripsService {
     });
   }
 
+  findForDriver(driverId: string) {
+    return this.tripsRepository.find({
+      where: { driverId },
+      order: { createdAt: 'DESC' },
+      take: 50,
+    });
+  }
+
   findAvailableForDrivers() {
     return this.tripsRepository.createQueryBuilder('trip')
       .where('trip.status = :status', { status: TripStatus.PENDING })
