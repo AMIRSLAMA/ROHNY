@@ -87,13 +87,38 @@ export class TripsService {
     });
   }
 
-  findAvailableForDrivers() {
+  findAvailableForDrivers(driverId: string) {
     return this.tripsRepository.createQueryBuilder('trip')
       .where('trip.status = :status', { status: TripStatus.PENDING })
+      .andWhere('trip.driverId IS NULL')
       .andWhere('(trip.scheduledAt IS NULL OR trip.scheduledAt <= :now)', { now: new Date() })
+      .andWhere('NOT (:driverId = ANY(trip.rejectedDriverIds))', { driverId })
       .orderBy('trip.createdAt', 'ASC')
       .take(100)
       .getMany();
+  }
+
+  async rejectForDriver(driverId: string, tripId: string) {
+    const rows = await this.tripsRepository.query(
+      `UPDATE "trips"
+       SET "rejected_driver_ids" = array_append("rejected_driver_ids", $1::uuid),
+           "updated_at" = now()
+       WHERE "id" = $2::uuid
+         AND "status" = $3
+         AND "driver_id" IS NULL
+         AND NOT ($1::uuid = ANY("rejected_driver_ids"))
+       RETURNING "id"`,
+      [driverId, tripId, TripStatus.PENDING],
+    );
+    if (!rows.length) {
+      const trip = await this.tripsRepository.findOne({ where: { id: tripId } });
+      if (!trip) throw new NotFoundException('Trip not found');
+      if (trip.status !== TripStatus.PENDING || trip.driverId) {
+        throw new ConflictException('Trip is no longer available to reject');
+      }
+      return { tripId, status: 'already_rejected' };
+    }
+    return { tripId, status: 'rejected' };
   }
 
   async acceptForDriver(driverId: string, tripId: string) {
