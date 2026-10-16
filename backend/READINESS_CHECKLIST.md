@@ -25,7 +25,8 @@ This checklist reflects a source review of the repository. Items marked "not imp
 ### Core ride-hailing product
 - [ ] Country, city, supported language, currency, and per-city operating configuration.
 - [ ] Driver onboarding, document review, driver availability, and dispatch/matching.
-- [ ] Server-authoritative fare quotes and pricing rules; client-supplied distance/duration must not be treated as trusted billing facts.
+- [x] Initial server-side fare estimate endpoint calculates distance/time from coordinates and applies configurable rates. This is a preliminary straight-line estimate, not production routing or a final fare.
+- [ ] Integrate a trusted routing provider, persist a fare snapshot on trip creation, and finalize market-specific prices; never bill from client-supplied distance/duration.
 - [ ] Complete trip state machine, cancellation rules, driver assignment, pickup, in-progress, completion, and dispute handling.
 - [ ] Trusted location updates, live trip events, and location-data retention controls.
 - [ ] Payment provider integration, reconciliation, refunds, and wallet ledger audit/reversal procedures.
@@ -38,7 +39,7 @@ This checklist reflects a source review of the repository. Items marked "not imp
 1. Verify CI and existing migrations/tests on the branch.
 2. Add focused tests for authentication and authorization.
 3. Verify all migrations against a disposable test database and document backup/restore.
-4. Implement country/city configuration and server-side pricing.
+4. Integrate trusted routing and persist fare snapshots; finalize market-specific rates.
 5. Implement driver onboarding/dispatch and the full trip lifecycle.
 6. Integrate mobile clients, maps, notifications, and payment providers.
 7. Run a launch-readiness security and operational review.
