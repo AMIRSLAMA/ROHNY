@@ -9,6 +9,8 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const RIDER_DIR = path.join(ROOT, 'apps', 'rider');
 const ADMIN_FILE = path.join(ROOT, 'apps', 'admin', 'index.html');
+const DRIVER_DIR = path.join(ROOT, 'apps', 'driver');
+const DRIVER_FILE = path.join(DRIVER_DIR, 'index.html');
 const HOST = '127.0.0.1';
 const PORT = Number(process.env.ROHNY_PREVIEW_PORT || 4174);
 const API_HOST = '127.0.0.1';
@@ -56,6 +58,10 @@ function staticFile(req, res, pathname) {
     file = path.join(RIDER_DIR, 'booking-api.js');
   } else if (pathname === '/admin' || pathname === '/admin/' || pathname === '/admin/index.html') {
     file = ADMIN_FILE;
+  } else if (pathname === '/driver' || pathname === '/driver/' || pathname === '/driver/index.html') {
+    file = DRIVER_FILE;
+  } else if (pathname === '/driver/driver.js') {
+    file = path.join(DRIVER_DIR, 'driver.js');
   } else if (pathname.startsWith('/rider/')) {
     let relative;
     try { relative = decodeURIComponent(pathname.slice('/rider/'.length)); }
