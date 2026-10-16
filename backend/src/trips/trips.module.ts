@@ -6,10 +6,11 @@ import { Trip } from './entities/trip.entity';
 import { AdminTripsController } from './admin-trips.controller';
 import { TripsController } from './trips.controller';
 import { TripsService } from './trips.service';
+import { PricingModule } from '../pricing/pricing.module';
 
 @Module({
   // Register User here because AuthTokenGuard injects its repository.
-  imports: [TypeOrmModule.forFeature([Trip, User]), AuthModule],
+  imports: [TypeOrmModule.forFeature([Trip, User]), AuthModule, PricingModule],
   controllers: [TripsController, AdminTripsController],
   providers: [TripsService],
 })
