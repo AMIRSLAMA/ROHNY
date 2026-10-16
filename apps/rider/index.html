@@ -710,19 +710,21 @@
       nav.addEventListener('click', event => {
         const button = event.target.closest('button[data-rider-tab]');
         if (!button) return;
-        const tab = button.dataset.riderTab;
+        const requestedTab = button.dataset.riderTab;
         const shell = document.getElementById('riderAppShell');
+        const alreadyOnTrips = shell.classList.contains('rider-view-trips');
+        const tab = requestedTab === 'trips' && alreadyOnTrips ? 'home' : requestedTab;
         const targets = {home:document.querySelector('.booking'),map:document.querySelector('.map-card'),trips:document.getElementById('trip-history-panel'),wallet:document.getElementById('wallet-panel'),account:document.querySelector('header')};
         shell.classList.toggle('rider-view-trips', tab === 'trips');
         if (tab === 'account') document.getElementById('riderAppLogout').focus();
-        nav.querySelectorAll('button').forEach(item => item.classList.toggle('active', item === button));
+        nav.querySelectorAll('button').forEach(item => item.classList.toggle('active', item.dataset.riderTab === tab));
         const target = targets[tab];
         if (target) {
           if (tab === 'account') {
             target.hidden = false;
             target.style.display = 'block';
           }
-          if (tab === 'trips') {
+          if (tab === 'trips' || tab === 'home') {
             window.scrollTo({top:0,behavior:'smooth'});
           } else {
             target.scrollIntoView({behavior:'smooth',block:'start'});
