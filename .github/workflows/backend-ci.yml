@@ -6,13 +6,13 @@ on:
       - "backend/**"
       - "apps/rider/**"
       - "apps/preview-server.cjs"
-      - ".github/workflows/backend-ci.yml"
+      - ".github/workflows/**"
   push:
     branches:
       - main
     paths:
       - "backend/**"
-      - ".github/workflows/backend-ci.yml"
+      - ".github/workflows/**"
 
 permissions:
   contents: read

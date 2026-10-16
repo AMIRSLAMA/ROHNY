@@ -1,0 +1,140 @@
+name: ROHNY manual production deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_production:
+        description: "Type DEPLOY_ROHNY to confirm deployment to the production ROHNY server"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rohny-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ inputs.confirm_production == 'DEPLOY_ROHNY' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Validate required deployment secrets
+        env:
+          ROHNY_HOST: ${{ secrets.ROHNY_HOST }}
+          ROHNY_USER: ${{ secrets.ROHNY_USER }}
+          ROHNY_SSH_KEY: ${{ secrets.ROHNY_SSH_KEY }}
+          ROHNY_KNOWN_HOSTS: ${{ secrets.ROHNY_KNOWN_HOSTS }}
+        run: |
+          set -eu
+          test -n "$ROHNY_HOST" || { echo "::error::Missing ROHNY_HOST repository secret"; exit 1; }
+          test -n "$ROHNY_USER" || { echo "::error::Missing ROHNY_USER repository secret"; exit 1; }
+          test -n "$ROHNY_SSH_KEY" || { echo "::error::Missing ROHNY_SSH_KEY repository secret"; exit 1; }
+          test -n "$ROHNY_KNOWN_HOSTS" || { echo "::error::Missing ROHNY_KNOWN_HOSTS repository secret"; exit 1; }
+
+      - name: Configure verified SSH connection
+        env:
+          ROHNY_HOST: ${{ secrets.ROHNY_HOST }}
+          ROHNY_USER: ${{ secrets.ROHNY_USER }}
+          ROHNY_SSH_KEY: ${{ secrets.ROHNY_SSH_KEY }}
+          ROHNY_KNOWN_HOSTS: ${{ secrets.ROHNY_KNOWN_HOSTS }}
+        run: |
+          set -eu
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s\n' "$ROHNY_SSH_KEY" > "$HOME/.ssh/rohny_deploy"
+          chmod 600 "$HOME/.ssh/rohny_deploy"
+          printf '%s\n' "$ROHNY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+          {
+            echo "ROHNY_HOST=$ROHNY_HOST"
+            echo "ROHNY_USER=$ROHNY_USER"
+          } >> "$GITHUB_ENV"
+
+      - name: Deploy main safely, back up database, migrate and restart API
+        run: |
+          set -eu
+          ssh -i "$HOME/.ssh/rohny_deploy" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            "$ROHNY_USER@$ROHNY_HOST" 'bash -s' <<'REMOTE_SCRIPT'
+          set -euo pipefail
+
+          cd /home/amir/rohny
+          test "$(git branch --show-current)" = "main" || {
+            echo "Expected /home/amir/rohny to be on main; stopping."
+            exit 1
+          }
+          test -z "$(git status --porcelain)" || {
+            echo "Working tree is not clean; refusing to overwrite local server changes."
+            exit 1
+          }
+
+          git fetch origin main
+          git merge --ff-only origin/main
+
+          cd /home/amir/rohny/backend
+          npm ci
+          npm run build
+
+          # Take and verify a PostgreSQL custom-format backup before schema changes.
+          node <<'NODE'
+          require('dotenv').config({ path: '.env' });
+          const { spawnSync } = require('node:child_process');
+          const fs = require('node:fs');
+          const path = require('node:path');
+
+          const required = ['DB_DATABASE', 'DB_USERNAME'];
+          for (const key of required) {
+            if (!process.env[key]) {
+              console.error('Missing ' + key + ' in backend/.env; refusing migration.');
+              process.exit(2);
+            }
+          }
+
+          const backupDir = '/home/amir/backups/rohny';
+          fs.mkdirSync(backupDir, { recursive: true, mode: 0o700 });
+          const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+          const backupPath = path.join(backupDir, 'rohny-predeploy-' + stamp + '.dump');
+          const result = spawnSync('pg_dump', [
+            '-Fc',
+            '-h', process.env.DB_HOST || '127.0.0.1',
+            '-p', String(process.env.DB_PORT || '5432'),
+            '-U', process.env.DB_USERNAME,
+            '-d', process.env.DB_DATABASE,
+            '-f', backupPath
+          ], {
+            env: { ...process.env, PGPASSWORD: process.env.DB_PASSWORD || '' },
+            stdio: 'inherit'
+          });
+          if (result.status !== 0) {
+            try { fs.unlinkSync(backupPath); } catch {}
+            console.error('Database backup failed; refusing migration.');
+            process.exit(result.status || 3);
+          }
+          const stat = fs.statSync(backupPath);
+          if (stat.size < 100) {
+            fs.unlinkSync(backupPath);
+            console.error('Database backup looks empty; refusing migration.');
+            process.exit(4);
+          }
+          console.log('Database backup created: ' + backupPath + ' (' + stat.size + ' bytes)');
+          NODE
+
+          npm run migration:run
+          sudo systemctl restart rohny-api.service
+
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent --show-error http://127.0.0.1:3001/ >/dev/null; then
+              echo "ROHNY API health check passed."
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "ROHNY API health check failed after restart."
+          sudo systemctl --no-pager --full status rohny-api.service || true
+          exit 1
+          REMOTE_SCRIPT
