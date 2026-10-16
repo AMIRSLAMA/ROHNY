@@ -1,4 +1,4 @@
-import { ForbiddenException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { WalletController } from './wallet.controller';
 import { WalletService } from './wallet.service';
 
@@ -62,6 +62,6 @@ describe('WalletController', () => {
 
   it('rejects invalid transaction history limits', () => {
     const request = { authUser: { sub: 'rider-id', role: 'rider' } } as any;
-    expect(() => controller.listTransactions(request, '101')).toThrow(ForbiddenException);
+    expect(() => controller.listTransactions(request, '101')).toThrow(BadRequestException);
   });
 });
