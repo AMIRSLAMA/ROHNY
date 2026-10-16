@@ -50,7 +50,7 @@ export class TripsController {
     if (request.authUser!.role !== UserRole.DRIVER) {
       throw new ForbiddenException('Only driver accounts can view available trips');
     }
-    return this.tripsService.findAvailableForDrivers();
+    return this.tripsService.findAvailableForDrivers(request.authUser!.sub);
   }
 
   @Get('driver/mine')
@@ -59,6 +59,17 @@ export class TripsController {
       throw new ForbiddenException('Only driver accounts can view assigned trips');
     }
     return this.tripsService.findForDriver(request.authUser!.sub);
+  }
+
+  @Post(':tripId/reject')
+  rejectTrip(
+    @Req() request: AuthenticatedRequest,
+    @Param('tripId', new ParseUUIDPipe()) tripId: string,
+  ) {
+    if (request.authUser!.role !== UserRole.DRIVER) {
+      throw new ForbiddenException('Only driver accounts can reject trips');
+    }
+    return this.tripsService.rejectForDriver(request.authUser!.sub, tripId);
   }
 
   @Post(':tripId/accept')
