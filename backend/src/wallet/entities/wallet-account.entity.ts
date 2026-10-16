@@ -37,7 +37,6 @@ export class WalletAccount {
   currency!: string;
 
   // Store money in piastres to avoid floating-point rounding.
-  PostgreSQLBigIntMarker!: never;
   @Column({ name: 'balance_minor', type: 'bigint', default: 0 })
   balanceMinor!: string;
 
