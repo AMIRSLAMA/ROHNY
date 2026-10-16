@@ -20,16 +20,20 @@ export class WalletController {
   constructor(private readonly wallets: WalletService) {}
 
   @Get('me')
-  getMyWallet(@Req() request: AuthenticatedRequest) {
+  getMyWallet(
+    @Req() request: AuthenticatedRequest,
+    @Query('currency') currency?: string,
+  ) {
     const user = request.authUser!;
     this.assertWalletUser(user.role);
-    return this.wallets.getMyWallet(user.sub);
+    return this.wallets.getMyWallet(user.sub, currency);
   }
 
   @Get('transactions')
   listTransactions(
     @Req() request: AuthenticatedRequest,
     @Query('limit') limit?: string,
+    @Query('currency') currency?: string,
   ) {
     const user = request.authUser!;
     this.assertWalletUser(user.role);
@@ -37,7 +41,7 @@ export class WalletController {
     if (!Number.isInteger(parsedLimit) || parsedLimit < 1 || parsedLimit > 100) {
       throw new BadRequestException('limit must be an integer between 1 and 100');
     }
-    return this.wallets.listMyTransactions(user.sub, parsedLimit);
+    return this.wallets.listMyTransactions(user.sub, parsedLimit, currency);
   }
 
   @Post('transfers')

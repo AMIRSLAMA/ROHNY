@@ -22,13 +22,13 @@ describe('WalletController', () => {
   it('allows a rider to view their own wallet', async () => {
     const request = { authUser: { sub: 'rider-id', role: 'rider' } } as any;
     await controller.getMyWallet(request);
-    expect(wallets.getMyWallet).toHaveBeenCalledWith('rider-id');
+    expect(wallets.getMyWallet).toHaveBeenCalledWith('rider-id', undefined);
   });
 
   it('allows a driver to view their own transactions', async () => {
     const request = { authUser: { sub: 'driver-id', role: 'driver' } } as any;
     await controller.listTransactions(request, '10');
-    expect(wallets.listMyTransactions).toHaveBeenCalledWith('driver-id', 10);
+    expect(wallets.listMyTransactions).toHaveBeenCalledWith('driver-id', 10, undefined);
   });
 
   it('does not expose a wallet to admin accounts', () => {
