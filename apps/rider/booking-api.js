@@ -23,6 +23,7 @@
   const walletStatus = document.getElementById('wallet-status');
   const walletTransactions = document.getElementById('wallet-transactions');
   const refreshWalletButton = document.getElementById('refresh-wallet');
+  const walletCurrencyInput = document.getElementById('wallet-currency');
 
   function setStatus(message, signedIn) {
     status.textContent = message;
@@ -35,7 +36,7 @@
     walletPanel.hidden = !signedIn;
     refreshWalletButton.hidden = !signedIn;
     if (!signedIn) {
-      walletBalance.textContent = '— جنيه';
+      walletBalance.textContent = '—';
       walletTransactions.replaceChildren();
       walletStatus.textContent = 'سجّل الدخول لعرض محفظتك.';
       historyList.replaceChildren();
@@ -196,12 +197,13 @@
     walletStatus.textContent = 'جارٍ تحميل المحفظة…';
     refreshWalletButton.disabled = true;
     try {
-      const wallet = await api('/wallet/me');
-      walletBalance.textContent = Number(wallet.balanceEgp).toLocaleString('ar-EG', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }) + ' جنيه';
-      const entries = await api('/wallet/transactions?limit=10');
+      const currency = (walletCurrencyInput.value || 'EGP').trim().toUpperCase();
+      if (!/^[A-Z]{3}$/.test(currency)) throw new Error('اكتب رمز عملة صحيحًا من 3 أحرف مثل USD أو EGP.');
+      walletCurrencyInput.value = currency;
+      const wallet = await api('/wallet/me?currency=' + encodeURIComponent(currency));
+      const formatter = new Intl.NumberFormat('ar-EG', { style: 'currency', currency: wallet.currency });
+      walletBalance.textContent = formatter.format(Number(wallet.balance));
+      const entries = await api('/wallet/transactions?limit=10&currency=' + encodeURIComponent(currency));
       walletTransactions.replaceChildren();
       if (!Array.isArray(entries) || entries.length === 0) {
         walletStatus.textContent = 'رصيدك الداخلي ظاهر أعلاه. لا توجد حركات مالية مسجلة حتى الآن.';
@@ -215,10 +217,9 @@
         label.textContent = (entry.direction === 'credit' ? '＋ ' : '− ') +
           (walletTransactionLabels[entry.type] || 'حركة مالية');
         const amount = document.createElement('strong');
-        amount.textContent = Number(entry.amountEgp).toLocaleString('ar-EG', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        }) + ' جنيه';
+        amount.textContent = new Intl.NumberFormat('ar-EG', {
+          style: 'currency', currency: entry.currency
+        }).format(Number(entry.amount));
         row.append(label, amount);
         walletTransactions.append(row);
       });
@@ -232,6 +233,11 @@
 
   refreshWalletButton.addEventListener('click', () => {
     loadWallet().catch(() => {});
+  });
+
+  walletCurrencyInput.addEventListener('change', () => {
+    walletCurrencyInput.value = walletCurrencyInput.value.trim().toUpperCase();
+    if (token) loadWallet().catch(() => {});
   });
 
   confirmButton.addEventListener('click', async () => {
