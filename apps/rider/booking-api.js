@@ -192,6 +192,7 @@
         card.append(title);
         addHistoryRow(card, 'من', trip.pickupAddress);
         addHistoryRow(card, 'إلى', trip.destinationAddress);
+        addHistoryRow(card, 'السعر المحفوظ', trip.fareAmount == null ? 'غير متاح للرحلات القديمة' : new Intl.NumberFormat('ar', { style: 'currency', currency: trip.fareCurrency || 'USD' }).format(Number(trip.fareAmount)));
         addHistoryRow(card, 'الحالة', tripStatusLabels[trip.status] || 'غير معروفة');
         addHistoryRow(card, 'نوع الرحلة', rideTypeLabels[trip.rideType] || trip.rideType);
         addHistoryRow(card, 'طريقة الدفع', paymentLabels[trip.paymentMethod] || trip.paymentMethod);
