@@ -17,7 +17,8 @@ export interface RegisterUserInput {
 }
 
 export interface LoginUserInput {
-  email: string;
+  email?: string;
+  phone?: string;
   password: string;
 }
 
@@ -35,15 +36,11 @@ export class UsersService {
     const password = input.password;
 
     if (!email && !phone) {
-      throw new BadRequestException(
-        'Email or phone number is required',
-      );
+      throw new BadRequestException('Email or phone number is required');
     }
 
     if (typeof password !== 'string' || password.length < 12) {
-      throw new BadRequestException(
-        'Password must be at least 12 characters',
-      );
+      throw new BadRequestException('Password must be at least 12 characters');
     }
 
     const existing = await this.usersRepository.findOne({
@@ -54,13 +51,10 @@ export class UsersService {
     });
 
     if (existing) {
-      throw new ConflictException(
-        'Email or phone number is already registered',
-      );
+      throw new ConflictException('Email or phone number is already registered');
     }
 
     const passwordHash = await argon2.hash(password);
-
     const user = this.usersRepository.create({
       email,
       phone,
@@ -70,7 +64,6 @@ export class UsersService {
 
     try {
       const saved = await this.usersRepository.save(user);
-
       return {
         id: saved.id,
         email: saved.email,
@@ -85,37 +78,34 @@ export class UsersService {
         'code' in error &&
         error.code === '23505'
       ) {
-        throw new ConflictException(
-          'Email or phone number is already registered',
-        );
+        throw new ConflictException('Email or phone number is already registered');
       }
-
       throw error;
     }
   }
 
   async login(input: LoginUserInput) {
-    const email = input.email.trim().toLowerCase();
-    const password = input.password;
+    const email = input.email?.trim().toLowerCase();
+    const phone = input.phone?.trim();
+    if ((!email && !phone) || (email && phone)) {
+      throw new BadRequestException('Provide either email or phone number');
+    }
 
+    const identifier = email ?? phone!;
     const user = await this.usersRepository
       .createQueryBuilder('user')
       .addSelect('user.passwordHash')
-      .where('user.email = :email', { email })
+      .where(email ? 'user.email = :identifier' : 'user.phone = :identifier', { identifier })
       .getOne();
 
     // Keep the response identical for unknown accounts and wrong passwords.
     if (!user || !user.passwordHash || !user.isActive) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
-    const passwordMatches = await argon2.verify(
-      user.passwordHash,
-      password,
-    );
-
+    const passwordMatches = await argon2.verify(user.passwordHash, input.password);
     if (!passwordMatches) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     return {

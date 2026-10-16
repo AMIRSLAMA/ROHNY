@@ -7,6 +7,7 @@ import {
   Get,
   Req,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   IsEmail,
@@ -37,9 +38,15 @@ class RegisterUserDto {
 }
 
 class LoginUserDto {
+  @IsOptional()
   @IsEmail()
   @MaxLength(254)
-  email!: string;
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  phone?: string;
 
   @IsString()
   @MinLength(12)
@@ -62,6 +69,9 @@ export class UsersController {
   @UseGuards(AuthRateLimitGuard)
   @HttpCode(HttpStatus.OK)
   login(@Body() input: LoginUserDto) {
+    if (Boolean(input.email?.trim()) === Boolean(input.phone?.trim())) {
+      throw new BadRequestException('Provide either email or phone number');
+    }
     return this.usersService.login(input);
   }
 
