@@ -1,4 +1,4 @@
-import { Body, Controller, ForbiddenException, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthTokenGuard, AuthenticatedRequest } from '../auth/auth-token.guard';
 import { UserRole } from '../users/entities/user.entity';
 import { UpsertPricingCityDto } from './dto/upsert-pricing-city.dto';
@@ -34,7 +34,9 @@ export class PublicPricingController {
   }
 
   @Post('quote')
-  quote(@Body() input: FareQuoteDto) {
+  @UseGuards(AuthTokenGuard)
+  quote(@Req() request: AuthenticatedRequest, @Body() input: FareQuoteDto) {
+    if (request.authUser?.role !== UserRole.RIDER) throw new ForbiddenException('Only rider accounts can request fare quotes');
     return this.pricing.quote(input);
   }
 }
