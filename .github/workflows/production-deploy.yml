@@ -27,12 +27,21 @@ jobs:
           ROHNY_USER: ${{ secrets.ROHNY_USER }}
           ROHNY_SSH_KEY: ${{ secrets.ROHNY_SSH_KEY }}
           ROHNY_KNOWN_HOSTS: ${{ secrets.ROHNY_KNOWN_HOSTS }}
+          TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY }}
         run: |
           set -eu
           test -n "$ROHNY_HOST" || { echo "::error::Missing ROHNY_HOST repository secret"; exit 1; }
           test -n "$ROHNY_USER" || { echo "::error::Missing ROHNY_USER repository secret"; exit 1; }
           test -n "$ROHNY_SSH_KEY" || { echo "::error::Missing ROHNY_SSH_KEY repository secret"; exit 1; }
           test -n "$ROHNY_KNOWN_HOSTS" || { echo "::error::Missing ROHNY_KNOWN_HOSTS repository secret"; exit 1; }
+          test -n "$TAILSCALE_AUTHKEY" || { echo "::error::Missing TAILSCALE_AUTHKEY repository secret"; exit 1; }
+
+      - name: Connect GitHub runner to the private Tailscale network
+        uses: tailscale/github-action@v3
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          hostname: rohny-github-deploy
+          tags: tag:ci
 
       - name: Configure verified SSH connection
         env:
@@ -43,9 +52,9 @@ jobs:
         run: |
           set -eu
           install -m 700 -d "$HOME/.ssh"
-          printf '%s\n' "$ROHNY_SSH_KEY" > "$HOME/.ssh/rohny_deploy"
+          printf '%s\\n' "$ROHNY_SSH_KEY" > "$HOME/.ssh/rohny_deploy"
           chmod 600 "$HOME/.ssh/rohny_deploy"
-          printf '%s\n' "$ROHNY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          printf '%s\\n' "$ROHNY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
           chmod 600 "$HOME/.ssh/known_hosts"
           {
             echo "ROHNY_HOST=$ROHNY_HOST"
@@ -55,10 +64,10 @@ jobs:
       - name: Deploy main safely, back up database, migrate and restart API
         run: |
           set -eu
-          ssh -i "$HOME/.ssh/rohny_deploy" \
-            -o BatchMode=yes \
-            -o IdentitiesOnly=yes \
-            -o StrictHostKeyChecking=yes \
+          ssh -i "$HOME/.ssh/rohny_deploy" \\
+            -o BatchMode=yes \\
+            -o IdentitiesOnly=yes \\
+            -o StrictHostKeyChecking=yes \\
             "$ROHNY_USER@$ROHNY_HOST" 'bash -s' <<'REMOTE_SCRIPT'
           set -euo pipefail
 
