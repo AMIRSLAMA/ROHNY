@@ -503,7 +503,7 @@
     document.getElementById('passengers').addEventListener('change', invalidateRideReview);
     document.getElementById('trip-note').addEventListener('input', invalidateRideReview);
     scheduledAtInput.addEventListener('change', invalidateRideReview);
-    document.getElementById('ride-form').addEventListener('submit', event => {
+    document.getElementById('ride-form').addEventListener('submit', async event => {
       event.preventDefault();
       if (!pickupInput.value.trim() || !destinationInput.value.trim()) {
         formMessage.textContent = 'اكتب عنوان نقطة الانطلاق والوجهة أولًا.';
@@ -526,6 +526,32 @@
         formMessage.textContent = 'اختار موعدًا صحيحًا بعد خمس دقائق على الأقل، أو اختار «دلوقتي».';
         formMessage.style.display = 'block';
         scheduledAtInput.focus();
+        return;
+      }
+      if (!cityCodeInput.value) {
+        formMessage.textContent = 'اختار مدينة مفعّلة أولًا. إذا لم تظهر مدن، يلزم إعداد الأسعار من لوحة الإدارة.';
+        formMessage.style.display = 'block';
+        return;
+      }
+      try {
+        if (typeof window.ROHNY_QUOTE_FARE !== 'function') throw new Error('تعذّر تحميل خدمة التسعير. أعد تحميل الصفحة.');
+        const pickup = pickupMarker.getLatLng();
+        const destination = destinationMarker.getLatLng();
+        const quote = await window.ROHNY_QUOTE_FARE({
+          cityCode: cityCodeInput.value,
+          rideType: selectedRide,
+          pickupLatitude: pickup.lat,
+          pickupLongitude: pickup.lng,
+          destinationLatitude: destination.lat,
+          destinationLongitude: destination.lng
+        });
+        document.getElementById('fare-price').textContent = new Intl.NumberFormat('ar', {style:'currency',currency:quote.currency}).format(Number(quote.fareAmount));
+        document.getElementById('fare-currency').textContent = quote.currency;
+        document.getElementById('review-fare').textContent = new Intl.NumberFormat('ar', {style:'currency',currency:quote.currency}).format(Number(quote.fareAmount));
+        document.getElementById('review-city').textContent = quote.cityName + ' — ' + quote.currency;
+      } catch (error) {
+        formMessage.textContent = error.message || 'تعذّر حساب سعر الرحلة.';
+        formMessage.style.display = 'block';
         return;
       }
       document.getElementById('review-pickup').textContent = pickupInput.value.trim();
