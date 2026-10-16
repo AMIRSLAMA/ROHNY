@@ -93,6 +93,7 @@ const server = http.createServer((req, res) => {
     || pathname.startsWith('/wallet/')
     || pathname === '/pricing' || pathname.startsWith('/pricing/')
     || pathname === '/admin/pricing' || pathname.startsWith('/admin/pricing/')
+    || pathname === '/admin/drivers' || pathname.startsWith('/admin/drivers/')
     || pathname === '/trips'
     || pathname.startsWith('/trips/')
     || pathname === '/admin/trips'
