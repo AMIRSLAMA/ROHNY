@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Req,
@@ -55,7 +56,7 @@ export class TripsController {
   @Post(':tripId/accept')
   acceptTrip(
     @Req() request: AuthenticatedRequest,
-    @Param('tripId') tripId: string,
+    @Param('tripId', new ParseUUIDPipe()) tripId: string,
   ) {
     if (request.authUser!.role !== UserRole.DRIVER) {
       throw new ForbiddenException('Only driver accounts can accept trips');
