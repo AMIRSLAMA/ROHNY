@@ -91,6 +91,8 @@ const server = http.createServer((req, res) => {
 
   const isApi = pathname.startsWith('/auth/')
     || pathname.startsWith('/wallet/')
+    || pathname === '/pricing' || pathname.startsWith('/pricing/')
+    || pathname === '/admin/pricing' || pathname.startsWith('/admin/pricing/')
     || pathname === '/trips'
     || pathname.startsWith('/trips/')
     || pathname === '/admin/trips'
