@@ -24,6 +24,34 @@
   const walletTransactions = document.getElementById('wallet-transactions');
   const refreshWalletButton = document.getElementById('refresh-wallet');
   const walletCurrencyInput = document.getElementById('wallet-currency');
+  const cityCodeInput = document.getElementById('city-code');
+  const cityHint = document.getElementById('city-hint');
+  let selectedFareQuote = null;
+
+  async function loadPricingCities() {
+    try {
+      const response = await fetch(apiBase + '/pricing/cities', { headers: { Accept: 'application/json' } });
+      const cities = await response.json();
+      if (!response.ok || !Array.isArray(cities)) throw new Error('تعذّر تحميل المدن');
+      cityCodeInput.replaceChildren();
+      if (!cities.length) {
+        cityCodeInput.add(new Option('لا توجد مدينة مفعّلة بعد', ''));
+        cityCodeInput.disabled = true;
+        cityHint.textContent = 'تحتاج الإدارة لإضافة مدينة وأسعارها أولًا من لوحة الإدارة.';
+        return;
+      }
+      cityCodeInput.add(new Option('اختار المدينة', ''));
+      cities.forEach(city => cityCodeInput.add(new Option(city.cityName + ' — ' + city.countryCode + ' (' + city.currency + ')', city.cityCode)));
+      cityCodeInput.disabled = false;
+      cityHint.textContent = 'اختار مدينة الرحلة؛ العملة والأسعار تتحدد تلقائيًا حسب إعدادات المدينة.';
+    } catch (_) {
+      cityCodeInput.replaceChildren(new Option('تعذّر تحميل المدن', ''));
+      cityCodeInput.disabled = true;
+      cityHint.textContent = 'تحقق من اتصال الخادم ثم أعد تحميل الصفحة.';
+    }
+  }
+  loadPricingCities();
+  cityCodeInput.addEventListener('change', () => { selectedFareQuote = null; });
 
   function setStatus(message, signedIn) {
     status.textContent = message;
@@ -281,6 +309,11 @@
 
     const pickup = pickupMarker.getLatLng();
     const destination = destinationMarker.getLatLng();
+    if (!cityCodeInput.value) {
+      bookingStatus.textContent = 'اختار مدينة مفعّلة أولًا. إذا لم تظهر مدن، يلزم إعداد الأسعار من لوحة الإدارة.';
+      return;
+    }
+
     const payload = {
       pickupAddress: pickupInput.value.trim(),
       pickupLatitude: pickup.lat,
@@ -288,6 +321,7 @@
       destinationAddress: destinationInput.value.trim(),
       destinationLatitude: destination.lat,
       destinationLongitude: destination.lng,
+      cityCode: cityCodeInput.value,
       rideType: selectedRide,
       passengerCount: Number(document.getElementById('passengers').value),
       paymentMethod: selectedPayment,
@@ -296,10 +330,23 @@
     };
 
     confirmButton.disabled = true;
-    confirmButton.textContent = 'جارٍ إرسال الطلب…';
+    confirmButton.textContent = 'جارٍ حساب السعر وإرسال الطلب…';
     try {
+      const quote = await api('/pricing/quote', { method: 'POST', body: JSON.stringify({
+        cityCode: payload.cityCode,
+        rideType: payload.rideType,
+        pickupLatitude: payload.pickupLatitude,
+        pickupLongitude: payload.pickupLongitude,
+        destinationLatitude: payload.destinationLatitude,
+        destinationLongitude: payload.destinationLongitude
+      }) });
+      selectedFareQuote = quote;
+      document.getElementById('fare-price').textContent = new Intl.NumberFormat('ar', { style: 'currency', currency: quote.currency }).format(Number(quote.fareAmount));
+      document.getElementById('fare-currency').textContent = quote.currency;
+      document.getElementById('review-fare').textContent = new Intl.NumberFormat('ar', { style: 'currency', currency: quote.currency }).format(Number(quote.fareAmount));
+      document.getElementById('review-city').textContent = quote.cityName + ' — ' + quote.currency;
       const trip = await api('/trips', { method: 'POST', body: JSON.stringify(payload) });
-      bookingStatus.textContent = 'تم إرسال طلب الرحلة بنجاح. الحالة: قيد الانتظار.' +
+      bookingStatus.textContent = 'تم إرسال طلب الرحلة بنجاح. السعر المحفوظ: ' + new Intl.NumberFormat('ar', { style: 'currency', currency: trip.fareCurrency || selectedFareQuote.currency }).format(Number(trip.fareAmount)) + ' — الحالة: قيد الانتظار.' +
         (trip.id ? ' رقم الطلب: ' + trip.id : '');
       confirmButton.textContent = 'تم إرسال الطلب';
       loadTripHistory().catch(() => {});
