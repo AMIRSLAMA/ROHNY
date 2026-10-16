@@ -11,6 +11,10 @@
   const profileView = $('profileView');
   const profileForm = $('driverProfileForm');
   let profileImages = {};
+  let audioContext = null;
+  let ringingTimer = null;
+  let ringingTripId = '';
+  let tripsLoadInProgress = false;
   const loginForm = $('loginForm');
   const loginButton = $('loginButton');
   const loginStatus = $('loginStatus');
