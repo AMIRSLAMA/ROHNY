@@ -5,7 +5,7 @@ export class CreateDriverProfiles1771200000000 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`CREATE TABLE "driver_profiles" (
-      "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+      "id" uuid NOT NULL DEFAULT gen_random_uuid(),
       "user_id" uuid NOT NULL,
       "full_name" varchar(160) NOT NULL DEFAULT '',
       "national_id_number" varchar(40) NOT NULL DEFAULT '',
