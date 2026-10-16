@@ -57,6 +57,9 @@ jobs:
       - name: Check rider booking JavaScript syntax
         run: node --check ../apps/rider/booking-api.js
 
+      - name: Check preview server JavaScript syntax
+        run: node --check ../apps/preview-server.cjs
+
       - name: Install locked dependencies
         run: npm ci
 
