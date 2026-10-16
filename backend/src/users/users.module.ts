@@ -5,10 +5,12 @@ import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { AdminDriversController } from './admin-drivers.controller';
 import { AuthModule } from '../auth/auth.module';
+import { DriverProfile } from './entities/driver-profile.entity';
+import { DriverProfilesController } from './driver-profiles.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), AuthModule],
-  controllers: [UsersController, AdminDriversController],
+  imports: [TypeOrmModule.forFeature([User, DriverProfile]), AuthModule],
+  controllers: [UsersController, AdminDriversController, DriverProfilesController],
   providers: [UsersService],
   exports: [TypeOrmModule, UsersService],
 })
