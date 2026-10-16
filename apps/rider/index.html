@@ -93,6 +93,7 @@
           <div class="route-line" aria-hidden="true"></div>
           <div class="field"><label for="destination">رايح فين؟</label><span class="pin" aria-hidden="true">◎</span><input id="destination" name="destination" placeholder="اكتب وجهتك" required><button type="button" class="search-place-button" data-search-place="destination">🔎 ابحث عن الوجهة</button><div id="destination-search-results" class="place-results" hidden></div></div>
           <button type="button" id="swap-locations" class="map-toolbar-button swap-locations" aria-label="تبديل نقطة الانطلاق والوجهة">↕ تبديل نقطة الانطلاق والوجهة</button>
+          <div class="field"><label for="city-code">الدولة والمدينة</label><select id="city-code" name="cityCode" required><option value="">جارٍ تحميل المدن المتاحة…</option></select><small id="city-hint" class="field-hint">السعر والعملة حسب إعدادات المدينة.</small></div>
           <div class="section-title">اختار نوع الرحلة</div>
           <div class="rides" role="group" aria-label="نوع الرحلة">
             <button class="ride" type="button" data-ride="economy" aria-pressed="true"><div class="ride-icon">🚗</div><strong>اقتصادي</strong><small>مريح وعملي</small></button>
@@ -111,9 +112,9 @@
           <div class="field"><label>موعد الرحلة</label><div class="payment-options schedule-options" role="group" aria-label="موعد الرحلة"><button type="button" class="payment-option" data-schedule="now" aria-pressed="true">⚡ دلوقتي</button><button type="button" class="payment-option" data-schedule="later" aria-pressed="false">🗓️ حجز لاحقًا</button></div></div>
           <div class="field" id="schedule-field" hidden><label for="scheduled-at">حدد اليوم والوقت</label><input type="datetime-local" id="scheduled-at" name="scheduledAt"><small class="field-hint">اختار موعدًا في المستقبل</small></div>
           <div class="field trip-note-field"><label for="trip-note">ملاحظات للسائق (اختياري)</label><textarea id="trip-note" name="tripNote" rows="2" maxlength="240" placeholder="مثال: هكون عند البوابة الرئيسية"></textarea><small class="field-hint">حد أقصى 240 حرفًا</small></div>
-          <div class="estimate"><div><small>السعر</small><div class="price">يُحدد لاحقًا <span>بعد ربط التسعير</span></div></div><div style="text-align:left"><small>الدفع</small><strong>اختيار لاحقًا</strong></div></div>
+          <div class="estimate"><div><small>السعر</small><div id="fare-price" class="price">— <span id="fare-currency"></span></div></div><div style="text-align:left"><small>الدفع</small><strong>اختيار لاحقًا</strong></div></div>
           <button class="primary" type="submit">مراجعة تفاصيل الرحلة ←</button>
-          <p class="note">راجع التفاصيل ثم أرسل طلب الرحلة إلى الخادم. السعر النهائي غير محسوب بعد.</p>
+          <p class="note">يتم حساب السعر على الخادم وفق إعدادات المدينة والمسافة وزمن الطريق. السعر المعروض تقديري ويُحفظ مع الطلب.</p>
           <section id="ride-review" class="ride-review" hidden aria-live="polite" aria-labelledby="review-title">
             <h3 id="review-title">راجع تفاصيل مشوارك</h3>
             <div class="review-row"><span>من</span><strong id="review-pickup"></strong></div>
@@ -121,11 +122,13 @@
             <div class="review-row"><span>نوع الرحلة</span><strong id="review-type"></strong></div>
             <div class="review-row"><span>عدد الركاب</span><strong id="review-passengers"></strong></div>
             <div class="review-row"><span>طريقة الدفع المفضلة</span><strong id="review-payment"></strong></div>
+            <div class="review-row"><span>السعر التقديري</span><strong id="review-fare">—</strong></div>
+            <div class="review-row"><span>المدينة / العملة</span><strong id="review-city">—</strong></div>
             <div class="review-row"><span>موعد الرحلة</span><strong id="review-schedule"></strong></div>
             <div class="review-row" id="review-note-row" hidden><span>ملاحظات للسائق</span><strong id="review-note"></strong></div>
             <div class="review-row" id="review-distance-row" hidden><span>المسافة التقريبية</span><strong id="review-distance"></strong></div>
             <div class="review-row" id="review-time-row" hidden><span>زمن القيادة التقريبي</span><strong id="review-time"></strong></div>
-            <p class="note">سيُنشأ الطلب بحالة «قيد الانتظار»؛ السعر والتوزيع على السائق غير متاحين بعد.</p><div class="payment-options"><button type="button" id="confirm-ride" class="primary">تأكيد وطلب الرحلة</button><button type="button" id="edit-ride" class="map-toolbar-button">تعديل البيانات</button></div><p id="booking-status" class="note" role="status" aria-live="polite"></p>
+            <p class="note">السعر النهائي المحفوظ يُعاد حسابه على الخادم عند إرسال الطلب. خيارات الدفع تفضيلات فقط إلى أن يتم ربط مزود دفع فعلي.</p><div class="payment-options"><button type="button" id="confirm-ride" class="primary">تأكيد وطلب الرحلة</button><button type="button" id="edit-ride" class="map-toolbar-button">تعديل البيانات</button></div><p id="booking-status" class="note" role="status" aria-live="polite"></p>
           </section>
           <p id="form-message" role="status" aria-live="polite" style="display:none;color:var(--orange);font-size:13px;line-height:1.8"></p>
         </form>
