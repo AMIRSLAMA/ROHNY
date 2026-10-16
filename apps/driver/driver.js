@@ -8,6 +8,9 @@
   const loginPanel = $('loginPanel');
   const dashboard = $('dashboard');
   const accountView = $('accountView');
+  const profileView = $('profileView');
+  const profileForm = $('driverProfileForm');
+  let profileImages = {};
   const loginForm = $('loginForm');
   const loginButton = $('loginButton');
   const loginStatus = $('loginStatus');
@@ -54,7 +57,7 @@
     dashboard.classList.toggle('hidden', !signedIn);
     topActions.classList.toggle('hidden', !signedIn);
     bottomNav.classList.toggle('hidden', !signedIn);
-    if (!signedIn) { accountView.classList.add('hidden'); dashboard.querySelector('.welcome').classList.remove('hidden'); dashboard.querySelector('.dashboard-grid').classList.remove('hidden'); historyPanel.classList.add('hidden'); }
+    if (!signedIn) { accountView.classList.add('hidden'); profileView.classList.add('hidden'); dashboard.querySelector('.welcome').classList.remove('hidden'); dashboard.querySelector('.dashboard-grid').classList.remove('hidden'); historyPanel.classList.add('hidden'); }
     document.querySelectorAll('.nav-item[data-view]').forEach((item) => item.classList.toggle('active', item.dataset.view === 'trips'));
   }
 
@@ -201,8 +204,86 @@
     }
   }
 
+
+  const profileFields = ['fullName','nationalIdNumber','nationalIdExpiry','vehicleType','vehicleMake','vehicleModel','vehicleYear','vehicleColor','vehiclePlate','drivingLicenseNumber','drivingLicenseExpiry','vehicleLicenseNumber','vehicleLicenseExpiry'];
+  const profileImageKeys = ['profilePhoto','vehiclePhoto','nationalIdFront','nationalIdBack','drivingLicenseFront','drivingLicenseBack','vehicleLicenseFront','vehicleLicenseBack'];
+  function previewProfileImage(key, data) {
+    const target = $(key + 'Preview');
+    if (!target) return;
+    target.replaceChildren();
+    if (!data) return;
+    const img = document.createElement('img');
+    img.src = data; img.alt = 'معاينة مستند خاص'; img.loading = 'lazy';
+    if (key === 'profilePhoto' || key === 'vehiclePhoto') img.className = 'profile-photo-preview';
+    target.append(img);
+  }
+  async function fileAsDataUrl(file) {
+    if (!file) return null;
+    if (!['image/jpeg','image/png','image/webp'].includes(file.type)) throw new Error('ارفع الصور بصيغة JPG أو PNG أو WebP فقط.');
+    if (file.size > 2 * 1024 * 1024) throw new Error('حجم كل صورة يجب ألا يتجاوز 2 ميجابايت.');
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(new Error('تعذرت قراءة الصورة.'));
+      reader.readAsDataURL(file);
+    });
+  }
+  function profileStatus(profile) {
+    const labels = { not_submitted: 'لم يتم إرسال الملف للمراجعة', pending: 'ملفك قيد مراجعة الإدارة', approved: 'تمت الموافقة على الملف', needs_changes: 'الملف يحتاج إلى تعديل' };
+    $('profileReviewStatus').textContent = (labels[profile.reviewStatus] || 'حالة الملف غير معروفة') + (profile.reviewNote ? ' — ملاحظة الإدارة: ' + profile.reviewNote : '');
+  }
+  async function loadDriverProfile() {
+    $('driverProfileMessage').textContent = 'جارٍ تحميل ملفك…';
+    try {
+      const profile = await api('/driver-profile/me');
+      profileFields.forEach((key) => { const field = profileForm.elements.namedItem(key); if (field) field.value = profile[key] ?? ''; });
+      profileImages = profile.images || {};
+      profileImageKeys.forEach((key) => previewProfileImage(key, profileImages[key]));
+      profileStatus(profile);
+      $('driverProfileMessage').textContent = 'تم تحميل بيانات الملف.';
+    } catch (error) { $('driverProfileMessage').textContent = error.message || 'تعذر تحميل الملف.'; $('driverProfileMessage').classList.add('error'); }
+  }
+  profileImageKeys.forEach((key) => {
+    const field = profileForm.elements.namedItem(key);
+    field.addEventListener('change', async () => {
+      try {
+        const file = field.files?.[0];
+        if (!file) return;
+        const data = await fileAsDataUrl(file);
+        profileImages[key] = data;
+        previewProfileImage(key, data);
+      } catch (error) { field.value = ''; $('driverProfileMessage').textContent = error.message; $('driverProfileMessage').classList.add('error'); }
+    });
+  });
+  profileForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const button = $('saveDriverProfile'); button.disabled = true;
+    $('driverProfileMessage').classList.remove('error');
+    $('driverProfileMessage').textContent = 'جارٍ حفظ الملف وإرساله للمراجعة…';
+    try {
+      const payload = {};
+      profileFields.forEach((key) => {
+        const field = profileForm.elements.namedItem(key);
+        if (field && field.value !== '') payload[key] = key === 'vehicleYear' ? Number(field.value) : field.value;
+      });
+      payload.images = profileImages;
+      const profile = await api('/driver-profile/me', { method: 'PUT', body: JSON.stringify(payload) });
+      profileStatus(profile);
+      $('driverProfileMessage').textContent = 'تم حفظ الملف وإرساله للمراجعة بنجاح.';
+    } catch (error) { $('driverProfileMessage').textContent = error.message || 'تعذر حفظ الملف.'; $('driverProfileMessage').classList.add('error'); }
+    finally { button.disabled = false; }
+  });
+  $('refreshDriverProfile').addEventListener('click', loadDriverProfile);
+
   function showView(view) {
-    if (view === 'account') {
+    if (view === 'profile') {
+      accountView.classList.add('hidden'); profileView.classList.remove('hidden');
+      dashboard.querySelector('.welcome').classList.add('hidden'); dashboard.querySelector('.dashboard-grid').classList.add('hidden'); historyPanel.classList.add('hidden');
+      document.querySelectorAll('.nav-item[data-view]').forEach((item) => item.classList.toggle('active', item.dataset.view === 'profile'));
+      loadDriverProfile(); window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (view === 'account') {
+      profileView.classList.add('hidden');
+      document.querySelectorAll('.nav-item[data-view]').forEach((item) => item.classList.toggle('active', item.dataset.view === 'account'));
       dashboard.querySelector('.welcome').classList.add('hidden');
       dashboard.querySelector('.dashboard-grid').classList.add('hidden');
       historyPanel.classList.add('hidden');
@@ -210,7 +291,7 @@
       loadAccount();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      accountView.classList.add('hidden');
+      accountView.classList.add('hidden'); profileView.classList.add('hidden');
       dashboard.querySelector('.welcome').classList.remove('hidden');
       dashboard.querySelector('.dashboard-grid').classList.remove('hidden');
       document.querySelectorAll('.nav-item[data-view]').forEach((item) => item.classList.toggle('active', item.dataset.view === 'trips'));
