@@ -27,6 +27,8 @@ describe('TripsService', () => {
     passengerCount: 2,
     paymentMethod: TripPaymentMethod.CASH,
     cityCode: 'CAI',
+    quotedFareAmount: 45.5,
+    quotedCurrency: 'EGP',
   };
 
   beforeEach(() => {
