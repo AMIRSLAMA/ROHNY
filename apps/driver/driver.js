@@ -72,7 +72,13 @@
     addRow(card, 'الحالة', statusLabels[trip.status] || trip.status);
     addRow(card, 'نوع الرحلة', rideLabels[trip.rideType] || trip.rideType);
     addRow(card, 'عدد الركاب', trip.passengerCount);
-    addRow(card, 'الدفع', paymentLabels[trip.paymentMethod] || trip.paymentMethod);\n    if (trip.fareAmount != null && trip.fareCurrency) addRow(card, 'الأجرة التقديرية', Number(trip.fareAmount).toLocaleString('ar-EG', { maximumFractionDigits: 2 }) + ' ' + trip.fareCurrency);\n    if (trip.cityCode) addRow(card, 'المدينة', trip.cityCode);\n    const distance = trip.fareDistanceMeters ?? trip.estimatedDistanceMeters;\n    if (distance != null) addRow(card, 'المسافة التقريبية', (distance / 1000).toLocaleString('ar-EG', { maximumFractionDigits: 1 }) + ' كم');\n    const duration = trip.fareDurationSeconds ?? trip.estimatedDurationSeconds;\n    if (duration != null) addRow(card, 'المدة التقريبية', Math.max(1, Math.round(duration / 60)).toLocaleString('ar-EG') + ' دقيقة');
+    addRow(card, 'الدفع', paymentLabels[trip.paymentMethod] || trip.paymentMethod);
+    if (trip.fareAmount != null && trip.fareCurrency) addRow(card, 'الأجرة التقديرية', Number(trip.fareAmount).toLocaleString('ar-EG', { maximumFractionDigits: 2 }) + ' ' + trip.fareCurrency);
+    if (trip.cityCode) addRow(card, 'المدينة', trip.cityCode);
+    const distance = trip.fareDistanceMeters ?? trip.estimatedDistanceMeters;
+    if (distance != null) addRow(card, 'المسافة التقريبية', (distance / 1000).toLocaleString('ar-EG', { maximumFractionDigits: 1 }) + ' كم');
+    const duration = trip.fareDurationSeconds ?? trip.estimatedDurationSeconds;
+    if (duration != null) addRow(card, 'المدة التقريبية', Math.max(1, Math.round(duration / 60)).toLocaleString('ar-EG') + ' دقيقة');
     if (trip.scheduledAt) addRow(card, 'موعد الرحلة', new Date(trip.scheduledAt).toLocaleString('ar-EG'));
     if (trip.riderNote) addRow(card, 'ملاحظة الراكب', trip.riderNote);
     const actions = document.createElement('div');
