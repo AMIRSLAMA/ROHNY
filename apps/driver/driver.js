@@ -12,6 +12,9 @@
   const assignedList = $('assignedList');
   const availableList = $('availableList');
   const topActions = $('topActions');
+  const bottomNav = $('bottomNav');
+  const availableCount = $('availableCount');
+  const assignedCount = $('assignedCount');
   const statusLabels = {
     pending: 'قيد الانتظار',
     accepted: 'تم قبول الرحلة',
@@ -41,6 +44,7 @@
     loginPanel.classList.toggle('hidden', signedIn);
     dashboard.classList.toggle('hidden', !signedIn);
     topActions.classList.toggle('hidden', !signedIn);
+    bottomNav.classList.toggle('hidden', !signedIn);
   }
 
   function signOut(message = 'تم تسجيل الخروج.') {
@@ -64,11 +68,25 @@
   function tripCard(trip, assigned) {
     const card = document.createElement('article');
     card.className = 'trip';
+    const tripHead = document.createElement('div'); tripHead.className = 'trip-head';
     const title = document.createElement('h3');
-    title.textContent = 'رحلة ' + String(trip.id || '').slice(0, 8);
-    card.append(title);
-    addRow(card, 'من', trip.pickupAddress);
-    addRow(card, 'إلى', trip.destinationAddress);
+    title.textContent = 'رحلة #' + String(trip.id || '').slice(0, 8);
+    const statusPill = document.createElement('span'); statusPill.className = 'pill'; statusPill.textContent = statusLabels[trip.status] || trip.status;
+    tripHead.append(title, statusPill); card.append(tripHead);
+    const route = document.createElement('div');
+    route.className = 'route';
+    const track = document.createElement('div');
+    track.className = 'route-track';
+    const startDot = document.createElement('span'); startDot.className = 'route-dot';
+    const routeLine = document.createElement('span'); routeLine.className = 'route-line';
+    const endDot = document.createElement('span'); endDot.className = 'route-dot end';
+    track.append(startDot, routeLine, endDot);
+    const addresses = document.createElement('div');
+    const start = document.createElement('div'); start.innerHTML = '<div class="route-label">نقطة الركوب</div>';
+    const startAddress = document.createElement('div'); startAddress.className = 'route-address'; startAddress.textContent = trip.pickupAddress || 'غير محدد'; start.append(startAddress);
+    const destination = document.createElement('div'); destination.style.marginTop = '19px'; destination.innerHTML = '<div class="route-label">الوجهة</div>';
+    const destinationAddress = document.createElement('div'); destinationAddress.className = 'route-address'; destinationAddress.textContent = trip.destinationAddress || 'غير محددة'; destination.append(destinationAddress);
+    addresses.append(start, destination); route.append(track, addresses); card.append(route);
     addRow(card, 'الحالة', statusLabels[trip.status] || trip.status);
     addRow(card, 'نوع الرحلة', rideLabels[trip.rideType] || trip.rideType);
     addRow(card, 'عدد الركاب', trip.passengerCount);
@@ -143,6 +161,8 @@
       if (!Array.isArray(assigned) || !Array.isArray(available)) throw new Error('استجابة الرحلات غير متوقعة.');
       assignedList.replaceChildren();
       availableList.replaceChildren();
+      assignedCount.textContent = String(assigned.length);
+      availableCount.textContent = String(available.length);
       if (!assigned.length) {
         const empty = document.createElement('p');
         empty.className = 'muted';
@@ -198,6 +218,11 @@
   });
 
   $('refresh').addEventListener('click', loadTrips);
+  $('mobileRefresh').addEventListener('click', loadTrips);
+  document.querySelectorAll('.nav-item[data-target]').forEach((item) => item.addEventListener('click', () => {
+    const target = $(item.dataset.target);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }));
   $('logout').addEventListener('click', () => signOut());
   if (token) {
     showSignedIn(true);
