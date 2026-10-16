@@ -42,6 +42,48 @@
   const rideLabels = { economy: 'اقتصادي', scooter: 'اسكوتر', comfort: 'مريح', family: 'عائلي' };
   const paymentLabels = { cash: 'كاش', wallet: 'محفظة', card: 'بطاقة' };
 
+  function unlockTripAudio() {
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+      if (!audioContext) audioContext = new AudioContextClass();
+      if (audioContext.state === 'suspended') audioContext.resume().catch(() => {});
+    } catch (_) {}
+  }
+
+  function playTripAlert() {
+    if (!audioContext || audioContext.state !== 'running') return;
+    try {
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+      oscillator.frequency.setValueAtTime(660, audioContext.currentTime + 0.22);
+      gain.gain.setValueAtTime(0.0001, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.22, audioContext.currentTime + 0.03);
+      gain.gain.setValueAtTime(0.22, audioContext.currentTime + 0.28);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.38);
+      oscillator.connect(gain); gain.connect(audioContext.destination);
+      oscillator.start(); oscillator.stop(audioContext.currentTime + 0.4);
+    } catch (_) {}
+  }
+
+  function syncTripRinging(available) {
+    const nextTripId = available.length ? String(available[0].id) : '';
+    if (!nextTripId) {
+      ringingTripId = '';
+      if (ringingTimer) window.clearInterval(ringingTimer);
+      ringingTimer = null;
+      return;
+    }
+    ringingTripId = nextTripId;
+    if (!ringingTimer) {
+      playTripAlert();
+      ringingTimer = window.setInterval(playTripAlert, 1400);
+      dashboardStatus.textContent = 'رحلة جديدة متاحة — اقبلها أو ارفضها لإيقاف تنبيهها.';
+    }
+  }
+
   async function api(path, options = {}) {
     const headers = { Accept: 'application/json', ...(options.headers || {}) };
     if (options.body) headers['Content-Type'] = 'application/json';
