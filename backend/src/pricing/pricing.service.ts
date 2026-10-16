@@ -26,12 +26,9 @@ export class PricingService {
     const multipliers = input.rideMultipliers ?? { economy: 1, scooter: 0.8, comfort: 1.35, family: 1.5 };
     for (const type of Object.values(TripRideType)) {
       const multiplier = multipliers[type];
-      if (multiplier !== undefined && (!Number.isFinite(multiplier) || multiplier <= 0 || multiplier > 10)) {
+      if (multiplier !== undefined && (typeof multiplier !== 'number' || !Number.isFinite(multiplier) || multiplier <= 0 || multiplier > 10)) {
         throw new BadRequestException('Ride multipliers must be greater than 0 and at most 10');
       }
-    }
-    if (input.minimumFare > input.baseFare && input.baseFare === 0 && input.perKilometer === 0 && input.perMinute === 0) {
-      throw new BadRequestException('Configure at least one fare component');
     }
     const cityCode = input.cityCode.trim().toUpperCase();
     const existing = await this.cities.findOne({ where: { cityCode } });
