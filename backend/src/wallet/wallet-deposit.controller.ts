@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, ForbiddenException, Get, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, ForbiddenException, Get, Patch, Post, Req, UseGuards, Param } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { AuthTokenGuard, AuthenticatedRequest } from '../auth/auth-token.guard';
 import { UserRole } from '../users/entities/user.entity';
@@ -7,7 +7,7 @@ import { WalletService } from './wallet.service';
 @Controller('wallet/deposits')
 @UseGuards(AuthTokenGuard)
 export class WalletDepositController {
-  constructor(private readonly db: DataSource, private readonly wallets: WalletService) {}
+  constructor(private readonly db: DataSource) {}
 
   @Post()
   async create(@Req() req: AuthenticatedRequest, @Body() body: { amount?: unknown; currency?: unknown; note?: unknown }) {
@@ -60,7 +60,7 @@ export class WalletDepositController {
   }
 
   @Patch(':id/review')
-  async review(@Req() req: AuthenticatedRequest, @Body() body: { decision?: unknown; note?: unknown }, @import('@nestjs/common').Param('id') id: string) {
+  async review(@Req() req: AuthenticatedRequest, @Body() body: { decision?: unknown; note?: unknown }, @Param('id') id: string) {
     const adminId = req.authUser!.sub;
     if (req.authUser!.role !== UserRole.ADMIN) throw new ForbiddenException('Admin access required');
     const decision = String(body.decision || '');
