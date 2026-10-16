@@ -60,6 +60,7 @@
 
   function setStatus(message, signedIn) {
     status.textContent = message;
+    if (typeof window.ROHNY_SET_RIDER_SESSION_VIEW === 'function') window.ROHNY_SET_RIDER_SESSION_VIEW(signedIn);
     loginButton.hidden = signedIn;
     registerButton.hidden = signedIn;
     logoutButton.hidden = !signedIn;
@@ -148,6 +149,7 @@
   } else {
     setStatus('سجّل الدخول أو أنشئ حسابًا قبل طلب الرحلة.', false);
   }
+  if (typeof window.ROHNY_SET_RIDER_SESSION_VIEW === 'function') window.ROHNY_SET_RIDER_SESSION_VIEW(Boolean(token));
 
   const tripStatusLabels = {
     pending: 'قيد الانتظار',
