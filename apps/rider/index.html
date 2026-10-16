@@ -112,7 +112,7 @@
           <div class="field"><label>موعد الرحلة</label><div class="payment-options schedule-options" role="group" aria-label="موعد الرحلة"><button type="button" class="payment-option" data-schedule="now" aria-pressed="true">⚡ دلوقتي</button><button type="button" class="payment-option" data-schedule="later" aria-pressed="false">🗓️ حجز لاحقًا</button></div></div>
           <div class="field" id="schedule-field" hidden><label for="scheduled-at">حدد اليوم والوقت</label><input type="datetime-local" id="scheduled-at" name="scheduledAt"><small class="field-hint">اختار موعدًا في المستقبل</small></div>
           <div class="field trip-note-field"><label for="trip-note">ملاحظات للسائق (اختياري)</label><textarea id="trip-note" name="tripNote" rows="2" maxlength="240" placeholder="مثال: هكون عند البوابة الرئيسية"></textarea><small class="field-hint">حد أقصى 240 حرفًا</small></div>
-          <div class="estimate"><div><small>السعر</small><div id="fare-price" class="price">— <span id="fare-currency"></span></div></div><div style="text-align:left"><small>الدفع</small><strong>اختيار لاحقًا</strong></div></div>
+          <div class="estimate"><div><small>السعر</small><div class="price"><span id="fare-price">—</span> <span id="fare-currency"></span></div></div><div style="text-align:left"><small>الدفع</small><strong>اختيار لاحقًا</strong></div></div>
           <button class="primary" type="submit">مراجعة تفاصيل الرحلة ←</button>
           <p class="note">يتم حساب السعر على الخادم وفق إعدادات المدينة والمسافة وزمن الطريق. السعر المعروض تقديري ويُحفظ مع الطلب.</p>
           <section id="ride-review" class="ride-review" hidden aria-live="polite" aria-labelledby="review-title">
