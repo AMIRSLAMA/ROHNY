@@ -7,6 +7,7 @@ import { TripsService } from './trips.service';
 describe('TripsService', () => {
   let service: TripsService;
   let queryBuilder: Record<string, jest.Mock>;
+  let pricingService: { quote: jest.Mock };
   let repository: {
     create: jest.Mock;
     save: jest.Mock;
@@ -25,6 +26,7 @@ describe('TripsService', () => {
     rideType: TripRideType.ECONOMY,
     passengerCount: 2,
     paymentMethod: TripPaymentMethod.CASH,
+    cityCode: 'CAI',
   };
 
   beforeEach(() => {
@@ -41,7 +43,8 @@ describe('TripsService', () => {
       findOne: jest.fn(async ({ where }) => ({ id: where?.id ?? 'trip-id', riderId: where?.riderId ?? 'rider-id', driverId: 'driver-id', status: TripStatus.ACCEPTED }) as Trip),
       createQueryBuilder: jest.fn(() => queryBuilder),
     };
-    service = new TripsService(repository as unknown as Repository<Trip>);
+    pricingService = { quote: jest.fn(async () => ({ cityCode: 'CAI', currency: 'EGP', fareAmount: 45.5, distanceMeters: 6500, durationSeconds: 900 })) };
+    service = new TripsService(repository as unknown as Repository<Trip>, pricingService as any);
   });
 
   it('creates a pending trip for the authenticated rider and normalizes text', async () => {
@@ -55,7 +58,15 @@ describe('TripsService', () => {
       status: TripStatus.PENDING,
       scheduledAt: null,
       riderNote: null,
+      cityCode: 'CAI',
+      fareCurrency: 'EGP',
+      fareAmount: '45.50',
+      fareDistanceMeters: 6500,
+      fareDurationSeconds: 900,
+      estimatedDistanceMeters: 6500,
+      estimatedDurationSeconds: 900,
     }));
+    expect(pricingService.quote).toHaveBeenCalledWith(expect.objectContaining({ cityCode: 'CAI', rideType: TripRideType.ECONOMY }));
     expect(repository.save).toHaveBeenCalledTimes(1);
     expect(result.id).toBe('trip-id');
   });
