@@ -15,6 +15,12 @@
   const bottomNav = $('bottomNav');
   const availableCount = $('availableCount');
   const assignedCount = $('assignedCount');
+  const historyPanel = $('historyPanel');
+  const historyList = $('historyList');
+  const historyCount = $('historyCount');
+  const toggleHistory = $('toggleHistory');
+  const historyArrow = $('historyArrow');
+  let historyTrips = [];
   const statusLabels = {
     pending: 'قيد الانتظار',
     accepted: 'تم قبول الرحلة',
@@ -161,14 +167,18 @@
       if (!Array.isArray(assigned) || !Array.isArray(available)) throw new Error('استجابة الرحلات غير متوقعة.');
       assignedList.replaceChildren();
       availableList.replaceChildren();
-      assignedCount.textContent = String(assigned.length);
+      historyTrips = assigned.filter((trip) => ['completed', 'cancelled'].includes(trip.status));
+      const activeTrips = assigned.filter((trip) => !['completed', 'cancelled'].includes(trip.status));
+      assignedCount.textContent = String(activeTrips.length);
+      historyCount.textContent = String(historyTrips.length);
       availableCount.textContent = String(available.length);
-      if (!assigned.length) {
-        const empty = document.createElement('p');
-        empty.className = 'muted';
-        empty.textContent = 'لا توجد رحلات مسندة إليك حاليًا.';
+      if (!activeTrips.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.innerHTML = '<span class="empty-icon">◷</span>لا توجد رحلات حالية الآن.<br>ستظهر هنا الرحلات التي تقبلها وتكون قيد التنفيذ.';
         assignedList.append(empty);
-      } else assigned.forEach((trip) => assignedList.append(tripCard(trip, true)));
+      } else activeTrips.forEach((trip) => assignedList.append(tripCard(trip, true)));
+      if (!historyPanel.classList.contains('hidden')) renderHistory();
       if (!available.length) {
         const empty = document.createElement('p');
         empty.className = 'muted';
@@ -183,6 +193,31 @@
       $('refresh').disabled = false;
     }
   }
+
+  function renderHistory() {
+    historyList.replaceChildren();
+    if (!historyTrips.length) {
+      const empty = document.createElement('div');
+      empty.className = 'empty';
+      empty.innerHTML = '<span class="empty-icon">▤</span>لا يوجد سجل رحلات سابق حتى الآن.';
+      historyList.append(empty);
+      return;
+    }
+    historyTrips.slice().sort((a, b) => new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0))
+      .forEach((trip) => historyList.append(tripCard(trip, true)));
+  }
+
+  toggleHistory.addEventListener('click', () => {
+    const opening = historyPanel.classList.contains('hidden');
+    historyPanel.classList.toggle('hidden', !opening);
+    toggleHistory.setAttribute('aria-expanded', String(opening));
+    toggleHistory.querySelector('span').textContent = opening ? 'إخفاء سجل الرحلات السابقة' : 'عرض سجل الرحلات السابقة';
+    historyArrow.textContent = opening ? '⌃' : '⌄';
+    if (opening) {
+      renderHistory();
+      historyPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
 
   loginForm.addEventListener('submit', async (event) => {
     event.preventDefault();
