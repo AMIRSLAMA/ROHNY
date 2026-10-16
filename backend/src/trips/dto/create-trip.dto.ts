@@ -5,6 +5,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Matches,
   Max,
   MaxLength,
   Min,
@@ -15,6 +16,10 @@ import {
 } from '../entities/trip.entity';
 
 export class CreateTripDto {
+  @IsString()
+  @Matches(/^[A-Z0-9_-]{2,12}$/)
+  cityCode!: string;
+
   @IsString()
   @MaxLength(500)
   pickupAddress!: string;
