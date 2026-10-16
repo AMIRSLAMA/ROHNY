@@ -24,6 +24,12 @@
   const walletTransactions = document.getElementById('wallet-transactions');
   const refreshWalletButton = document.getElementById('refresh-wallet');
   const walletCurrencyInput = document.getElementById('wallet-currency');
+  const walletDepositForm = document.getElementById('wallet-deposit-form');
+  const walletDepositAmount = document.getElementById('wallet-deposit-amount');
+  const walletDepositNote = document.getElementById('wallet-deposit-note');
+  const walletDepositSubmit = document.getElementById('wallet-deposit-submit');
+  const walletDepositFormStatus = document.getElementById('wallet-deposit-form-status');
+  const walletDepositRequests = document.getElementById('wallet-deposit-requests');
   const cityCodeInput = document.getElementById('city-code');
   const cityHint = document.getElementById('city-hint');
   let selectedFareQuote = null;
@@ -72,6 +78,8 @@
     if (!signedIn) {
       walletBalance.textContent = '—';
       walletTransactions.replaceChildren();
+      if (walletDepositRequests) walletDepositRequests.innerHTML = '<p class="note">سجّل الدخول لعرض طلبات الإيداع.</p>';
+      if (walletDepositFormStatus) walletDepositFormStatus.textContent = '';
       walletStatus.textContent = 'سجّل الدخول لعرض محفظتك.';
       historyList.replaceChildren();
       historyStatus.textContent = 'سجّل الدخول لعرض رحلاتك السابقة.';
@@ -131,6 +139,7 @@
       setStatus('تم تسجيل الدخول: ' + (result.user.email || result.user.phone || identifier), true);
       loadTripHistory().catch(() => {});
       loadWallet().catch(() => {});
+      loadWalletDepositRequests().catch(() => {});
     } catch (error) {
       setStatus(error.message || 'تعذّر تسجيل الدخول.', false);
     } finally {
@@ -287,8 +296,74 @@
     }
   }
 
+
+  const depositStatusLabels = { pending: 'قيد مراجعة الإدارة', approved: 'تم اعتماد الإيداع', rejected: 'مرفوض' };
+
+  async function loadWalletDepositRequests() {
+    if (!token || !walletDepositRequests) return;
+    walletDepositRequests.innerHTML = '<p class="note">جارٍ تحميل طلبات الإيداع…</p>';
+    try {
+      const requests = await api('/wallet/deposits/mine');
+      walletDepositRequests.replaceChildren();
+      if (!Array.isArray(requests) || requests.length === 0) {
+        walletDepositRequests.innerHTML = '<p class="note">لا توجد طلبات إيداع حتى الآن.</p>';
+        return;
+      }
+      requests.forEach(item => {
+        const card = document.createElement('article');
+        card.className = 'ride-review';
+        const title = document.createElement('h4');
+        title.textContent = 'طلب إيداع — ' + (depositStatusLabels[item.status] || item.status);
+        const amount = document.createElement('div');
+        amount.className = 'review-row';
+        const label = document.createElement('span');
+        label.textContent = 'المبلغ';
+        const value = document.createElement('strong');
+        value.textContent = new Intl.NumberFormat('ar-EG', { style: 'currency', currency: item.currency }).format(Number(item.amount));
+        amount.append(label, value);
+        const date = document.createElement('p');
+        date.className = 'note';
+        date.textContent = 'تاريخ الطلب: ' + (item.createdAt ? new Date(item.createdAt).toLocaleString('ar-EG') : '—');
+        card.append(title, amount, date);
+        if (item.note) { const note = document.createElement('p'); note.className = 'note'; note.textContent = 'ملاحظتك: ' + item.note; card.append(note); }
+        if (item.adminNote) { const note = document.createElement('p'); note.className = 'note'; note.textContent = 'رد الإدارة: ' + item.adminNote; card.append(note); }
+        walletDepositRequests.append(card);
+      });
+    } catch (error) {
+      walletDepositRequests.innerHTML = '';
+      const message = document.createElement('p');
+      message.className = 'note';
+      message.textContent = error.message || 'تعذّر تحميل طلبات الإيداع.';
+      walletDepositRequests.append(message);
+    }
+  }
+
+  if (walletDepositForm) walletDepositForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (!token) { walletDepositFormStatus.textContent = 'سجّل الدخول أولًا.'; return; }
+    const amount = Number(walletDepositAmount.value);
+    if (!Number.isFinite(amount) || amount <= 0) { walletDepositFormStatus.textContent = 'أدخل مبلغًا صحيحًا.'; return; }
+    walletDepositSubmit.disabled = true;
+    walletDepositFormStatus.textContent = 'جارٍ إرسال الطلب…';
+    try {
+      await api('/wallet/deposits', { method: 'POST', body: JSON.stringify({
+        amount,
+        currency: (walletCurrencyInput.value || 'EGP').trim().toUpperCase(),
+        note: walletDepositNote.value.trim()
+      }) });
+      walletDepositFormStatus.textContent = 'تم تسجيل طلب الإيداع. الرصيد لن يتغير حتى تعتمد الإدارة استلام المبلغ.';
+      walletDepositForm.reset();
+      await loadWalletDepositRequests();
+    } catch (error) {
+      walletDepositFormStatus.textContent = error.message || 'تعذّر إرسال طلب الإيداع.';
+    } finally {
+      walletDepositSubmit.disabled = false;
+    }
+  });
+
   refreshWalletButton.addEventListener('click', () => {
     loadWallet().catch(() => {});
+    loadWalletDepositRequests().catch(() => {});
   });
 
   walletCurrencyInput.addEventListener('change', () => {
