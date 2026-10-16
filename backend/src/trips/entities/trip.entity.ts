@@ -22,17 +22,25 @@ export enum TripPaymentMethod {
 
 export enum TripStatus {
   PENDING = 'pending',
+  ACCEPTED = 'accepted',
+  DRIVER_ARRIVING = 'driver_arriving',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
   CANCELLED = 'cancelled',
 }
 
 @Entity({ name: 'trips' })
 @Index('IDX_trips_rider_created_at', ['riderId', 'createdAt'])
+@Index('IDX_trips_driver_status_created', ['driverId', 'status', 'createdAt'])
 export class Trip {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @Column({ name: 'rider_id', type: 'uuid' })
   riderId!: string;
+
+  @Column({ name: 'driver_id', type: 'uuid', nullable: true })
+  driverId!: string | null;
 
   @Column({ name: 'pickup_address', type: 'varchar', length: 500 })
   pickupAddress!: string;
