@@ -45,3 +45,13 @@ These choices are initial proposals and should be validated against hosting, map
 - Keep development, staging, and production environments separate.
 - Validate every stage before proceeding to the next.
 - Do not copy files or credentials from unrelated projects.
+
+
+## City-based fare pricing
+
+- Admins configure each city in the admin dashboard using a unique city code, country code, local ISO 4217 currency, base fare, per-kilometer rate, per-minute rate, minimum fare, and ride-type multipliers.
+- Riders choose an active city. The API calculates road distance and duration server-side using OSRM (default: `https://router.project-osrm.org`; set `ROHNY_ROUTING_URL` to a self-hosted or approved compatible OSRM endpoint).
+- Fare formula: `max(minimumFare, (baseFare + distanceKm × perKilometer + durationMinutes × perMinute) × rideTypeMultiplier)`, rounded to two decimal places.
+- `GET /pricing/cities` lists active city options; authenticated riders use `POST /pricing/quote`; admins use `GET /admin/pricing/cities` and `POST /admin/pricing/cities`.
+- A trip stores the approved fare, currency, city code, server-calculated distance, and duration. Trip creation recalculates the route and rejects a changed quote so the rider must review it again.
+- No city or price is seeded intentionally. An administrator must configure approved prices before booking is enabled for that city. The default public OSRM endpoint is suitable only for development/pilot use; production should use an approved routing service with capacity and service terms appropriate to the launch.
