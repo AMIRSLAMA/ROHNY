@@ -81,6 +81,21 @@ export class Trip {
   @Column({ name: 'estimated_duration_seconds', type: 'integer', nullable: true })
   estimatedDurationSeconds!: number | null;
 
+  @Column({ name: 'city_code', type: 'varchar', length: 12, nullable: true })
+  cityCode!: string | null;
+
+  @Column({ name: 'fare_currency', type: 'varchar', length: 3, nullable: true })
+  fareCurrency!: string | null;
+
+  @Column({ name: 'fare_amount', type: 'numeric', precision: 12, scale: 2, nullable: true })
+  fareAmount!: string | null;
+
+  @Column({ name: 'fare_distance_meters', type: 'integer', nullable: true })
+  fareDistanceMeters!: number | null;
+
+  @Column({ name: 'fare_duration_seconds', type: 'integer', nullable: true })
+  fareDurationSeconds!: number | null;
+
   @Column({ type: 'varchar', length: 20, default: TripStatus.PENDING })
   status!: TripStatus;
 
