@@ -85,6 +85,7 @@ describe('PricingService', () => {
   });
 
   it('rejects quotes for cities without active pricing', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch');
     repository.findOne.mockResolvedValueOnce(null);
     await expect(service.quote({
       cityCode: 'XYZ',
@@ -94,7 +95,7 @@ describe('PricingService', () => {
       destinationLatitude: 30.1,
       destinationLongitude: 31.1,
     })).rejects.toThrow(NotFoundException);
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 
   it('reports route-provider outages instead of trusting client-supplied distance', async () => {
