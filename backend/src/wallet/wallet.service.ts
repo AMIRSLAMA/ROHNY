@@ -37,7 +37,7 @@ export class WalletService {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency,
-    }).resolvedOptions().maximumFractionDigits;
+    }).resolvedOptions().maximumFractionDigits ?? 2;
   }
 
   private formatMoney(minor: string, currency: string): string {
