@@ -8,12 +8,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateTripDto } from './dto/create-trip.dto';
 import { Trip, TripStatus } from './entities/trip.entity';
+import { PricingService } from '../pricing/pricing.service';
 
 @Injectable()
 export class TripsService {
   constructor(
     @InjectRepository(Trip)
     private readonly tripsRepository: Repository<Trip>,
+    private readonly pricingService: PricingService,
   ) {}
 
   async createForRider(riderId: string, input: CreateTripDto) {
@@ -30,6 +32,15 @@ export class TripsService {
       throw new BadRequestException('Scheduled trips must be at least five minutes in the future');
     }
 
+    const fare = await this.pricingService.quote({
+      cityCode: input.cityCode,
+      rideType: input.rideType,
+      pickupLatitude: input.pickupLatitude,
+      pickupLongitude: input.pickupLongitude,
+      destinationLatitude: input.destinationLatitude,
+      destinationLongitude: input.destinationLongitude,
+    });
+
     const trip = this.tripsRepository.create({
       riderId,
       driverId: null,
@@ -44,8 +55,13 @@ export class TripsService {
       paymentMethod: input.paymentMethod,
       scheduledAt,
       riderNote: input.riderNote?.trim() || null,
-      estimatedDistanceMeters: input.estimatedDistanceMeters ?? null,
-      estimatedDurationSeconds: input.estimatedDurationSeconds ?? null,
+      cityCode: fare.cityCode,
+      fareCurrency: fare.currency,
+      fareAmount: fare.fareAmount.toFixed(2),
+      fareDistanceMeters: fare.distanceMeters,
+      fareDurationSeconds: fare.durationSeconds,
+      estimatedDistanceMeters: fare.distanceMeters,
+      estimatedDurationSeconds: fare.durationSeconds,
       status: TripStatus.PENDING,
     });
 
