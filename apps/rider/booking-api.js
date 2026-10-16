@@ -7,7 +7,7 @@
   const tokenKey = 'rohny_access_token';
   let token = sessionStorage.getItem(tokenKey) || '';
 
-  const emailInput = document.getElementById('auth-email');
+  const identifierInput = document.getElementById('auth-email');
   const passwordInput = document.getElementById('auth-password');
   const status = document.getElementById('auth-status');
   const loginButton = document.getElementById('auth-login');
@@ -30,7 +30,7 @@
     loginButton.hidden = signedIn;
     registerButton.hidden = signedIn;
     logoutButton.hidden = !signedIn;
-    emailInput.disabled = signedIn;
+    identifierInput.disabled = signedIn;
     passwordInput.disabled = signedIn;
     refreshHistoryButton.hidden = !signedIn;
     walletPanel.hidden = !signedIn;
@@ -67,31 +67,34 @@
   }
 
   async function authenticate(register) {
-    const email = emailInput.value.trim();
+    const identifier = identifierInput.value.trim();
     const password = passwordInput.value;
-    if (!emailInput.checkValidity() || !email || password.length < 12) {
-      setStatus('اكتب بريدًا إلكترونيًا صحيحًا وكلمة مرور من 12 حرفًا على الأقل.', false);
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+    const isPhone = /^\+?[0-9() .-]{7,20}$/.test(identifier);
+    if ((!isEmail && !isPhone) || password.length < 12 || password.length > 128) {
+      setStatus('اكتب بريدًا إلكترونيًا صحيحًا أو رقم موبايل صالحًا، وكلمة مرور من 12 إلى 128 حرفًا.', false);
       return;
     }
+    const identity = isEmail ? { email: identifier.toLowerCase() } : { phone: identifier };
     loginButton.disabled = true;
     registerButton.disabled = true;
     try {
       if (register) {
         await api('/auth/register', {
           method: 'POST',
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({ ...identity, password })
         });
       }
       const result = await api('/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ ...identity, password })
       });
       if (!result.accessToken || result.user?.role !== 'rider') {
         throw new Error('هذا الحساب ليس حساب راكب، أو لم يرجع الخادم رمز دخول صالحًا.');
       }
       token = result.accessToken;
       sessionStorage.setItem(tokenKey, token);
-      setStatus('تم تسجيل الدخول: ' + (result.user.email || email), true);
+      setStatus('تم تسجيل الدخول: ' + (result.user.email || result.user.phone || identifier), true);
       loadTripHistory().catch(() => {});
       loadWallet().catch(() => {});
     } catch (error) {
@@ -115,13 +118,10 @@
 
   const tripStatusLabels = {
     pending: 'قيد الانتظار',
-    accepted: 'تم قبول الرحلة',
-    preparing: 'جارٍ التجهيز',
-    ready_for_pickup: 'السائق جاهز للاستلام',
-    driver_assigned: 'تم تعيين سائق',
-    picked_up: 'تم الاستلام',
-    out_for_delivery: 'في الطريق',
-    delivered: 'مكتملة',
+    accepted: 'السائق قبل الرحلة',
+    driver_arriving: 'السائق في الطريق إليك',
+    in_progress: 'الرحلة جارية',
+    completed: 'مكتملة',
     cancelled: 'ملغاة'
   };
   const rideTypeLabels = { economy: 'اقتصادي', scooter: 'اسكوتر', comfort: 'مريح', family: 'عائلي' };
@@ -169,6 +169,26 @@
           if (!Number.isNaN(date.getTime())) dateLabel = date.toLocaleString('ar-EG');
         }
         addHistoryRow(card, trip.scheduledAt ? 'موعد الرحلة' : 'تاريخ الطلب', dateLabel);
+        if (trip.status === 'pending' || trip.status === 'accepted') {
+          const cancelButton = document.createElement('button');
+          cancelButton.type = 'button';
+          cancelButton.className = 'map-toolbar-button';
+          cancelButton.textContent = 'إلغاء الرحلة';
+          cancelButton.addEventListener('click', async () => {
+            if (!window.confirm('هل تريد إلغاء هذه الرحلة؟')) return;
+            cancelButton.disabled = true;
+            cancelButton.textContent = 'جارٍ الإلغاء…';
+            try {
+              await api('/trips/' + encodeURIComponent(trip.id) + '/cancel', { method: 'POST' });
+              await loadTripHistory();
+            } catch (error) {
+              historyStatus.textContent = error.message || 'تعذّر إلغاء الرحلة.';
+              cancelButton.disabled = false;
+              cancelButton.textContent = 'إعادة المحاولة';
+            }
+          });
+          card.append(cancelButton);
+        }
         historyList.append(card);
       });
     } catch (error) {
@@ -245,7 +265,7 @@
     if (!token) {
       bookingStatus.textContent = 'سجّل الدخول أولًا حتى نرسل طلب الرحلة.';
       document.getElementById('auth-panel').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      emailInput.focus();
+      identifierInput.focus();
       return;
     }
     if (!pickupMarker || !destinationMarker || !pickupInput.value.trim() || !destinationInput.value.trim()) {
