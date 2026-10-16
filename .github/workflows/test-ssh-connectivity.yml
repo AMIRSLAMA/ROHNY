@@ -48,4 +48,4 @@ jobs:
             -o StrictHostKeyChecking=yes \
             -o ConnectTimeout=10 \
             "$ROHNY_USER@$ROHNY_HOST" \
-            'printf "SSH_OK\\n"; hostname; test -d /home/amir/rohny && echo ROHNY_DIR_OK'
+            'echo SSH_OK; hostname; test -d /home/amir/rohny && echo ROHNY_DIR_OK'
