@@ -30,6 +30,9 @@
   const walletDepositSubmit = document.getElementById('wallet-deposit-submit');
   const walletDepositFormStatus = document.getElementById('wallet-deposit-form-status');
   const walletDepositRequests = document.getElementById('wallet-deposit-requests');
+  const walletOpenDepositButton = document.getElementById('wallet-open-deposit');
+  const walletTopupCard = document.getElementById('wallet-topup-card');
+  const walletCancelDepositButton = document.getElementById('wallet-cancel-deposit');
   const cityCodeInput = document.getElementById('city-code');
   const cityHint = document.getElementById('city-hint');
   let selectedFareQuote = null;
@@ -338,6 +341,16 @@
     }
   }
 
+  if (walletOpenDepositButton && walletTopupCard) walletOpenDepositButton.addEventListener('click', () => {
+    if (!token) { walletDepositFormStatus.textContent = 'سجّل الدخول أولًا.'; return; }
+    walletTopupCard.hidden = !walletTopupCard.hidden;
+    if (!walletTopupCard.hidden) walletDepositAmount.focus();
+  });
+  if (walletCancelDepositButton && walletTopupCard) walletCancelDepositButton.addEventListener('click', () => {
+    walletTopupCard.hidden = true;
+    walletDepositFormStatus.textContent = '';
+  });
+
   if (walletDepositForm) walletDepositForm.addEventListener('submit', async event => {
     event.preventDefault();
     if (!token) { walletDepositFormStatus.textContent = 'سجّل الدخول أولًا.'; return; }
@@ -353,6 +366,7 @@
       }) });
       walletDepositFormStatus.textContent = 'تم تسجيل طلب الإيداع. الرصيد لن يتغير حتى تعتمد الإدارة استلام المبلغ.';
       walletDepositForm.reset();
+      if (walletTopupCard) walletTopupCard.hidden = true;
       await loadWalletDepositRequests();
     } catch (error) {
       walletDepositFormStatus.textContent = error.message || 'تعذّر إرسال طلب الإيداع.';
