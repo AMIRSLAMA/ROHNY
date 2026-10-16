@@ -169,7 +169,12 @@
       accept.className = 'btn primary';
       accept.textContent = 'قبول الرحلة';
       accept.addEventListener('click', () => performTripAction(accept, trip.id, 'accept'));
-      actions.append(accept);
+      const reject = document.createElement('button');
+      reject.type = 'button';
+      reject.className = 'btn';
+      reject.textContent = 'رفض الرحلة';
+      reject.addEventListener('click', () => performTripAction(reject, trip.id, 'reject'));
+      actions.append(accept, reject);
     } else if (assigned) {
       const next = {
         accepted: ['driver_arriving', 'أنا في الطريق للراكب'],
@@ -196,6 +201,8 @@
     try {
       if (action === 'accept') {
         await api('/trips/' + encodeURIComponent(tripId) + '/accept', { method: 'POST' });
+      } else if (action === 'reject') {
+        await api('/trips/' + encodeURIComponent(tripId) + '/reject', { method: 'POST' });
       } else {
         await api('/trips/' + encodeURIComponent(tripId) + '/status', {
           method: 'PATCH',
