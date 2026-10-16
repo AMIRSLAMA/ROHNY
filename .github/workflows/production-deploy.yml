@@ -136,7 +136,7 @@ jobs:
           sudo systemctl restart rohny-api.service
 
           for attempt in $(seq 1 20); do
-            if curl --fail --silent --show-error http://127.0.0.1:3001/ >/dev/null; then
+            if curl --fail --silent --show-error http://127.0.0.1:3001/api/health >/dev/null; then
               echo "ROHNY API health check passed."
               exit 0
             fi
