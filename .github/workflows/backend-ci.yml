@@ -5,6 +5,7 @@ on:
     paths:
       - "backend/**"
       - "apps/rider/**"
+      - "apps/preview-server.cjs"
       - ".github/workflows/backend-ci.yml"
   push:
     branches:
