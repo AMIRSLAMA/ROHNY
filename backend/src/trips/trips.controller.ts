@@ -13,12 +13,25 @@ import {
 } from '../auth/auth-token.guard';
 import { UserRole } from '../users/entities/user.entity';
 import { CreateTripDto } from './dto/create-trip.dto';
+import { FareQuoteDto } from './dto/fare-quote.dto';
+import { FarePricingService } from './fare-pricing.service';
 import { TripsService } from './trips.service';
 
 @Controller('trips')
 @UseGuards(AuthTokenGuard)
 export class TripsController {
-  constructor(private readonly tripsService: TripsService) {}
+  constructor(
+    private readonly tripsService: TripsService,
+    private readonly farePricingService: FarePricingService,
+  ) {}
+
+  @Post('quote')
+  quote(@Req() request: AuthenticatedRequest, @Body() input: FareQuoteDto) {
+    if (request.authUser!.role !== UserRole.RIDER) {
+      throw new ForbiddenException('Only rider accounts can request fare quotes');
+    }
+    return this.farePricingService.quote(input);
+  }
 
   @Post()
   create(

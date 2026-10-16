@@ -73,6 +73,15 @@ export class Trip {
   @Column({ name: 'estimated_duration_seconds', type: 'integer', nullable: true })
   estimatedDurationSeconds!: number | null;
 
+  @Column({ name: 'fare_amount', type: 'double precision', nullable: true })
+  fareAmount!: number | null;
+
+  @Column({ name: 'fare_currency', type: 'varchar', length: 3, nullable: true })
+  fareCurrency!: string | null;
+
+  @Column({ name: 'pricing_version', type: 'varchar', length: 40, nullable: true })
+  pricingVersion!: string | null;
+
   @Column({ type: 'varchar', length: 20, default: TripStatus.PENDING })
   status!: TripStatus;
 

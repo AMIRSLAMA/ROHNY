@@ -1,6 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { CreateTripDto } from './dto/create-trip.dto';
+import { FarePricingService } from './fare-pricing.service';
 import { Trip, TripPaymentMethod, TripRideType, TripStatus } from './entities/trip.entity';
 import { TripsService } from './trips.service';
 
@@ -11,6 +12,7 @@ describe('TripsService', () => {
     save: jest.Mock;
     find: jest.Mock;
   };
+  let farePricingService: { quote: jest.Mock };
 
   const validInput: CreateTripDto = {
     pickupAddress: '  نقطة الانطلاق  ',
@@ -22,6 +24,18 @@ describe('TripsService', () => {
     rideType: TripRideType.ECONOMY,
     passengerCount: 2,
     paymentMethod: TripPaymentMethod.CASH,
+    estimatedDistanceMeters: 999999,
+    estimatedDurationSeconds: 99999,
+  };
+
+  const serverFare = {
+    currency: 'EGP',
+    estimatedDistanceMeters: 4200,
+    estimatedDurationSeconds: 605,
+    estimatedFare: 42.5,
+    pricingVersion: 'estimate-v1',
+    estimateOnly: true,
+    note: 'test estimate',
   };
 
   beforeEach(() => {
@@ -30,12 +44,23 @@ describe('TripsService', () => {
       save: jest.fn(async (value) => ({ ...value, id: 'trip-id' }) as Trip),
       find: jest.fn(async () => []),
     };
-    service = new TripsService(repository as unknown as Repository<Trip>);
+    farePricingService = { quote: jest.fn(() => serverFare) };
+    service = new TripsService(
+      repository as unknown as Repository<Trip>,
+      farePricingService as unknown as FarePricingService,
+    );
   });
 
-  it('creates a pending trip for the authenticated rider and normalizes text', async () => {
+  it('creates a pending trip and stores server-calculated fare, distance and duration', async () => {
     const result = await service.createForRider('rider-id', validInput);
 
+    expect(farePricingService.quote).toHaveBeenCalledWith({
+      pickupLatitude: validInput.pickupLatitude,
+      pickupLongitude: validInput.pickupLongitude,
+      destinationLatitude: validInput.destinationLatitude,
+      destinationLongitude: validInput.destinationLongitude,
+      rideType: validInput.rideType,
+    });
     expect(repository.create).toHaveBeenCalledWith(expect.objectContaining({
       riderId: 'rider-id',
       pickupAddress: 'نقطة الانطلاق',
@@ -44,6 +69,15 @@ describe('TripsService', () => {
       status: TripStatus.PENDING,
       scheduledAt: null,
       riderNote: null,
+      estimatedDistanceMeters: 4200,
+      estimatedDurationSeconds: 605,
+      fareAmount: 42.5,
+      fareCurrency: 'EGP',
+      pricingVersion: 'estimate-v1',
+    }));
+    expect(repository.create).not.toHaveBeenCalledWith(expect.objectContaining({
+      estimatedDistanceMeters: 999999,
+      estimatedDurationSeconds: 99999,
     }));
     expect(repository.save).toHaveBeenCalledTimes(1);
     expect(result.id).toBe('trip-id');
@@ -69,6 +103,13 @@ describe('TripsService', () => {
       passengerCount: 2,
     })).rejects.toThrow(BadRequestException);
 
+    expect(repository.save).not.toHaveBeenCalled();
+  });
+
+  it('rejects trips where the server estimate is zero or too close', async () => {
+    farePricingService.quote.mockReturnValue({ ...serverFare, estimatedFare: 0, estimatedDistanceMeters: 0 });
+
+    await expect(service.createForRider('rider-id', validInput)).rejects.toThrow(BadRequestException);
     expect(repository.save).not.toHaveBeenCalled();
   });
 

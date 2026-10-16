@@ -37,9 +37,15 @@ class RegisterUserDto {
 }
 
 class LoginUserDto {
+  @IsOptional()
   @IsEmail()
   @MaxLength(254)
-  email!: string;
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  phone?: string;
 
   @IsString()
   @MinLength(12)

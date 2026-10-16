@@ -17,7 +17,8 @@ export interface RegisterUserInput {
 }
 
 export interface LoginUserInput {
-  email: string;
+  email?: string;
+  phone?: string;
   password: string;
 }
 
@@ -95,18 +96,27 @@ export class UsersService {
   }
 
   async login(input: LoginUserInput) {
-    const email = input.email.trim().toLowerCase();
+    const email = input.email?.trim().toLowerCase() || null;
+    const phone = input.phone?.trim() || null;
     const password = input.password;
 
-    const user = await this.usersRepository
+    if ((!email && !phone) || (email && phone)) {
+      throw new BadRequestException(
+        'Provide either an email address or a phone number',
+      );
+    }
+
+    const query = this.usersRepository
       .createQueryBuilder('user')
-      .addSelect('user.passwordHash')
-      .where('user.email = :email', { email })
-      .getOne();
+      .addSelect('user.passwordHash');
+
+    const user = email
+      ? await query.where('user.email = :email', { email }).getOne()
+      : await query.where('user.phone = :phone', { phone }).getOne();
 
     // Keep the response identical for unknown accounts and wrong passwords.
     if (!user || !user.passwordHash || !user.isActive) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Invalid email/phone or password');
     }
 
     const passwordMatches = await argon2.verify(
@@ -115,7 +125,7 @@ export class UsersService {
     );
 
     if (!passwordMatches) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Invalid email/phone or password');
     }
 
     return {

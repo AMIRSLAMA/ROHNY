@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateTripDto } from './dto/create-trip.dto';
+import { FarePricingService } from './fare-pricing.service';
 import { Trip, TripStatus } from './entities/trip.entity';
 
 @Injectable()
@@ -9,6 +10,7 @@ export class TripsService {
   constructor(
     @InjectRepository(Trip)
     private readonly tripsRepository: Repository<Trip>,
+    private readonly farePricingService: FarePricingService,
   ) {}
 
   async createForRider(riderId: string, input: CreateTripDto) {
@@ -25,6 +27,19 @@ export class TripsService {
       throw new BadRequestException('Scheduled trips must be at least five minutes in the future');
     }
 
+    // Never trust client-supplied distance or duration for fare calculation/storage.
+    const fare = this.farePricingService.quote({
+      pickupLatitude: input.pickupLatitude,
+      pickupLongitude: input.pickupLongitude,
+      destinationLatitude: input.destinationLatitude,
+      destinationLongitude: input.destinationLongitude,
+      rideType: input.rideType,
+    });
+
+    if (fare.estimatedFare <= 0 || fare.estimatedDistanceMeters <= 0) {
+      throw new BadRequestException('Pickup and destination must be far enough apart to request a trip');
+    }
+
     const trip = this.tripsRepository.create({
       riderId,
       pickupAddress: input.pickupAddress.trim(),
@@ -38,8 +53,11 @@ export class TripsService {
       paymentMethod: input.paymentMethod,
       scheduledAt,
       riderNote: input.riderNote?.trim() || null,
-      estimatedDistanceMeters: input.estimatedDistanceMeters ?? null,
-      estimatedDurationSeconds: input.estimatedDurationSeconds ?? null,
+      estimatedDistanceMeters: fare.estimatedDistanceMeters,
+      estimatedDurationSeconds: fare.estimatedDurationSeconds,
+      fareAmount: fare.estimatedFare,
+      fareCurrency: fare.currency,
+      pricingVersion: fare.pricingVersion,
       status: TripStatus.PENDING,
     });
 
