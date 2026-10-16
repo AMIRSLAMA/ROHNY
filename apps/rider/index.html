@@ -109,6 +109,22 @@
     #riderAppShell.rider-view-account .rider-account-page h2{margin-top:0;font-size:26px}
     #riderAppShell.rider-view-account .rider-account-page p{line-height:1.9}
     #riderAppShell.rider-view-account .rider-account-page button{margin-top:16px}
+    .rider-wallet-panel{background:linear-gradient(160deg,#10241e,#0b1d17)!important;border:1px solid #29473b!important;color:#f5fbf7!important;box-shadow:0 20px 50px #0003}
+    .rider-wallet-heading,.rider-wallet-subheading{display:flex;align-items:center;justify-content:space-between;gap:14px}
+    .rider-wallet-heading h3{margin:0;font-size:25px;color:#f5fbf7}.rider-wallet-heading p{margin:7px 0 0;color:#a8bbb1;font-size:13px}
+    .rider-wallet-refresh{width:42px;height:42px;border-radius:14px;border:1px solid #29473b;background:#152e26;color:#a8f06a;font-size:24px}
+    .rider-wallet-balance{position:relative;overflow:hidden;margin:22px 0 16px;padding:25px;border-radius:21px;background:linear-gradient(120deg,#c4ff62,#9bdc49);color:#102317;min-height:155px}
+    .rider-wallet-balance .balance-label,.rider-wallet-balance .balance-footnote{display:block;font-size:12px;font-weight:800;opacity:.78}
+    .rider-wallet-balance strong{display:block;font-size:clamp(30px,5vw,40px);margin:10px 0;direction:ltr;text-align:right;position:relative;z-index:1}
+    .rider-wallet-balance .wallet-decoration{position:absolute;left:22px;bottom:-44px;font-size:170px;line-height:1;font-weight:900;opacity:.12;pointer-events:none}
+    .rider-wallet-deposit-button{display:flex;align-items:center;gap:13px;width:100%;padding:16px;border-radius:17px;border:1px solid #45683e;background:#152e26;color:#f5fbf7;text-align:right}
+    .rider-wallet-deposit-button .deposit-plus{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:#a8f06a;color:#102317;font-size:27px;font-weight:900}
+    .rider-wallet-deposit-button b,.rider-wallet-deposit-button small{display:block}.rider-wallet-deposit-button b{font-size:15px}.rider-wallet-deposit-button small{font-size:12px;color:#a8bbb1;margin-top:5px}.rider-wallet-deposit-button .deposit-arrow{margin-inline-start:auto;color:#a8f06a;font-size:22px}
+    .wallet-topup-card{margin:16px 0;padding:18px;border:1px solid #29473b;border-radius:17px;background:#0b1d17}
+    .wallet-topup-card h4,.rider-wallet-subheading h4{margin:0;color:#f5fbf7;font-size:16px}.wallet-topup-card .field label{color:#d5e4da}
+    .wallet-topup-card input{background:#10241e;color:#f5fbf7;border-color:#29473b}.rider-wallet-form-actions{display:flex;gap:10px;flex-wrap:wrap}.rider-wallet-cancel{padding:11px 18px;border-radius:12px;border:1px solid #29473b;background:#152e26;color:#f5fbf7}
+    .rider-wallet-subpanel{margin-top:18px;padding:17px;border:1px solid #29473b;border-radius:17px;background:#0b1d17}.rider-wallet-subheading{margin-bottom:12px}.rider-wallet-subheading span{font-size:11px;color:#a8bbb1}
+    .rider-wallet-panel .review-row{border-color:#29473b;color:#f5fbf7}.rider-wallet-panel .note{color:#a8bbb1}.rider-wallet-note{margin:16px 0 0;padding:13px 15px;border:1px solid #4e5430;background:#c4ff620c;color:#cbd9b5;border-radius:14px;font-size:12px;line-height:1.8}
     #auth-panel{display:none}
     @media(max-width:800px){.rider-login-screen{padding:20px 14px}.login-card{border-radius:24px}.rider-bottom-nav button{font-size:10px}}
   </style>
@@ -161,64 +177,32 @@
         <div class="booking-head"><div><h2 id="booking-title">احجز مشوارك</h2><p>ابدأ بتحديد مكانك ووجهتك</p></div><div class="badge">روحني معاك</div></div>
 
         <section id="trip-history-panel" class="ride-review" aria-labelledby="trip-history-title"><h3 id="trip-history-title">رحلاتي</h3><p id="trip-history-status" class="note" role="status" aria-live="polite">سجّل الدخول لعرض رحلاتك السابقة.</p><div id="trip-history-list"></div><button type="button" id="refresh-trip-history" class="map-toolbar-button" hidden>تحديث سجل الرحلات</button></section>
-        <section id="wallet-panel" class="ride-review" aria-labelledby="wallet-title">
-          <h3 id="wallet-title">محفظتي الإلكترونية</h3>
-          <div class="field">
-            <label for="wallet-currency">عملة المحفظة (رمز ISO 4217)</label>
-            <input id="wallet-currency" list="wallet-currency-options" value="EGP" maxlength="3" pattern="[A-Za-z]{3}" autocomplete="off" aria-describedby="wallet-currency-help">
-            <datalist id="wallet-currency-options">
-              <option value="EGP" label="الجنيه المصري"></option>
-              <option value="USD" label="الدولار الأمريكي"></option>
-              <option value="EUR" label="اليورو"></option>
-              <option value="GBP" label="الجنيه الإسترليني"></option>
-              <option value="SAR" label="الريال السعودي"></option>
-              <option value="AED" label="الدرهم الإماراتي"></option>
-              <option value="KWD" label="الدينار الكويتي"></option>
-              <option value="QAR" label="الريال القطري"></option>
-              <option value="BHD" label="الدينار البحريني"></option>
-              <option value="OMR" label="الريال العماني"></option>
-              <option value="JOD" label="الدينار الأردني"></option>
-              <option value="IQD" label="الدينار العراقي"></option>
-              <option value="TRY" label="الليرة التركية"></option>
-              <option value="CAD" label="الدولار الكندي"></option>
-              <option value="AUD" label="الدولار الأسترالي"></option>
-              <option value="JPY" label="الين الياباني"></option>
-              <option value="CNY" label="اليوان الصيني"></option>
-              <option value="INR" label="الروبية الهندية"></option>
-              <option value="CHF" label="الفرنك السويسري"></option>
-              <option value="ZAR" label="الراند الجنوب أفريقي"></option>
-              <option value="NGN" label="النيرة النيجيرية"></option>
-              <option value="KES" label="الشلن الكيني"></option>
-              <option value="MAD" label="الدرهم المغربي"></option>
-              <option value="TND" label="الدينار التونسي"></option>
-              <option value="DZD" label="الدينار الجزائري"></option>
-              <option value="BRL" label="الريال البرازيلي"></option>
-              <option value="MXN" label="البيزو المكسيكي"></option>
-              <option value="SGD" label="الدولار السنغافوري"></option>
-              <option value="SEK" label="الكرونة السويدية"></option>
-              <option value="NOK" label="الكرونة النرويجية"></option>
-              <option value="PLN" label="الزلوتي البولندي"></option>
-              <option value="KRW" label="الوون الكوري"></option>
-            </datalist>
-            <p id="wallet-currency-help" class="note">اكتب رمز العملة المكوّن من 3 أحرف. لكل عملة رصيد وسجل مستقلان؛ لا يحدث تحويل بين العملات تلقائيًا.</p>
+        <section id="wallet-panel" class="ride-review rider-wallet-panel" aria-labelledby="wallet-title">
+          <div class="rider-wallet-heading">
+            <div><h3 id="wallet-title">محفظتي</h3><p>رصيدك وحركات المحفظة وطلبات الإيداع</p></div>
+            <button type="button" id="refresh-wallet" class="rider-wallet-refresh" aria-label="تحديث المحفظة" title="تحديث المحفظة">↻</button>
           </div>
-          <div class="review-row"><span>الرصيد الداخلي</span><strong id="wallet-balance">—</strong></div>
-          <div class="wallet-topup-card" style="margin:16px 0;padding:16px;border:1px solid var(--line,#d9e3df);border-radius:16px">
-            <h3 style="margin-top:0">شحن محفظتي</h3>
-            <p class="note">قدّم طلب إيداع يدوي. لن يُضاف الرصيد إلا بعد مراجعة الإدارة وتأكيد استلام المبلغ.</p>
+          <input id="wallet-currency" type="hidden" value="EGP">
+          <div class="rider-wallet-balance">
+            <span class="balance-label">الرصيد الحالي</span>
+            <strong id="wallet-balance">— EGP</strong>
+            <span class="balance-footnote">رصيد محفظة روحني</span>
+            <div class="wallet-decoration" aria-hidden="true">ر</div>
+          </div>
+          <button type="button" id="wallet-open-deposit" class="rider-wallet-deposit-button"><span class="deposit-plus">＋</span><span><b>طلب إيداع</b><small>إضافة رصيد إلى محفظتك</small></span><span class="deposit-arrow">←</span></button>
+          <div id="wallet-topup-card" class="wallet-topup-card" hidden>
+            <h4>طلب إيداع جديد</h4>
+            <p class="note">اكتب المبلغ الذي تريد إيداعه. لن يُضاف الرصيد إلا بعد تأكيد الإدارة استلام المبلغ فعليًا.</p>
             <form id="wallet-deposit-form">
-              <div class="field"><label for="wallet-deposit-amount">مبلغ الإيداع</label><input id="wallet-deposit-amount" type="number" min="1" max="1000000" step="0.01" required inputmode="decimal" placeholder="مثال: 200"></div>
+              <div class="field"><label for="wallet-deposit-amount">مبلغ الإيداع بالجنيه المصري</label><input id="wallet-deposit-amount" type="number" min="1" max="1000000" step="0.01" required inputmode="decimal" placeholder="مثال: 200"></div>
               <div class="field"><label for="wallet-deposit-note">ملاحظة (اختياري)</label><input id="wallet-deposit-note" maxlength="240" placeholder="تفاصيل تساعد الإدارة في مراجعة الطلب"></div>
-              <button type="submit" id="wallet-deposit-submit" class="map-toolbar-button">إرسال طلب الإيداع</button>
+              <div class="rider-wallet-form-actions"><button type="submit" id="wallet-deposit-submit" class="map-toolbar-button">إرسال طلب الإيداع</button><button type="button" id="wallet-cancel-deposit" class="rider-wallet-cancel">إلغاء</button></div>
               <p id="wallet-deposit-form-status" class="note" role="status" aria-live="polite"></p>
             </form>
           </div>
-          <h3>طلبات الإيداع</h3>
-          <div id="wallet-deposit-requests"><p class="note">سجّل الدخول لعرض طلبات الإيداع.</p></div>
-          <p id="wallet-status" class="note" role="status" aria-live="polite">سجّل الدخول لعرض محفظتك.</p>
-          <div id="wallet-transactions"></div>
-          <button type="button" id="refresh-wallet" class="map-toolbar-button" hidden>تحديث المحفظة</button>
-          <p class="note">الإيداع اليدوي قيد المراجعة حتى تعتمد الإدارة استلام المبلغ. لا يوجد سحب من محفظة الراكب.</p>
+          <section class="rider-wallet-subpanel"><div class="rider-wallet-subheading"><h4>طلبات الإيداع</h4><span>متابعة الحالة</span></div><div id="wallet-deposit-requests"><p class="note">سجّل الدخول لعرض طلبات الإيداع.</p></div></section>
+          <section class="rider-wallet-subpanel"><div class="rider-wallet-subheading"><h4>حركات المحفظة</h4><span>آخر العمليات</span></div><p id="wallet-status" class="note" role="status" aria-live="polite">سجّل الدخول لعرض محفظتك.</p><div id="wallet-transactions"></div></section>
+          <p class="rider-wallet-note">الإيداع قيد المراجعة حتى تؤكد الإدارة استلام المبلغ. محفظة الراكب لا تتضمن خاصية السحب.</p>
         </section>
         <form id="ride-form">
           <div class="field"><label for="pickup">هتركب منين؟</label><span class="pin" aria-hidden="true">⌖</span><input id="pickup" name="pickup" placeholder="اضغط استخدام موقعي لتحديد مكانك تلقائيًا" autocomplete="street-address" required><button type="button" id="use-pickup-current-location" class="search-place-button">📍 استخدام موقعي الحالي كنقطة انطلاق</button><button type="button" class="search-place-button" data-search-place="pickup">🔎 البحث عن عنوان يدويًا</button><div id="pickup-search-results" class="place-results" hidden></div></div>
