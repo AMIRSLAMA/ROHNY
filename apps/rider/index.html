@@ -61,10 +61,48 @@
       .payment-option{font-size:11px;padding:11px 2px}
       .map-canvas{height:260px}
     }
+
+    html{scroll-behavior:smooth}
+    .rider-login-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px 16px;background:radial-gradient(ellipse at 50% 0%,#1e563a 0,transparent 48%),#07150f}
+    .login-brand{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+    .login-brand strong{display:block;font-size:25px;letter-spacing:.3px}.login-brand strong span{color:var(--green)}
+    .login-brand small{display:block;color:var(--muted);font-size:12px;margin-top:5px}
+    .login-card{width:min(100%,440px);border:1px solid #315244;border-radius:28px;padding:clamp(22px,5vw,34px);background:linear-gradient(145deg,#142e25,#0b1c16);box-shadow:0 25px 80px #0006}
+    .login-kicker{display:inline-flex;border:1px solid #a8f06a35;background:#a8f06a10;color:var(--green);padding:8px 12px;border-radius:999px;font-size:12px}
+    .login-card h1{font-size:34px;margin:18px 0 8px;letter-spacing:0}.login-card>p{font-size:14px;line-height:1.9;color:var(--muted);margin:0 0 22px}
+    #riderAuthSlot #auth-panel{display:block!important;margin:0;padding:0;border:0;background:transparent}
+    #riderAuthSlot #auth-panel h3{display:none}
+    #riderAuthSlot #auth-panel .note{text-align:right;font-size:12px;margin:8px 0}
+    #riderAuthSlot #auth-panel .field{margin:15px 0}
+    #riderAuthSlot #auth-panel .payment-options{grid-template-columns:1fr 1fr}
+    #riderAuthSlot #auth-login,#riderAuthSlot #auth-register{width:100%;margin:0;min-height:49px;border-radius:13px}
+    #riderAuthSlot #auth-logout{grid-column:1/-1}
+    .login-security{text-align:center;color:var(--muted);font-size:11px;margin-top:18px}
+    .login-footer{color:#81988b;font-size:11px;margin-top:22px;text-align:center}
+    #riderAppShell[hidden],.rider-login-screen[hidden]{display:none!important}
+    .rider-bottom-nav{position:fixed;z-index:1000;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:8px 5px calc(8px + env(safe-area-inset-bottom));background:#091a13f2;border-top:1px solid #315244;backdrop-filter:blur(18px)}
+    .rider-bottom-nav[hidden]{display:none!important}
+    .rider-bottom-nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;border:0;background:transparent;color:#9fb5a7;font-size:10px;padding:4px 1px}
+    .rider-bottom-nav button span{font-size:21px;line-height:1.1}
+    .rider-bottom-nav button.active{color:var(--green);font-weight:800}
+    #riderAppShell{padding-bottom:100px}
+    #auth-panel{display:none}
+    @media(max-width:800px){.rider-login-screen{padding:20px 14px}.login-card{border-radius:24px}.rider-bottom-nav button{font-size:10px}}
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <section id="riderLoginScreen" class="rider-login-screen">
+    <div class="login-brand"><div class="logo">ر</div><div><strong>ROHNY <span>| روحني</span></strong><small>مشوارك يبدأ معانا</small></div></div>
+    <div class="login-card">
+      <div class="login-kicker">● أهلاً بيك في روحني</div>
+      <h1>يلا نروح؟</h1>
+      <p>سجّل دخولك علشان تطلب مشوارك وتتابع الكابتن والرحلات من مكان واحد.</p>
+      <div id="riderAuthSlot"></div>
+      <div class="login-security">🔒 بياناتك وحسابك في أمان</div>
+    </div>
+    <div class="login-footer">ROHNY • روحني معاك في كل مشوار</div>
+  </section>
+  <div class="wrap" id="riderAppShell">
     <header>
       <div class="brand"><div class="logo" aria-hidden="true">ر</div><div><div class="brand-name">ROHNY <span style="color:var(--green)">| روحني</span></div><div class="brand-sub">مشوارك أسهل مما تتخيل</div></div></div>
       <div class="top-pill">● رحلتك بأمان مع روحني</div>
@@ -79,7 +117,7 @@
       </section>
       <section class="booking" aria-labelledby="booking-title">
         <div class="booking-head"><div><h2 id="booking-title">احجز مشوارك</h2><p>ابدأ بتحديد مكانك ووجهتك</p></div><div class="badge">روحني معاك</div></div>
-        <section id="auth-panel" class="ride-review" aria-labelledby="auth-title"><h3 id="auth-title">حساب الراكب</h3><p class="note">سجّل الدخول بالبريد الإلكتروني أو رقم الموبايل لطلب الرحلة وحفظها في حسابك.</p><div class="field"><label for="auth-email">البريد الإلكتروني أو رقم الموبايل</label><input id="auth-email" type="text" inputmode="email" autocomplete="username" maxlength="254" required></div><div class="field"><label for="auth-password">كلمة المرور</label><input id="auth-password" type="password" autocomplete="current-password" minlength="12" maxlength="128" required></div><div class="payment-options"><button type="button" id="auth-login" class="primary">تسجيل الدخول</button><button type="button" id="auth-register" class="map-toolbar-button">إنشاء حساب</button><button type="button" id="auth-logout" class="map-toolbar-button" hidden>تسجيل الخروج</button></div><p id="auth-status" class="note" role="status" aria-live="polite">سجّل الدخول أو أنشئ حسابًا.</p></section>
+
         <section id="trip-history-panel" class="ride-review" aria-labelledby="trip-history-title"><h3 id="trip-history-title">رحلاتي</h3><p id="trip-history-status" class="note" role="status" aria-live="polite">سجّل الدخول لعرض رحلاتك السابقة.</p><div id="trip-history-list"></div><button type="button" id="refresh-trip-history" class="map-toolbar-button" hidden>تحديث سجل الرحلات</button></section>
         <section id="wallet-panel" class="ride-review" aria-labelledby="wallet-title">
           <h3 id="wallet-title">محفظتي الإلكترونية</h3>
@@ -176,6 +214,13 @@
     </main>
     <footer><span>© ROHNY — روحني</span><span>واجهة مستقلة عن Hesbah وHesbah Offer</span></footer>
   </div>
+  <nav id="riderBottomNav" class="rider-bottom-nav" aria-label="التنقل الرئيسي" hidden>
+    <button type="button" data-rider-tab="home" class="active"><span>⌂</span>الرئيسية</button>
+    <button type="button" data-rider-tab="map"><span>⌖</span>الخريطة</button>
+    <button type="button" data-rider-tab="trips"><span>↗</span>رحلاتي</button>
+    <button type="button" data-rider-tab="wallet"><span>▣</span>محفظتي</button>
+    <button type="button" data-rider-tab="account"><span>☻</span>حسابي</button>
+  </nav>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script>
     const rideButtons = [...document.querySelectorAll('[data-ride]')];
@@ -621,6 +666,48 @@
     window.addEventListener('load', () => setTimeout(() => map.invalidateSize(), 100));
     setActiveTarget('pickup', false);
   </script>
+
+  <script>
+    (() => {
+      const auth = document.getElementById('auth-panel');
+      const slot = document.getElementById('riderAuthSlot');
+      if (auth && slot) slot.appendChild(auth);
+      const screen = document.getElementById('riderLoginScreen');
+      const shell = document.getElementById('riderAppShell');
+      const nav = document.getElementById('riderBottomNav');
+      window.ROHNY_SET_RIDER_SESSION_VIEW = signedIn => {
+        screen.hidden = !!signedIn;
+        shell.hidden = !signedIn;
+        nav.hidden = !signedIn;
+        if (signedIn) window.scrollTo({top:0,behavior:'instant'});
+      };
+      nav.addEventListener('click', event => {
+        const button = event.target.closest('button[data-rider-tab]');
+        if (!button) return;
+        const tab = button.dataset.riderTab;
+        const targets = {home:document.querySelector('.booking'),map:document.querySelector('.map-card'),trips:document.getElementById('trip-history-panel'),wallet:document.getElementById('wallet-panel'),account:document.getElementById('auth-panel')};
+        if (tab === 'account') {
+          const status = document.getElementById('auth-status');
+          status.textContent = 'حسابك مسجّل الدخول. لتسجيل الخروج استخدم زر تسجيل الخروج من قسم الحساب.';
+          document.getElementById('auth-logout').hidden = false;
+        }
+        nav.querySelectorAll('button').forEach(item => item.classList.toggle('active', item === button));
+        const target = targets[tab];
+        if (target) {
+          if (tab === 'account') {
+            target.hidden = false;
+            target.style.display = 'block';
+          }
+          target.scrollIntoView({behavior:'smooth',block:'start'});
+        }
+      });
+      window.addEventListener('DOMContentLoaded', () => {
+        const logout = document.getElementById('auth-logout');
+        logout.addEventListener('click', () => window.ROHNY_SET_RIDER_SESSION_VIEW(false));
+      });
+    })();
+  </script>
+
   <script src="./booking-api.js"></script>
 </body>
 </html>
