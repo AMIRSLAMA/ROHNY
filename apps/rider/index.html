@@ -86,6 +86,12 @@
     .rider-bottom-nav button span{font-size:21px;line-height:1.1}
     .rider-bottom-nav button.active{color:var(--green);font-weight:800}
     #riderAppShell{padding-bottom:100px}
+    #riderAppShell.rider-view-trips .hero>.intro{display:none!important}
+    #riderAppShell.rider-view-trips .hero>.booking{grid-column:1/-1;width:100%;max-width:900px;margin:0 auto}
+    #riderAppShell.rider-view-trips .booking>:not(#trip-history-panel){display:none!important}
+    #riderAppShell.rider-view-trips #trip-history-panel{display:block!important;margin:0;min-height:65vh;padding:clamp(20px,4vw,34px);border-radius:24px}
+    #riderAppShell.rider-view-trips #trip-history-panel>h3{font-size:25px}
+    #riderAppShell.rider-view-trips #trip-history-panel #trip-history-list{display:grid;gap:14px}
     #auth-panel{display:none}
     @media(max-width:800px){.rider-login-screen{padding:20px 14px}.login-card{border-radius:24px}.rider-bottom-nav button{font-size:10px}}
   </style>
@@ -705,7 +711,9 @@
         const button = event.target.closest('button[data-rider-tab]');
         if (!button) return;
         const tab = button.dataset.riderTab;
+        const shell = document.getElementById('riderAppShell');
         const targets = {home:document.querySelector('.booking'),map:document.querySelector('.map-card'),trips:document.getElementById('trip-history-panel'),wallet:document.getElementById('wallet-panel'),account:document.querySelector('header')};
+        shell.classList.toggle('rider-view-trips', tab === 'trips');
         if (tab === 'account') document.getElementById('riderAppLogout').focus();
         nav.querySelectorAll('button').forEach(item => item.classList.toggle('active', item === button));
         const target = targets[tab];
@@ -714,7 +722,11 @@
             target.hidden = false;
             target.style.display = 'block';
           }
-          target.scrollIntoView({behavior:'smooth',block:'start'});
+          if (tab === 'trips') {
+            window.scrollTo({top:0,behavior:'smooth'});
+          } else {
+            target.scrollIntoView({behavior:'smooth',block:'start'});
+          }
         }
       });
       document.getElementById('riderAppLogout').addEventListener('click', () => document.getElementById('auth-logout').click());
