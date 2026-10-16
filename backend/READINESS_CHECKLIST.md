@@ -10,15 +10,15 @@ This checklist reflects a source review of the repository. Items marked "not imp
 - Email/phone registration input, email login, password hashing with Argon2, token guard, and authentication rate-limit guard.
 - Rider trip creation/listing endpoints.
 - Wallet balance, transaction history, and driver-to-rider wallet transfer code.
+- GitHub Actions CI workflow that builds the backend, applies migrations to a disposable PostgreSQL service, verifies wallet schema, and runs unit tests.
 - Environment-variable example; secrets should remain outside source control.
 
 ## Gaps to close before a real launch
 
 ### Highest priority
-- [ ] Run the new CI workflow and fix any build/test failures it finds.
-- [ ] Add automated tests for registration, login, rate limiting, access control, trip creation, and wallet ledger/transfer edge cases.
+- [ ] Confirm the CI workflow is green on the latest commit and keep it required for merges where repository settings allow.
+- [ ] Add automated tests for registration, login by email and phone, rate limiting, access control, trip creation, and wallet ledger/transfer edge cases.
 - [ ] Verify migrations from an empty PostgreSQL database and document a repeatable migration/backup/restore procedure.
-- [ ] Decide and implement a consistent login policy: registration accepts email or phone, while the current login DTO/service use email.
 - [ ] Confirm the registration response and account-verification flow; phone/email verification timestamps exist, but a complete OTP delivery and verification workflow is not established by this review.
 - [ ] Add production configuration validation and confirm JWT secrets, token expiry, HTTPS/reverse proxy, CORS, and rate limits are configured safely.
 
@@ -35,9 +35,9 @@ This checklist reflects a source review of the repository. Items marked "not imp
 
 ## Safe next sequence
 
-1. Get the CI build and existing tests green.
-2. Fix authentication policy and add focused tests.
-3. Verify all migrations against a disposable test database.
+1. Verify CI and existing migrations/tests on the branch.
+2. Add focused tests for authentication and authorization.
+3. Verify all migrations against a disposable test database and document backup/restore.
 4. Implement country/city configuration and server-side pricing.
 5. Implement driver onboarding/dispatch and the full trip lifecycle.
 6. Integrate mobile clients, maps, notifications, and payment providers.
