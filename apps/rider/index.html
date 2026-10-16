@@ -148,6 +148,7 @@
     const scheduleButtons = [...document.querySelectorAll('[data-schedule]')];
     const scheduleField = document.getElementById('schedule-field');
     const scheduledAtInput = document.getElementById('scheduled-at');
+    const cityCodeInput = document.getElementById('city-code');
     function setMinimumScheduleTime() {
       const now = new Date();
       now.setMinutes(now.getMinutes() + 5);
