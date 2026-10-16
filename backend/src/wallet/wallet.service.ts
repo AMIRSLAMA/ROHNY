@@ -89,34 +89,30 @@ export class WalletService {
     return this.dataSource.transaction(async (manager) => {
       // Serialize retries with the same key before checking the ledger.
       await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [input.idempotencyKey]);
+      const senderAccount = await this.ensureUserAccount(senderId, manager);
+      const recipientAccount = await this.ensureUserAccount(input.recipientUserId, manager);
       const existing = await manager.getRepository(WalletTransaction).findOne({
         where: { idempotencyKey: input.idempotencyKey },
       });
       if (existing) {
         if (
           existing.createdByUserId === senderId &&
+          existing.fromAccountId === senderAccount.id &&
+          existing.toAccountId === recipientAccount.id &&
           existing.amountMinor === amount.toString() &&
           existing.type === WalletTransactionType.TRANSFER
         ) {
-          const priorSender = existing.fromAccountId
-            ? await manager.getRepository(WalletAccount).findOne({ where: { id: existing.fromAccountId } })
-            : null;
-          if (priorSender?.ownerUserId === senderId) {
-            return {
-              transactionId: existing.id,
-              status: 'completed',
-              amountMinor: existing.amountMinor,
-              amountEgp: this.formatMoney(existing.amountMinor),
-              currency: 'EGP',
-              duplicateRequest: true,
-            };
-          }
+          return {
+            transactionId: existing.id,
+            status: 'completed',
+            amountMinor: existing.amountMinor,
+            amountEgp: this.formatMoney(existing.amountMinor),
+            currency: 'EGP',
+            duplicateRequest: true,
+          };
         }
         throw new ConflictException('Idempotency key has already been used for a different transaction');
       }
-
-      const senderAccount = await this.ensureUserAccount(senderId, manager);
-      const recipientAccount = await this.ensureUserAccount(input.recipientUserId, manager);
       const ids = [senderAccount.id, recipientAccount.id].sort();
       const locked = await manager.query(
         'SELECT "id", "owner_user_id", "balance_minor" FROM "wallet_accounts" WHERE "id" = ANY($1::uuid[]) ORDER BY "id" FOR UPDATE',
