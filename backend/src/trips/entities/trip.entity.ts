@@ -42,6 +42,9 @@ export class Trip {
   @Column({ name: 'driver_id', type: 'uuid', nullable: true })
   driverId!: string | null;
 
+  @Column({ name: 'rejected_driver_ids', type: 'uuid', array: true, default: () => "'{}'::uuid[]" })
+  rejectedDriverIds!: string[];
+
   @Column({ name: 'pickup_address', type: 'varchar', length: 500 })
   pickupAddress!: string;
 
