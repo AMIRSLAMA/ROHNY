@@ -2,9 +2,12 @@
   'use strict';
   const tokenKey = 'rohny_driver_access_token';
   let token = sessionStorage.getItem(tokenKey) || '';
+  let driverUser = null;
+  try { driverUser = JSON.parse(sessionStorage.getItem('rohny_driver_user') || 'null'); } catch { driverUser = null; }
   const $ = (id) => document.getElementById(id);
   const loginPanel = $('loginPanel');
   const dashboard = $('dashboard');
+  const accountView = $('accountView');
   const loginForm = $('loginForm');
   const loginButton = $('loginButton');
   const loginStatus = $('loginStatus');
@@ -51,11 +54,15 @@
     dashboard.classList.toggle('hidden', !signedIn);
     topActions.classList.toggle('hidden', !signedIn);
     bottomNav.classList.toggle('hidden', !signedIn);
+    if (!signedIn) { accountView.classList.add('hidden'); dashboard.querySelector('.welcome').classList.remove('hidden'); dashboard.querySelector('.dashboard-grid').classList.remove('hidden'); historyPanel.classList.add('hidden'); }
+    document.querySelectorAll('.nav-item[data-view]').forEach((item) => item.classList.toggle('active', item.dataset.view === 'trips'));
   }
 
   function signOut(message = 'تم تسجيل الخروج.') {
     token = '';
     sessionStorage.removeItem(tokenKey);
+    sessionStorage.removeItem('rohny_driver_user');
+    driverUser = null;
     showSignedIn(false);
     loginStatus.textContent = message;
   }
@@ -155,6 +162,62 @@
     }
   }
 
+  async function loadAccount() {
+    const details = $('accountDetails');
+    details.replaceChildren();
+    const addDetail = (label, value) => addRow(details, label, value);
+    addDetail('الاسم', driverUser?.fullName || driverUser?.name || '—');
+    addDetail('البريد الإلكتروني', driverUser?.email || '—');
+    addDetail('رقم الموبايل', driverUser?.phone || '—');
+    addDetail('نوع الحساب', 'كابتن ROHNY');
+    $('walletBalance').textContent = 'جارٍ التحميل…';
+    $('walletTransactions').innerHTML = '<div class="empty">جارٍ تحميل حركات المحفظة…</div>';
+    try {
+      const [wallet, transactions] = await Promise.all([
+        api('/wallet/me?currency=EGP'),
+        api('/wallet/transactions?currency=EGP&limit=20')
+      ]);
+      const amount = Number(wallet.balance).toLocaleString('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      $('walletBalance').textContent = amount + ' ' + (wallet.currency || 'EGP');
+      const list = $('walletTransactions');
+      list.replaceChildren();
+      const labels = { transfer: 'تحويل محفظة', trip_payment: 'دفع رحلة', platform_commission: 'عمولة المنصة', card_top_up: 'إضافة رصيد', refund: 'استرداد', cash_out: 'سحب رصيد' };
+      if (!Array.isArray(transactions) || !transactions.length) {
+        const empty = document.createElement('div'); empty.className = 'empty'; empty.textContent = 'لا توجد حركات على المحفظة حتى الآن.'; list.append(empty);
+      } else transactions.forEach((tx) => {
+        const row = document.createElement('div'); row.className = 'transaction';
+        const info = document.createElement('div');
+        const title = document.createElement('div'); title.className = 'transaction-title'; title.textContent = labels[tx.type] || tx.description || 'حركة محفظة';
+        const date = document.createElement('div'); date.className = 'transaction-date'; date.textContent = [tx.description, tx.createdAt ? new Date(tx.createdAt).toLocaleString('ar-EG') : ''].filter(Boolean).join(' • ');
+        info.append(title, date);
+        const amountNode = document.createElement('div'); amountNode.className = 'transaction-amount ' + (tx.direction === 'credit' ? 'credit' : 'debit');
+        amountNode.textContent = (tx.direction === 'credit' ? '+' : '−') + Number(tx.amount).toLocaleString('ar-EG', { maximumFractionDigits: 2 }) + ' ' + tx.currency;
+        row.append(info, amountNode); list.append(row);
+      });
+    } catch (error) {
+      $('walletBalance').textContent = 'تعذّر التحميل';
+      $('walletTransactions').innerHTML = '';
+      const empty = document.createElement('div'); empty.className = 'empty'; empty.textContent = error.message || 'تعذّر تحميل المحفظة.'; $('walletTransactions').append(empty);
+    }
+  }
+
+  function showView(view) {
+    if (view === 'account') {
+      dashboard.querySelector('.welcome').classList.add('hidden');
+      dashboard.querySelector('.dashboard-grid').classList.add('hidden');
+      historyPanel.classList.add('hidden');
+      accountView.classList.remove('hidden');
+      loadAccount();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      accountView.classList.add('hidden');
+      dashboard.querySelector('.welcome').classList.remove('hidden');
+      dashboard.querySelector('.dashboard-grid').classList.remove('hidden');
+      document.querySelectorAll('.nav-item[data-view]').forEach((item) => item.classList.toggle('active', item.dataset.view === 'trips'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
   async function loadTrips() {
     if (!token) return;
     dashboardStatus.textContent = 'جارٍ تحديث الرحلات…';
@@ -240,7 +303,9 @@
         throw new Error('هذا الحساب ليس حساب كابتن مُفعّلًا.');
       }
       token = result.accessToken;
+      driverUser = result.user || null;
       sessionStorage.setItem(tokenKey, token);
+      sessionStorage.setItem('rohny_driver_user', JSON.stringify(driverUser));
       showSignedIn(true);
       $('password').value = '';
       await loadTrips();
@@ -254,6 +319,17 @@
 
   $('refresh').addEventListener('click', loadTrips);
   $('mobileRefresh').addEventListener('click', loadTrips);
+  document.querySelectorAll('.nav-item[data-view]').forEach((item) => item.addEventListener('click', () => showView(item.dataset.view)));
+  $('refreshWallet').addEventListener('click', loadAccount);
+  function showWalletActionNotice(kind) {
+    const notice = $('walletActionNotice');
+    notice.classList.remove('hidden');
+    notice.textContent = kind === 'deposit'
+      ? 'طلب الإيداع: واجهة المحفظة جاهزة، لكن استقبال طلبات الإيداع لم يُفعّل بعد على الخادم. لن نضيف رصيدًا يدويًا أو نعرض عملية وهمية قبل ربط وسيلة دفع وموافقة الإدارة.'
+      : 'طلب السحب: واجهة المحفظة جاهزة، لكن طلبات السحب ومراجعتها لم تُفعّل بعد على الخادم. لن يتم خصم أي رصيد قبل إعداد مسار سحب آمن وموافقة الإدارة.';
+  }
+  $('depositAction').addEventListener('click', () => showWalletActionNotice('deposit'));
+  $('withdrawAction').addEventListener('click', () => showWalletActionNotice('withdraw'));
   document.querySelectorAll('.nav-item[data-target]').forEach((item) => item.addEventListener('click', () => {
     const target = $(item.dataset.target);
     if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
