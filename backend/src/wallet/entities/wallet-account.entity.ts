@@ -17,7 +17,7 @@ export enum WalletAccountType {
 }
 
 @Entity({ name: 'wallet_accounts' })
-@Index('UQ_wallet_accounts_owner_user_id', ['ownerUserId'], { unique: true })
+@Index('UQ_wallet_accounts_owner_currency', ['ownerUserId', 'currency'], { unique: true })
 @Check('CHK_wallet_accounts_balance_nonnegative', '"balance_minor" >= 0')
 export class WalletAccount {
   @PrimaryGeneratedColumn('uuid')
@@ -36,7 +36,7 @@ export class WalletAccount {
   @Column({ type: 'varchar', length: 3, default: 'EGP' })
   currency!: string;
 
-  // Store money in piastres to avoid floating-point rounding.
+  // Store integer minor units; the number of decimal places depends on the currency.
   @Column({ name: 'balance_minor', type: 'bigint', default: 0 })
   balanceMinor!: string;
 
