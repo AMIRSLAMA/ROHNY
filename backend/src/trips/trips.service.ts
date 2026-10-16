@@ -76,6 +76,7 @@ export class TripsService {
       .where('"id" = :tripId', { tripId })
       .andWhere('"status" = :pending', { pending: TripStatus.PENDING })
       .andWhere('"driver_id" IS NULL')
+      .andWhere('("scheduled_at" IS NULL OR "scheduled_at" <= :now)', { now: new Date() })
       .execute();
 
     if (!result.affected) {
