@@ -97,12 +97,31 @@
       <div class="login-kicker">● أهلاً بيك في روحني</div>
       <h1>يلا نروح؟</h1>
       <p>سجّل دخولك علشان تطلب مشوارك وتتابع الكابتن والرحلات من مكان واحد.</p>
-      <div id="riderAuthSlot"></div>
+      <div id="riderAuthSlot">
+        <section id="auth-panel" class="ride-review" aria-labelledby="auth-title">
+          <h3 id="auth-title">حساب الراكب</h3>
+          <p class="note">سجّل الدخول بالبريد الإلكتروني أو رقم الموبايل لطلب الرحلة وحفظها في حسابك.</p>
+          <div class="field">
+            <label for="auth-email">البريد الإلكتروني أو رقم الموبايل</label>
+            <input id="auth-email" type="text" inputmode="email" autocomplete="username" maxlength="254" required>
+          </div>
+          <div class="field">
+            <label for="auth-password">كلمة المرور</label>
+            <input id="auth-password" type="password" autocomplete="current-password" minlength="12" maxlength="128" required>
+          </div>
+          <div class="payment-options">
+            <button type="button" id="auth-login" class="primary">تسجيل الدخول</button>
+            <button type="button" id="auth-register" class="map-toolbar-button">إنشاء حساب</button>
+            <button type="button" id="auth-logout" class="map-toolbar-button" hidden>تسجيل الخروج</button>
+          </div>
+          <p id="auth-status" class="note" role="status" aria-live="polite">سجّل الدخول أو أنشئ حسابًا.</p>
+        </section>
+      </div>
       <div class="login-security">🔒 بياناتك وحسابك في أمان</div>
     </div>
     <div class="login-footer">ROHNY • روحني معاك في كل مشوار</div>
   </section>
-  <div class="wrap" id="riderAppShell">
+  <div class="wrap" id="riderAppShell" hidden>
     <header>
       <div class="brand"><div class="logo" aria-hidden="true">ر</div><div><div class="brand-name">ROHNY <span style="color:var(--green)">| روحني</span></div><div class="brand-sub">مشوارك أسهل مما تتخيل</div></div></div>
       <div class="rider-header-actions"><div class="top-pill">● رحلتك بأمان مع روحني</div><button id="riderAppLogout" type="button">تسجيل الخروج</button></div>
