@@ -84,6 +84,60 @@ export class UsersService {
     }
   }
 
+
+  async createDriver(input: RegisterUserInput) {
+    const email = input.email?.trim().toLowerCase() || null;
+    const phone = input.phone?.trim() || null;
+    const password = input.password;
+
+    if (!email && !phone) {
+      throw new BadRequestException('Email or phone number is required');
+    }
+    if (typeof password !== 'string' || password.length < 12 || password.length > 128) {
+      throw new BadRequestException('Password must be between 12 and 128 characters');
+    }
+
+    const existing = await this.usersRepository.findOne({
+      where: [
+        ...(email ? [{ email }] : []),
+        ...(phone ? [{ phone }] : []),
+      ],
+    });
+    if (existing) {
+      throw new ConflictException('Email or phone number is already registered');
+    }
+
+    const user = this.usersRepository.create({
+      email,
+      phone,
+      passwordHash: await argon2.hash(password),
+      role: UserRole.DRIVER,
+      isActive: true,
+    });
+
+    try {
+      const saved = await this.usersRepository.save(user);
+      return {
+        id: saved.id,
+        email: saved.email,
+        phone: saved.phone,
+        role: saved.role,
+        isActive: saved.isActive,
+        createdAt: saved.createdAt,
+      };
+    } catch (error: unknown) {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        error.code === '23505'
+      ) {
+        throw new ConflictException('Email or phone number is already registered');
+      }
+      throw error;
+    }
+  }
+
   async login(input: LoginUserInput) {
     const email = input.email?.trim().toLowerCase();
     const phone = input.phone?.trim();
