@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#092019">
+<title>ROHNY | كابتن روحني</title>
+<style>
+:root{color-scheme:dark;--bg:#071712;--panel:#102820;--line:#294b3e;--green:#a8f06a;--muted:#a5bbb0;--text:#f4fbf6;--red:#ff9b9b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 85% 0,#1b4835 0,transparent 40%),var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif;min-height:100vh}main{max-width:980px;margin:auto;padding:22px}.top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:22px}.brand{font-weight:900;font-size:25px}.brand span{color:var(--green)}.sub,.muted{color:var(--muted);font-size:13px;line-height:1.8}.panel,.trip{background:linear-gradient(145deg,#132e24,#0c2018);border:1px solid var(--line);border-radius:20px;padding:20px;margin-bottom:14px}.login{max-width:440px;margin:8vh auto}.field{display:block;margin:14px 0;color:var(--muted);font-size:13px}.field input{display:block;width:100%;margin-top:7px;padding:13px;border-radius:11px;border:1px solid var(--line);background:#071712;color:var(--text);font:inherit}.actions{display:flex;flex-wrap:wrap;gap:9px}.btn{border:1px solid var(--line);border-radius:12px;background:#1a3b2d;color:var(--text);padding:11px 14px;font:inherit;cursor:pointer}.btn.primary{background:var(--green);border-color:var(--green);color:#10251b;font-weight:800}.btn:disabled{opacity:.55;cursor:wait}.msg{min-height:22px;color:var(--muted);font-size:13px;margin-top:10px}.error{color:var(--red)}.hidden{display:none!important}.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.section-head h2{margin:0;font-size:19px}.list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}.trip{margin:0;padding:16px}.trip h3{margin:0 0 12px;font-size:15px}.row{padding:8px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;font-size:13px}.row span{color:var(--muted);flex-shrink:0}.row strong{max-width:70%;text-align:left;overflow-wrap:anywhere}.trip .actions{margin-top:12px}.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#a8f06a17;color:var(--green);font-size:12px}@media(max-width:520px){main{padding:13px}.top{align-items:flex-start;flex-direction:column}.panel{padding:15px}}
+</style>
+</head>
+<body><main>
+<header class="top"><div><div class="brand">ROHNY <span>| كابتن روحني</span></div><div class="sub">لوحة الكابتن — استقبال الرحلات وتحديث حالتها</div></div><div id="topActions" class="actions hidden"><button class="btn" id="refresh">تحديث الرحلات</button><button class="btn" id="logout">تسجيل الخروج</button></div></header>
+<section id="loginPanel" class="panel login"><h2>دخول الكابتن</h2><p class="muted">استخدم حساب كابتن مُفعّلًا من الإدارة.</p><form id="loginForm"><label class="field">البريد الإلكتروني أو رقم الموبايل<input id="identifier" type="text" autocomplete="username" maxlength="254" required></label><label class="field">كلمة المرور<input id="password" type="password" autocomplete="current-password" minlength="12" maxlength="128" required></label><button id="loginButton" class="btn primary" type="submit">تسجيل الدخول</button><div id="loginStatus" class="msg" role="status" aria-live="polite"></div></form></section>
+<section id="dashboard" class="hidden">
+<div class="panel"><div class="section-head"><div><h2>أهلًا يا كابتن</h2><div class="sub">اقبل رحلة متاحة، ثم حدّث الحالة من اللوحة.</div></div><span class="pill">ROHNY Driver</span></div><div id="dashboardStatus" class="msg" role="status" aria-live="polite"></div></div>
+<section class="panel"><div class="section-head"><h2>رحلاتي الحالية والسابقة</h2></div><div id="assignedList" class="list"><p class="muted">جارٍ تحميل رحلاتك…</p></div></section>
+<section class="panel"><div class="section-head"><h2>رحلات متاحة</h2><span class="sub">تُقبل الرحلة من أول كابتن فقط</span></div><div id="availableList" class="list"><p class="muted">جارٍ تحميل الرحلات…</p></div></section>
+</section>
+</main><script src="/driver/driver.js" defer></script></body></html>

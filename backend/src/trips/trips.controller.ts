@@ -53,6 +53,14 @@ export class TripsController {
     return this.tripsService.findAvailableForDrivers();
   }
 
+  @Get('driver/mine')
+  listDriverTrips(@Req() request: AuthenticatedRequest) {
+    if (request.authUser!.role !== UserRole.DRIVER) {
+      throw new ForbiddenException('Only driver accounts can view assigned trips');
+    }
+    return this.tripsService.findForDriver(request.authUser!.sub);
+  }
+
   @Post(':tripId/accept')
   acceptTrip(
     @Req() request: AuthenticatedRequest,

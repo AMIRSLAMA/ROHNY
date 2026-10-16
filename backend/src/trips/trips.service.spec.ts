@@ -140,6 +140,16 @@ describe('TripsService', () => {
     await expect(service.updateStatusForDriver('driver-id', 'trip-id', TripStatus.CANCELLED)).rejects.toThrow(BadRequestException);
   });
 
+  it('returns only trips assigned to the authenticated driver', async () => {
+    await service.findForDriver('driver-id');
+
+    expect(repository.find).toHaveBeenCalledWith({
+      where: { driverId: 'driver-id' },
+      order: { createdAt: 'DESC' },
+      take: 50,
+    });
+  });
+
   it('returns only the requested rider trips, newest first, capped at 50', async () => {
     await service.findForRider('rider-id');
 
