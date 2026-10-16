@@ -60,6 +60,9 @@ jobs:
       - name: Check preview server JavaScript syntax
         run: node --check ../apps/preview-server.cjs
 
+      - name: Check driver dashboard JavaScript syntax
+        run: node --check ../apps/driver/driver.js
+
       - name: Install locked dependencies
         run: npm ci
 
