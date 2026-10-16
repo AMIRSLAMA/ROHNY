@@ -6,7 +6,7 @@ export class AddCityFarePricing1792400000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       CREATE TABLE "pricing_cities" (
-        "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+        "id" uuid NOT NULL DEFAULT gen_random_uuid(),
         "city_code" varchar(12) NOT NULL,
         "city_name" varchar(100) NOT NULL,
         "country_code" varchar(2) NOT NULL,
