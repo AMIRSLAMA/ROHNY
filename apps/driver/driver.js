@@ -353,7 +353,8 @@
   }
 
   async function loadTrips() {
-    if (!token) return;
+    if (!token || tripsLoadInProgress) return;
+    tripsLoadInProgress = true;
     dashboardStatus.textContent = 'جارٍ تحديث الرحلات…';
     $('refresh').disabled = true;
     try {
@@ -369,6 +370,7 @@
       assignedCount.textContent = String(activeTrips.length);
       historyCount.textContent = String(historyTrips.length);
       availableCount.textContent = String(available.length);
+      syncTripRinging(available);
       if (!activeTrips.length) {
         const empty = document.createElement('div');
         empty.className = 'empty';
@@ -388,6 +390,7 @@
       dashboardStatus.classList.add('error');
     } finally {
       $('refresh').disabled = false;
+      tripsLoadInProgress = false;
     }
   }
 
@@ -418,6 +421,7 @@
 
   loginForm.addEventListener('submit', async (event) => {
     event.preventDefault();
+    unlockTripAudio();
     const identifier = $('identifier').value.trim();
     const password = $('password').value;
     const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
@@ -451,6 +455,7 @@
     }
   });
 
+  document.addEventListener('click', unlockTripAudio, { passive: true });
   $('refresh').addEventListener('click', loadTrips);
   $('mobileRefresh').addEventListener('click', loadTrips);
   document.querySelectorAll('.nav-item[data-view]').forEach((item) => item.addEventListener('click', () => showView(item.dataset.view)));
@@ -473,4 +478,7 @@
     showSignedIn(true);
     loadTrips().catch(() => {});
   } else showSignedIn(false);
+  window.setInterval(() => {
+    if (token && !dashboard.classList.contains('hidden')) loadTrips().catch(() => {});
+  }, 4000);
 })();
