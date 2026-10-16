@@ -63,6 +63,16 @@ jobs:
       - name: Check driver dashboard JavaScript syntax
         run: node --check ../apps/driver/driver.js
 
+
+      - name: Check inline rider and admin JavaScript syntax
+        run: >-
+          node -e "const fs=require('fs');
+          for (const f of ['../apps/rider/index.html','../apps/admin/index.html']) {
+            const html=fs.readFileSync(f,'utf8');
+            for (const m of html.matchAll(/<script>([\\s\\S]*?)<\\/script>/g)) new Function(m[1]);
+            console.log(f + ': inline scripts OK');
+          }"
+
       - name: Install locked dependencies
         run: npm ci
 
