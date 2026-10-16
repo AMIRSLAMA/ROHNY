@@ -137,7 +137,7 @@ describe('TripsService', () => {
   });
 
   it('rejects skipping the trip lifecycle', async () => {
-    await expect(service.updateStatusForDriver('driver-id', 'trip-id', TripStatus.COMPLETED)).rejects.toThrow(BadRequestException);
+    await expect(service.updateStatusForDriver('driver-id', 'trip-id', TripStatus.CANCELLED)).rejects.toThrow(BadRequestException);
   });
 
   it('returns only the requested rider trips, newest first, capped at 50', async () => {
