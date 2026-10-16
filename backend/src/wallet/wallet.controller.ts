@@ -52,7 +52,7 @@ export class WalletController {
     return this.wallets.transferDriverToRider(user.sub, input);
   }
 
-  private assertWalletUser(role: UserRole) {
+  private assertWalletUser(role: string) {
     if (role !== UserRole.RIDER && role !== UserRole.DRIVER) {
       throw new ForbiddenException('Wallets are available to customer and driver accounts');
     }
