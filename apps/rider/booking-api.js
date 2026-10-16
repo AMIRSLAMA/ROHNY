@@ -52,6 +52,11 @@
   }
   loadPricingCities();
   cityCodeInput.addEventListener('change', () => { selectedFareQuote = null; });
+  window.ROHNY_QUOTE_FARE = async payload => {
+    if (!token) throw new Error('سجّل الدخول أولًا لحساب سعر الرحلة.');
+    selectedFareQuote = await api('/pricing/quote', { method: 'POST', body: JSON.stringify(payload) });
+    return selectedFareQuote;
+  };
 
   function setStatus(message, signedIn) {
     status.textContent = message;
@@ -340,11 +345,18 @@
         destinationLatitude: payload.destinationLatitude,
         destinationLongitude: payload.destinationLongitude
       }) });
+      const priceChanged = !selectedFareQuote || selectedFareQuote.currency !== quote.currency || Math.abs(Number(selectedFareQuote.fareAmount) - Number(quote.fareAmount)) >= 0.01;
       selectedFareQuote = quote;
       document.getElementById('fare-price').textContent = new Intl.NumberFormat('ar', { style: 'currency', currency: quote.currency }).format(Number(quote.fareAmount));
       document.getElementById('fare-currency').textContent = quote.currency;
       document.getElementById('review-fare').textContent = new Intl.NumberFormat('ar', { style: 'currency', currency: quote.currency }).format(Number(quote.fareAmount));
       document.getElementById('review-city').textContent = quote.cityName + ' — ' + quote.currency;
+      if (priceChanged) {
+        bookingStatus.textContent = 'السعر الحالي هو ' + new Intl.NumberFormat('ar', { style: 'currency', currency: quote.currency }).format(Number(quote.fareAmount)) + '. راجع السعر الجديد ثم اضغط تأكيد مرة أخرى لإرسال الطلب.';
+        confirmButton.textContent = 'تأكيد السعر وطلب الرحلة';
+        confirmButton.disabled = false;
+        return;
+      }
       const trip = await api('/trips', { method: 'POST', body: JSON.stringify(payload) });
       bookingStatus.textContent = 'تم إرسال طلب الرحلة بنجاح. السعر المحفوظ: ' + new Intl.NumberFormat('ar', { style: 'currency', currency: trip.fareCurrency || selectedFareQuote.currency }).format(Number(trip.fareAmount)) + ' — الحالة: قيد الانتظار.' +
         (trip.id ? ' رقم الطلب: ' + trip.id : '');
