@@ -153,7 +153,8 @@
     addRow(card, 'نوع الرحلة', rideLabels[trip.rideType] || trip.rideType);
     addRow(card, 'عدد الركاب', trip.passengerCount);
     addRow(card, 'الدفع', paymentLabels[trip.paymentMethod] || trip.paymentMethod);
-    if (trip.fareAmount != null && trip.fareCurrency) addRow(card, 'الأجرة التقديرية', Number(trip.fareAmount).toLocaleString('ar-EG', { maximumFractionDigits: 2 }) + ' ' + trip.fareCurrency);
+    if (trip.fareAmount != null && trip.fareCurrency) addRow(card, trip.riderFreeRide ? 'أجرة ممولة من ROHNY' : 'الأجرة التقديرية', Number(trip.fareAmount).toLocaleString('ar-EG', { maximumFractionDigits: 2 }) + ' ' + trip.fareCurrency);
+    if (trip.riderFreeRide) addRow(card, 'حالة الدفع', 'الراكب لا يدفع — ROHNY تتحمل الأجرة');
     if (trip.cityCode) addRow(card, 'المدينة', trip.cityCode);
     const distance = trip.fareDistanceMeters ?? trip.estimatedDistanceMeters;
     if (distance != null) addRow(card, 'المسافة التقريبية', (distance / 1000).toLocaleString('ar-EG', { maximumFractionDigits: 1 }) + ' كم');
