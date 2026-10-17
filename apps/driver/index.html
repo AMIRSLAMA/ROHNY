@@ -123,6 +123,19 @@
           <button class="wallet-action" type="button" id="withdrawAction"><b>↗ طلب سحب</b><span>طلب تحويل رصيدك للخارج</span></button>
         </div>
         <div id="walletActionNotice" class="account-note hidden"></div>
+        <section id="driverDepositPanel" class="panel hidden" style="margin-top:16px">
+          <div class="section-head"><div class="section-title"><div class="section-icon">＋</div><div><h2>طلب إيداع جديد</h2><div class="sub">لن يتغير رصيدك إلا بعد مراجعة الإدارة واعتماد الإيداع</div></div></div></div>
+          <form id="driverDepositForm">
+            <label class="field">مبلغ الإيداع بالجنيه المصري<input id="driverDepositAmount" type="number" min="1" max="1000000" step="0.01" required inputmode="decimal" placeholder="مثال: 200"></label>
+            <label class="field">ملاحظة (اختياري)<input id="driverDepositNote" type="text" maxlength="240" placeholder="تفاصيل تساعد الإدارة في مراجعة الطلب"></label>
+            <div class="actions"><button class="btn primary" id="driverDepositSubmit" type="submit">إرسال طلب الإيداع</button><button class="btn" id="driverDepositCancel" type="button">إلغاء</button></div>
+            <div id="driverDepositStatus" class="msg" role="status" aria-live="polite"></div>
+          </form>
+        </section>
+        <section class="panel history-panel" style="margin-top:16px">
+          <div class="section-head"><div class="section-title"><div class="section-icon">↕</div><div><h2>طلبات الإيداع</h2><div class="sub">تابع حالة الطلب ورد الإدارة</div></div></div><button class="btn" id="refreshDriverDeposits" type="button">↻</button></div>
+          <div id="driverDepositRequests" class="list"><div class="empty">سجّل الدخول لعرض طلبات الإيداع.</div></div>
+        </section>
       </section>
     </div>
     <section class="panel history-panel">
