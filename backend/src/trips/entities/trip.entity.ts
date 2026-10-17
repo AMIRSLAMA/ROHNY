@@ -93,6 +93,18 @@ export class Trip {
   @Column({ name: 'fare_amount', type: 'numeric', precision: 12, scale: 2, nullable: true })
   fareAmount!: string | null;
 
+  @Column({ name: 'platform_commission_amount', type: 'numeric', precision: 12, scale: 2, nullable: true })
+  platformCommissionAmount!: string | null;
+
+  @Column({ name: 'rider_free_ride', type: 'boolean', default: false })
+  riderFreeRide!: boolean;
+
+  @Column({ name: 'captain_reward_amount', type: 'numeric', precision: 12, scale: 2, nullable: true })
+  captainRewardAmount!: string | null;
+
+  @Column({ name: 'accounting_processed_at', type: 'timestamptz', nullable: true })
+  accountingProcessedAt!: Date | null;
+
   @Column({ name: 'fare_distance_meters', type: 'integer', nullable: true })
   fareDistanceMeters!: number | null;
 
