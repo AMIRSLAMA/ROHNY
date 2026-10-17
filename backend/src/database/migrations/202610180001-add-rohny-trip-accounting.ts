@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddRohnyTripAccounting202610180001 implements MigrationInterface {
-  name = 'AddRohnyTripAccounting202610180001';
+export class AddRohnyTripAccounting1792281600000 implements MigrationInterface {
+  name = 'AddRohnyTripAccounting1792281600000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Additive-only changes: existing trip records and wallet balances remain untouched.
