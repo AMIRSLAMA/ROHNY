@@ -11,7 +11,7 @@ export class WalletDepositController {
   @Post()
   async create(@Req() req: AuthenticatedRequest, @Body() body: { amount?: unknown; currency?: unknown; note?: unknown }) {
     const user = req.authUser!;
-    if (user.role !== UserRole.RIDER) throw new ForbiddenException('Only riders can request wallet deposits');
+    if (user.role !== UserRole.RIDER && user.role !== UserRole.DRIVER) throw new ForbiddenException('Only riders and drivers can request wallet deposits');
     const currency = String(body.currency || 'EGP').trim().toUpperCase();
     if (!/^[A-Z]{3}$/.test(currency)) throw new BadRequestException('رمز العملة غير صحيح');
     let digits: number;
@@ -23,10 +23,10 @@ export class WalletDepositController {
     if (!Number.isSafeInteger(minor) || minor <= 0) throw new BadRequestException('المبلغ غير صالح');
     const note = String(body.note || '').trim().slice(0, 240);
     const rows = await this.db.query(
-      `INSERT INTO wallet_deposit_requests (rider_user_id, amount_minor, currency, rider_note, status)
-       VALUES ($1, $2, $3, $4, 'pending')
+      `INSERT INTO wallet_deposit_requests (rider_user_id, owner_role, amount_minor, currency, rider_note, status)
+       VALUES ($1, $2, $3, $4, $5, 'pending')
        RETURNING id, amount_minor, currency, rider_note, status, created_at`,
-      [user.sub, String(minor), currency, note || null],
+      [user.sub, user.role, String(minor), currency, note || null],
     );
     const row = rows[0];
     return { id: row.id, amount: (Number(row.amount_minor) / (10 ** digits)).toFixed(digits), currency: row.currency, note: row.rider_note, status: row.status, createdAt: row.created_at };
@@ -35,13 +35,13 @@ export class WalletDepositController {
   @Get('mine')
   async mine(@Req() req: AuthenticatedRequest) {
     const user = req.authUser!;
-    if (user.role !== UserRole.RIDER) throw new ForbiddenException('Only riders can view their deposit requests');
+    if (user.role !== UserRole.RIDER && user.role !== UserRole.DRIVER) throw new ForbiddenException('Only riders and drivers can view their deposit requests');
     const rows = await this.db.query(
-      `SELECT id, amount_minor, currency, rider_note, status, admin_note, created_at, reviewed_at
-       FROM wallet_deposit_requests WHERE rider_user_id = $1 ORDER BY created_at DESC LIMIT 50`, [user.sub]);
+      `SELECT id, amount_minor, currency, rider_note, status, admin_note, created_at, reviewed_at, owner_role
+       FROM wallet_deposit_requests WHERE rider_user_id = $1 AND owner_role = $2 ORDER BY created_at DESC LIMIT 50`, [user.sub, user.role]);
     return rows.map((row: any) => {
       const digits = new Intl.NumberFormat('en-US', { style: 'currency', currency: row.currency }).resolvedOptions().maximumFractionDigits ?? 2;
-      return { id: row.id, amount: (Number(row.amount_minor) / (10 ** digits)).toFixed(digits), currency: row.currency, note: row.rider_note, status: row.status, adminNote: row.admin_note, createdAt: row.created_at, reviewedAt: row.reviewed_at };
+      return { id: row.id, amount: (Number(row.amount_minor) / (10 ** digits)).toFixed(digits), currency: row.currency, note: row.rider_note, status: row.status, adminNote: row.admin_note, createdAt: row.created_at, reviewedAt: row.reviewed_at, ownerRole: row.owner_role };
     });
   }
 
@@ -49,12 +49,12 @@ export class WalletDepositController {
   async adminList(@Req() req: AuthenticatedRequest) {
     if (req.authUser!.role !== UserRole.ADMIN) throw new ForbiddenException('Admin access required');
     const rows = await this.db.query(
-      `SELECT d.id, d.rider_user_id, u.email, u.phone, d.amount_minor, d.currency, d.rider_note, d.status, d.admin_note, d.created_at
+      `SELECT d.id, d.rider_user_id, d.owner_role, u.email, u.phone, d.amount_minor, d.currency, d.rider_note, d.status, d.admin_note, d.created_at
        FROM wallet_deposit_requests d JOIN users u ON u.id = d.rider_user_id
        ORDER BY CASE WHEN d.status = 'pending' THEN 0 ELSE 1 END, d.created_at DESC LIMIT 200`);
     return rows.map((row: any) => {
       const digits = new Intl.NumberFormat('en-US', { style: 'currency', currency: row.currency }).resolvedOptions().maximumFractionDigits ?? 2;
-      return { id: row.id, riderUserId: row.rider_user_id, rider: row.email || row.phone || row.rider_user_id, amount: (Number(row.amount_minor) / (10 ** digits)).toFixed(digits), currency: row.currency, note: row.rider_note, status: row.status, adminNote: row.admin_note, createdAt: row.created_at };
+      return { id: row.id, riderUserId: row.rider_user_id, ownerRole: row.owner_role, owner: row.email || row.phone || row.rider_user_id, amount: (Number(row.amount_minor) / (10 ** digits)).toFixed(digits), currency: row.currency, note: row.rider_note, status: row.status, adminNote: row.admin_note, createdAt: row.created_at };
     });
   }
 
@@ -79,7 +79,7 @@ export class WalletDepositController {
         ON CONFLICT (owner_user_id, currency) WHERE owner_user_id IS NOT NULL DO NOTHING`, [request.rider_user_id, request.currency]);
       const accountRows = await manager.query('SELECT id, balance_minor FROM wallet_accounts WHERE owner_user_id=$1 AND currency=$2 FOR UPDATE', [request.rider_user_id, request.currency]);
       const account = accountRows[0];
-      if (!account) throw new BadRequestException('تعذر العثور على محفظة الراكب');
+      if (!account) throw new BadRequestException('تعذر العثور على المحفظة');
       await manager.query('UPDATE wallet_accounts SET balance_minor=balance_minor+$1, updated_at=now() WHERE id=$2', [amount.toString(), account.id]);
       await manager.query(`INSERT INTO wallet_transactions (from_account_id, to_account_id, created_by_user_id, type, amount_minor, currency, idempotency_key, related_trip_id, description)
         VALUES (NULL, $1, $2, 'card_top_up', $3, $4, $5, NULL, $6)`,
