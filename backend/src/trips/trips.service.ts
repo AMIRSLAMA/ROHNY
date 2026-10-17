@@ -4,8 +4,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { DataSource, InjectRepository } from 'typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { CreateTripDto } from './dto/create-trip.dto';
 import { Trip, TripStatus } from './entities/trip.entity';
 import { PricingService } from '../pricing/pricing.service';
