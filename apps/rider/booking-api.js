@@ -206,7 +206,8 @@
         card.append(title);
         addHistoryRow(card, 'من', trip.pickupAddress);
         addHistoryRow(card, 'إلى', trip.destinationAddress);
-        addHistoryRow(card, 'السعر المحفوظ', trip.fareAmount == null ? 'غير متاح للرحلات القديمة' : new Intl.NumberFormat('ar', { style: 'currency', currency: trip.fareCurrency || 'USD' }).format(Number(trip.fareAmount)));
+        addHistoryRow(card, 'السعر المحفوظ', trip.riderFreeRide ? 'رحلة مجانية — 0' : (trip.fareAmount == null ? 'غير متاح للرحلات القديمة' : new Intl.NumberFormat('ar', { style: 'currency', currency: trip.fareCurrency || 'USD' }).format(Number(trip.fareAmount))));
+        if (trip.riderFreeRide) addHistoryRow(card, 'تكلفة الرحلة', 'تتحملها ROHNY بالكامل');
         addHistoryRow(card, 'الحالة', tripStatusLabels[trip.status] || 'غير معروفة');
         addHistoryRow(card, 'نوع الرحلة', rideTypeLabels[trip.rideType] || trip.rideType);
         addHistoryRow(card, 'طريقة الدفع', paymentLabels[trip.paymentMethod] || trip.paymentMethod);
@@ -452,7 +453,7 @@
       payload.quotedFareAmount = Number(quote.fareAmount);
       payload.quotedCurrency = quote.currency;
       const trip = await api('/trips', { method: 'POST', body: JSON.stringify(payload) });
-      bookingStatus.textContent = 'تم إرسال طلب الرحلة بنجاح. السعر المحفوظ: ' + new Intl.NumberFormat('ar', { style: 'currency', currency: trip.fareCurrency || selectedFareQuote.currency }).format(Number(trip.fareAmount)) + ' — الحالة: قيد الانتظار.' +
+      bookingStatus.textContent = 'تم إرسال طلب الرحلة بنجاح. ' + (trip.riderFreeRide ? 'تم استخدام مكافأة رحلة مجانية — لن تدفع أجرة الرحلة.' : 'السعر المحفوظ: ' + new Intl.NumberFormat('ar', { style: 'currency', currency: trip.fareCurrency || selectedFareQuote.currency }).format(Number(trip.fareAmount))) + ' — الحالة: قيد الانتظار.' +
         (trip.id ? ' رقم الطلب: ' + trip.id : '');
       confirmButton.textContent = 'تم إرسال الطلب';
       loadTripHistory().catch(() => {});
