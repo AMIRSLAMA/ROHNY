@@ -17,6 +17,8 @@ export enum WalletTransactionType {
   CARD_TOP_UP = 'card_top_up',
   REFUND = 'refund',
   CASH_OUT = 'cash_out',
+  PLATFORM_REWARD = 'platform_reward',
+  CAPTAIN_BONUS = 'captain_bonus',
 }
 
 @Entity({ name: 'wallet_transactions' })
