@@ -550,6 +550,7 @@
       showSignedIn(true);
       $('password').value = '';
       await loadTrips();
+      await Promise.all([loadAccount(), loadDriverDepositRequests()]);
     } catch (error) {
       loginStatus.textContent = error.message || 'تعذّر تسجيل الدخول.';
       loginStatus.classList.add('error');
@@ -562,16 +563,110 @@
   $('refresh').addEventListener('click', loadTrips);
   $('mobileRefresh').addEventListener('click', loadTrips);
   document.querySelectorAll('.nav-item[data-view]').forEach((item) => item.addEventListener('click', () => showView(item.dataset.view)));
-  $('refreshWallet').addEventListener('click', loadAccount);
-  function showWalletActionNotice(kind) {
+  $('refreshWallet').addEventListener('click', () => {
+    loadAccount();
+    loadDriverDepositRequests();
+  });
+
+  const driverDepositStatusLabels = { pending: 'قيد مراجعة الإدارة', approved: 'تم اعتماد الإيداع', rejected: 'مرفوض' };
+
+  async function loadDriverDepositRequests() {
+    const list = $('driverDepositRequests');
+    if (!token || !list) return;
+    list.innerHTML = '<div class="empty">جارٍ تحميل طلبات الإيداع…</div>';
+    try {
+      const requests = await api('/wallet/deposits/mine');
+      list.replaceChildren();
+      if (!Array.isArray(requests) || requests.length === 0) {
+        list.innerHTML = '<div class="empty">لا توجد طلبات إيداع حتى الآن.</div>';
+        return;
+      }
+      requests.forEach((item) => {
+        const card = document.createElement('article');
+        card.className = 'transaction';
+        const info = document.createElement('div');
+        const title = document.createElement('div');
+        title.className = 'transaction-title';
+        title.textContent = 'طلب إيداع — ' + (driverDepositStatusLabels[item.status] || item.status);
+        const date = document.createElement('div');
+        date.className = 'transaction-date';
+        date.textContent = 'تاريخ الطلب: ' + (item.createdAt ? new Date(item.createdAt).toLocaleString('ar-EG') : '—');
+        info.append(title, date);
+        if (item.note) {
+          const note = document.createElement('div');
+          note.className = 'transaction-date';
+          note.textContent = 'ملاحظتك: ' + item.note;
+          info.append(note);
+        }
+        if (item.adminNote) {
+          const note = document.createElement('div');
+          note.className = 'transaction-date';
+          note.textContent = 'رد الإدارة: ' + item.adminNote;
+          info.append(note);
+        }
+        const amount = document.createElement('div');
+        amount.className = 'transaction-amount ' + (item.status === 'approved' ? 'credit' : '');
+        amount.textContent = Number(item.amount).toLocaleString('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + item.currency;
+        card.append(info, amount);
+        list.append(card);
+      });
+    } catch (error) {
+      list.replaceChildren();
+      const message = document.createElement('div');
+      message.className = 'empty';
+      message.textContent = error.message || 'تعذّر تحميل طلبات الإيداع.';
+      list.append(message);
+    }
+  }
+
+  $('depositAction').addEventListener('click', () => {
+    $('walletActionNotice').classList.add('hidden');
+    const panel = $('driverDepositPanel');
+    panel.classList.toggle('hidden');
+    if (!panel.classList.contains('hidden')) $('driverDepositAmount').focus();
+  });
+
+  $('driverDepositCancel').addEventListener('click', () => {
+    $('driverDepositPanel').classList.add('hidden');
+    $('driverDepositStatus').textContent = '';
+  });
+
+  $('driverDepositForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!token) {
+      $('driverDepositStatus').textContent = 'سجّل الدخول أولًا.';
+      return;
+    }
+    const amount = Number($('driverDepositAmount').value);
+    if (!Number.isFinite(amount) || amount <= 0 || amount > 1000000) {
+      $('driverDepositStatus').textContent = 'أدخل مبلغًا صحيحًا.';
+      return;
+    }
+    const button = $('driverDepositSubmit');
+    button.disabled = true;
+    $('driverDepositStatus').textContent = 'جارٍ إرسال الطلب…';
+    try {
+      await api('/wallet/deposits', {
+        method: 'POST',
+        body: JSON.stringify({ amount, currency: 'EGP', note: $('driverDepositNote').value.trim() })
+      });
+      $('driverDepositStatus').textContent = 'تم تسجيل طلب الإيداع. رصيدك لن يتغير حتى تعتمد الإدارة استلام المبلغ.';
+      $('driverDepositForm').reset();
+      $('driverDepositPanel').classList.add('hidden');
+      await loadDriverDepositRequests();
+    } catch (error) {
+      $('driverDepositStatus').textContent = error.message || 'تعذّر إرسال طلب الإيداع.';
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  $('refreshDriverDeposits').addEventListener('click', loadDriverDepositRequests);
+  $('withdrawAction').addEventListener('click', () => {
     const notice = $('walletActionNotice');
     notice.classList.remove('hidden');
-    notice.textContent = kind === 'deposit'
-      ? 'طلب الإيداع: واجهة المحفظة جاهزة، لكن استقبال طلبات الإيداع لم يُفعّل بعد على الخادم. لن نضيف رصيدًا يدويًا أو نعرض عملية وهمية قبل ربط وسيلة دفع وموافقة الإدارة.'
-      : 'طلب السحب: واجهة المحفظة جاهزة، لكن طلبات السحب ومراجعتها لم تُفعّل بعد على الخادم. لن يتم خصم أي رصيد قبل إعداد مسار سحب آمن وموافقة الإدارة.';
-  }
-  $('depositAction').addEventListener('click', () => showWalletActionNotice('deposit'));
-  $('withdrawAction').addEventListener('click', () => showWalletActionNotice('withdraw'));
+    notice.textContent = 'طلبات السحب لم تُفعّل بعد. لن يتم خصم أي رصيد قبل إعداد مسار سحب آمن وموافقة الإدارة.';
+  });
   document.querySelectorAll('.nav-item[data-target]').forEach((item) => item.addEventListener('click', () => {
     const target = $(item.dataset.target);
     if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -580,6 +675,8 @@
   if (token) {
     showSignedIn(true);
     loadTrips().catch(() => {});
+    loadAccount().catch(() => {});
+    loadDriverDepositRequests().catch(() => {});
   } else showSignedIn(false);
   window.setInterval(() => {
     if (token && !dashboard.classList.contains('hidden')) loadTrips().catch(() => {});
