@@ -15,7 +15,7 @@ type ImageKey = typeof IMAGE_KEYS[number];
 class SaveDriverProfileDto {
   @IsOptional() @IsString() @MaxLength(160) fullName?: string;
   @IsOptional() @IsString() @MaxLength(40) nationalIdNumber?: string;
-  @IsOptional() @Matches(/^\\d{4}-\\d{2}-\\d{2}$/) nationalIdExpiry?: string;
+  @IsOptional() @Matches(/^\d{4}-\d{2}-\d{2}$/) nationalIdExpiry?: string;
   @IsOptional() @IsString() @MaxLength(40) vehicleType?: string;
   @IsOptional() @IsString() @MaxLength(80) vehicleMake?: string;
   @IsOptional() @IsString() @MaxLength(80) vehicleModel?: string;
@@ -23,9 +23,9 @@ class SaveDriverProfileDto {
   @IsOptional() @IsString() @MaxLength(40) vehicleColor?: string;
   @IsOptional() @IsString() @MaxLength(30) vehiclePlate?: string;
   @IsOptional() @IsString() @MaxLength(50) drivingLicenseNumber?: string;
-  @IsOptional() @Matches(/^\\d{4}-\\d{2}-\\d{2}$/) drivingLicenseExpiry?: string;
+  @IsOptional() @Matches(/^\d{4}-\d{2}-\d{2}$/) drivingLicenseExpiry?: string;
   @IsOptional() @IsString() @MaxLength(50) vehicleLicenseNumber?: string;
-  @IsOptional() @Matches(/^\\d{4}-\\d{2}-\\d{2}$/) vehicleLicenseExpiry?: string;
+  @IsOptional() @Matches(/^\d{4}-\d{2}-\d{2}$/) vehicleLicenseExpiry?: string;
   @IsOptional() images?: Record<string, string>;
 }
 
@@ -70,7 +70,7 @@ export class DriverProfilesController {
       for (const [key, value] of Object.entries(images)) {
         if (!(IMAGE_KEYS as readonly string[]).includes(key)) throw new BadRequestException('Unknown image field');
         if (value === null || value === '') { delete updated[key]; continue; }
-        if (typeof value !== 'string' || !/^data:image\\/(jpeg|png|webp);base64,/.test(value) || value.length > 2_800_000) {
+        if (typeof value !== 'string' || !/^data:image\/(jpeg|png|webp);base64,/.test(value) || value.length > 2_800_000) {
           throw new BadRequestException('Each image must be a JPEG, PNG, or WebP image under 2 MB');
         }
         updated[key as ImageKey] = value;
