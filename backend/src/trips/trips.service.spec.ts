@@ -1,5 +1,5 @@
 import { BadRequestException, ConflictException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 import { CreateTripDto } from './dto/create-trip.dto';
 import { Trip, TripPaymentMethod, TripRideType, TripStatus } from './entities/trip.entity';
 import { TripsService } from './trips.service';
@@ -8,6 +8,9 @@ describe('TripsService', () => {
   let service: TripsService;
   let queryBuilder: Record<string, jest.Mock>;
   let pricingService: { quote: jest.Mock };
+  let dataSource: { transaction: jest.Mock; query: jest.Mock };
+  let managerQuery: jest.Mock;
+  let lockedTripRows: any[];
   let repository: {
     create: jest.Mock;
     save: jest.Mock;
@@ -46,7 +49,28 @@ describe('TripsService', () => {
       createQueryBuilder: jest.fn(() => queryBuilder),
     };
     pricingService = { quote: jest.fn(async () => ({ cityCode: 'CAI', currency: 'EGP', fareAmount: 45.5, distanceMeters: 6500, durationSeconds: 900 })) };
-    service = new TripsService(repository as unknown as Repository<Trip>, pricingService as any);
+    lockedTripRows = [{
+      id: 'trip-id', rider_id: 'rider-id', driver_id: null, status: TripStatus.PENDING,
+      fare_amount: '45.50', fare_currency: 'EGP', rider_free_ride: false, scheduled_at: null,
+    }];
+    managerQuery = jest.fn(async (sql: string) => {
+      if (sql.includes('SELECT * FROM trips WHERE id=$1 FOR UPDATE')) return lockedTripRows;
+      if (sql.includes('SELECT') && sql.includes('AS earned')) return [{ earned: 0, used: 0, reserved: false }];
+      if (sql.includes('setting_value')) return [{ setting_value: 10 }];
+      if (sql.includes('SELECT id, balance_minor, currency FROM wallet_accounts WHERE owner_user_id')) {
+        return [{ id: 'wallet-id', balance_minor: '10000', currency: 'EGP' }];
+      }
+      return [];
+    });
+    const manager = {
+      query: managerQuery,
+      getRepository: jest.fn(() => repository),
+    };
+    dataSource = {
+      transaction: jest.fn(async (callback: (manager: EntityManager) => Promise<any>) => callback(manager as unknown as EntityManager)),
+      query: jest.fn(async () => []),
+    };
+    service = new TripsService(repository as unknown as Repository<Trip>, pricingService as any, dataSource as unknown as DataSource);
   });
 
   it('creates a pending trip for the authenticated rider and normalizes text', async () => {
@@ -70,6 +94,7 @@ describe('TripsService', () => {
     }));
     expect(pricingService.quote).toHaveBeenCalledWith(expect.objectContaining({ cityCode: 'CAI', rideType: TripRideType.ECONOMY }));
     expect(repository.save).toHaveBeenCalledTimes(1);
+    expect(dataSource.transaction).toHaveBeenCalledTimes(1);
     expect(result.id).toBe('trip-id');
   });
 
@@ -130,15 +155,18 @@ describe('TripsService', () => {
   });
 
 
-  it('atomically assigns a pending trip to one driver', async () => {
+  it('checks commission funds and atomically assigns a pending trip to one driver', async () => {
     await service.acceptForDriver('driver-id', 'trip-id');
-    expect(queryBuilder.update).toHaveBeenCalledWith(Trip);
-    expect(queryBuilder.set).toHaveBeenCalledWith(expect.objectContaining({ driverId: 'driver-id', status: TripStatus.ACCEPTED }));
-    expect(queryBuilder.andWhere).toHaveBeenCalledWith('"driver_id" IS NULL');
+    expect(dataSource.transaction).toHaveBeenCalledTimes(1);
+    expect(managerQuery).toHaveBeenCalledWith(expect.stringContaining('SELECT * FROM trips WHERE id=$1 FOR UPDATE'), ['trip-id']);
+    expect(managerQuery).toHaveBeenCalledWith(expect.stringContaining('UPDATE trips SET driver_id=$1'), ['driver-id', TripStatus.ACCEPTED, 'trip-id', TripStatus.PENDING]);
   });
 
   it('rejects a trip that another driver already accepted', async () => {
-    queryBuilder.execute.mockResolvedValueOnce({ affected: 0 });
+    lockedTripRows = [{
+      id: 'trip-id', rider_id: 'rider-id', driver_id: 'another-driver', status: TripStatus.ACCEPTED,
+      fare_amount: '45.50', fare_currency: 'EGP', rider_free_ride: false, scheduled_at: null,
+    }];
     await expect(service.acceptForDriver('driver-id', 'trip-id')).rejects.toThrow(ConflictException);
   });
 
