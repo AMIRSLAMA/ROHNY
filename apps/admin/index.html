@@ -8,15 +8,226 @@
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 90% 0,#174a3c 0,transparent 38%),var(--bg);color:#f3fbf7;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
 main{max-width:1200px;margin:auto;padding:24px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px}.brand{font-size:24px;font-weight:800}.brand span{color:var(--green)}.sub{color:var(--muted);font-size:14px;margin-top:4px}
 .panel,.stat{background:rgba(16,43,37,.92);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 12px 30px #0002}.login{max-width:440px;margin:8vh auto}.field{display:block;margin:14px 0;color:var(--muted);font-size:14px}input,select{display:block;width:100%;margin-top:7px;border:1px solid var(--line);border-radius:10px;background:#071b17;color:white;padding:13px;font:inherit}button{border:0;border-radius:11px;padding:12px 17px;background:var(--green);color:#06251b;font-weight:800;font:inherit;cursor:pointer}button.secondary{background:#23483e;color:#f3fbf7}button:disabled{opacity:.5;cursor:wait}.hidden{display:none!important}.msg{min-height:24px;color:var(--muted);font-size:14px;margin-top:12px}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}.stat strong{display:block;font-size:26px;margin-top:7px}.stat span{color:var(--muted);font-size:13px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:850px}th,td{text-align:right;padding:13px 10px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:top}th{color:var(--muted);font-weight:600}.pill{display:inline-block;padding:5px 9px;border-radius:99px;background:#57451b;color:#ffe2a0;font-size:12px}.error{color:var(--danger)}.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.empty{text-align:center;color:var(--muted);padding:30px}.pricing-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.check{display:flex;gap:8px;align-items:center}.check input{width:auto;margin:0}.help{color:var(--muted);font-size:12px;line-height:1.8}@media(max-width:650px){main{padding:14px}.stats,.pricing-grid{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.panel{padding:14px}}
-.profile-review-card{border:1px solid var(--line);border-radius:15px;padding:16px;margin:12px 0;background:#0b241e}.profile-review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.profile-review-grid img{width:100%;max-height:180px;object-fit:contain;background:#071b17;border-radius:10px;margin-top:6px}.profile-review-doc{font-size:12px;color:var(--muted);overflow-wrap:anywhere}.profile-review-card h3{margin:0 0 10px}.profile-review-card .actions{margin-top:12px}@media(max-width:650px){.profile-review-grid{grid-template-columns:1fr}}</style></head>
+.profile-review-card{border:1px solid var(--line);border-radius:15px;padding:16px;margin:12px 0;background:#0b241e}.profile-review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.profile-review-grid img{width:100%;max-height:180px;object-fit:contain;background:#071b17;border-radius:10px;margin-top:6px}.profile-review-doc{font-size:12px;color:var(--muted);overflow-wrap:anywhere}.profile-review-card h3{margin:0 0 10px}.profile-review-card .actions{margin-top:12px}@media(max-width:650px){.profile-review-grid{grid-template-columns:1fr}}
+/* ROHNY ADMIN CONSOLE — refreshed responsive dashboard */
+:root{
+  color-scheme:dark;
+  --bg:#071411;
+  --panel:#0e211d;
+  --line:#243f36;
+  --green:#b8ef61;
+  --muted:#9db3ab;
+  --danger:#ff8b94;
+  --text:#edf6f1;
+  --surface:#102a24;
+  --surface-raised:#142f28;
+}
+html{scroll-behavior:smooth;scroll-padding-top:108px}
+body{
+  color:var(--text);
+  background:
+    radial-gradient(ellipse at 88% -10%,#1f5945 0,transparent 32%),
+    radial-gradient(ellipse at 2% 42%,#17382b70 0,transparent 35%),
+    var(--bg);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;
+}
+main{max-width:1580px;margin:auto;padding:0 clamp(14px,2.4vw,36px) 48px}
+header.top{
+  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  margin:0 calc(-1 * clamp(14px,2.4vw,36px)) 26px;
+  padding:17px clamp(14px,2.4vw,36px);
+  border-bottom:1px solid #28463b;
+  background:rgba(7,20,17,.91);
+  backdrop-filter:blur(18px);
+}
+.brand{display:flex;align-items:center;gap:12px;font-size:23px;letter-spacing:-.5px}
+.brand:before{
+  content:"R";display:grid;place-items:center;flex:0 0 44px;height:44px;
+  border-radius:14px;background:linear-gradient(145deg,#d4ff8d,var(--green));
+  color:#122319;font-size:21px;font-weight:950;box-shadow:0 9px 26px #b8ef611c;
+}
+.brand span{color:var(--green)}
+.sub{color:var(--muted);font-size:13px;line-height:1.7;margin-top:4px}
+.actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+button{
+  border:1px solid transparent;border-radius:12px;padding:11px 16px;
+  background:var(--green);color:#102016;font-weight:800;font-size:13px;
+  transition:background .16s,border-color .16s,transform .16s,box-shadow .16s;
+}
+button:hover{transform:translateY(-1px);box-shadow:0 8px 22px #0002}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{
+  outline:2px solid var(--green);outline-offset:3px;
+}
+button.secondary{background:#17362c;border-color:#2c5040;color:var(--text)}
+button.secondary:hover{background:#204636;border-color:#467458}
+button:disabled{opacity:.48;cursor:not-allowed;transform:none;box-shadow:none}
+.hidden{display:none!important}
+.panel,.stat{
+  background:linear-gradient(155deg,rgba(17,43,35,.97),rgba(10,29,24,.98));
+  border:1px solid var(--line);border-radius:20px;padding:22px;
+  box-shadow:0 16px 42px #0002;
+}
+#loginPanel{max-width:470px;margin:9vh auto 0;padding:30px}
+#loginPanel h2{margin:0 0 8px;font-size:25px;letter-spacing:-.5px}
+#loginPanel form{margin-top:24px}
+.field{display:block;margin:13px 0;color:#c3d4cc;font-size:13px;font-weight:650;line-height:1.8}
+input,select{
+  display:block;width:100%;min-width:0;margin-top:7px;
+  border:1px solid #2b4b3e;border-radius:12px;
+  background:#071a15;color:var(--text);padding:12px 13px;
+  font:inherit;outline:none;
+}
+input::placeholder{color:#69857a}
+input:focus,select:focus{border-color:#9bd54f;box-shadow:0 0 0 3px #b8ef6115}
+input[type=checkbox]{accent-color:var(--green)}
+#loginBtn{width:100%;margin-top:10px;padding:13px}
+.msg{min-height:22px;color:var(--muted);font-size:13px;line-height:1.8;margin-top:10px}
+.error{color:var(--danger)!important}
+#dashboard:not(.hidden){display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:18px;align-items:start}
+.admin-overview{
+  grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:22px;
+  padding:25px 28px;border:1px solid #2d5942;border-radius:22px;
+  background:linear-gradient(115deg,#173d2d 0%,#102b22 55%,#0e241d 100%);
+  position:relative;overflow:hidden;
+}
+.admin-overview:after{content:"";position:absolute;inset:auto -70px -150px auto;width:330px;height:330px;border:1px solid #b8ef611c;border-radius:50%;box-shadow:0 0 0 25px #b8ef6105,0 0 0 55px #b8ef6104;pointer-events:none}
+.admin-eyebrow{display:flex;align-items:center;gap:8px;color:var(--green);font-size:10px;font-weight:900;letter-spacing:1.5px;margin-bottom:9px}
+.admin-eyebrow-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 13px #b8ef6170}
+.admin-overview h1{margin:0;font-size:clamp(23px,3vw,34px);letter-spacing:-.8px}
+.admin-overview p{margin:8px 0 0;color:#b0c9bf;font-size:13px;line-height:1.9}
+.admin-overview-brand{position:relative;z-index:1;display:flex;align-items:center;gap:12px;padding:12px 15px;border:1px solid #b8ef6126;background:#061a1455;border-radius:16px;min-width:185px}
+.admin-overview-mark{display:grid;place-items:center;width:42px;height:42px;background:var(--green);border-radius:13px;color:#102016;font-size:22px;font-weight:950}
+.admin-overview-brand strong,.admin-overview-brand small{display:block}
+.admin-overview-brand strong{letter-spacing:1.6px;font-size:14px}
+.admin-overview-brand small{color:var(--muted);font-size:11px;margin-top:4px}
+.admin-nav{
+  grid-column:1/-1;display:flex;align-items:center;gap:7px;
+  padding:8px;border:1px solid #213e33;border-radius:16px;
+  background:#0b201a;overflow-x:auto;scrollbar-width:thin;
+}
+.admin-nav a{
+  display:inline-flex;align-items:center;gap:9px;flex:0 0 auto;
+  padding:10px 13px;border-radius:10px;text-decoration:none;
+  color:#c4d6cc;font-size:12px;font-weight:750;white-space:nowrap;
+  border:1px solid transparent;transition:background .15s,color .15s,border-color .15s;
+}
+.admin-nav a span{font-size:10px;color:var(--green);font-weight:900;letter-spacing:.5px}
+.admin-nav a:hover{background:#17362b;border-color:#294e3c;color:#fff}
+.stats{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0}
+.stat{position:relative;overflow:hidden;min-height:120px;padding:20px 22px}
+.stat:after{content:"";position:absolute;left:-23px;bottom:-45px;width:105px;height:105px;border:1px solid #b8ef6117;border-radius:35px;transform:rotate(25deg);pointer-events:none}
+.stat span{display:block;color:#a8c0b5;font-size:12px;font-weight:650}
+.stat strong{display:block;color:var(--green);font-size:32px;line-height:1.2;margin-top:12px;letter-spacing:-1px}
+#dashboard>.panel{min-width:0;margin:0!important;scroll-margin-top:110px}
+#admin-driver-create{grid-column:span 5}
+#admin-pricing{grid-column:span 7}
+#admin-driver-profiles,#admin-wallet-deposits,#admin-wallet-ledger,#admin-trips{grid-column:1/-1}
+.admin-section-heading{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.admin-section-heading h2{margin:0;font-size:18px}
+.admin-section-heading .help{margin:5px 0 0}
+.admin-section-icon{display:grid;place-items:center;flex:0 0 43px;height:43px;border-radius:14px;background:#b8ef6114;color:var(--green);font-size:23px;border:1px solid #b8ef6120}
+#dashboard .panel>.top{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:0 0 18px;padding:0;background:transparent;border:0;backdrop-filter:none;position:static}
+#dashboard .panel>.top h2{margin:0;font-size:18px}
+#dashboard .panel>.top .sub{font-size:12px;max-width:760px}
+.help{color:var(--muted);font-size:12px;line-height:1.9}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px 13px}
+#admin-driver-create .pricing-grid{grid-template-columns:1fr}
+.check{display:flex;align-items:center;gap:9px;padding:12px 13px;border:1px solid #28483a;border-radius:12px;background:#0a2119;color:#c4d6cc;font-size:12px}
+.check input{width:auto;margin:0}
+#pricingForm .actions{margin-top:16px!important}
+#pricingForm{margin-bottom:22px}
+.tablewrap{overflow:auto;border:1px solid #233e33;border-radius:14px;background:#091c16;scrollbar-width:thin}
+table{width:100%;border-collapse:separate;border-spacing:0;min-width:850px}
+th,td{text-align:right;padding:13px 12px;border-bottom:1px solid #20392f;font-size:12px;vertical-align:top;line-height:1.7}
+th{color:#b7cebf;background:#132a22;font-weight:800;white-space:nowrap;position:sticky;top:0}
+td{color:#e0ebe5}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:#d8f6d405}
+.pill{display:inline-block;padding:5px 10px;border-radius:999px;background:#4b3b18;color:#f5d982;border:1px solid #7b642a45;font-size:11px;font-weight:800}
+.profile-review-card{border:1px solid #2a4d3b;border-radius:16px;padding:17px;margin:12px 0;background:linear-gradient(145deg,#122c22,#0b2119)}
+.profile-review-card h3{font-size:15px}
+.profile-review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.profile-review-grid img{width:100%;max-height:190px;object-fit:contain;background:#061a14;border:1px solid #203e32;border-radius:12px;margin-top:7px}
+.profile-review-doc{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.profile-review-card .actions{margin-top:14px}
+.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.empty{text-align:center;color:var(--muted);padding:30px 16px;line-height:1.8}
+#admin-driver-profiles .empty{border:1px dashed #2a4a3a;border-radius:14px;background:#0a2019}
+#admin-wallet-deposits .tablewrap,#admin-wallet-ledger .tablewrap,#admin-trips .tablewrap{max-width:100%}
+#driverMsg,#pricingMsg,#driverProfilesMsg,#walletDepositsMsg,#walletTransactionsMsg,#dashMsg{padding:0 2px}
+@media(max-width:1100px){
+  #admin-driver-create,#admin-pricing{grid-column:1/-1}
+  .pricing-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .admin-overview-brand{min-width:160px}
+}
+@media(max-width:700px){
+  main{padding:0 12px 28px}
+  header.top{margin:0 -12px 16px;padding:13px 14px;align-items:flex-start}
+  .brand{font-size:19px;gap:9px}
+  .brand:before{flex-basis:38px;height:38px;border-radius:12px}
+  header.top .sub{font-size:11px}
+  header.top .actions{gap:6px}
+  header.top .actions button{padding:9px 10px;font-size:11px}
+  #dashboard:not(.hidden){gap:12px}
+  .admin-overview{padding:20px;align-items:flex-start}
+  .admin-overview-brand{display:none}
+  .admin-overview h1{font-size:24px}
+  .admin-overview p{font-size:12px}
+  .admin-nav{padding:6px;border-radius:13px}
+  .admin-nav a{padding:9px 10px;font-size:11px}
+  .stats{gap:8px}
+  .stat{min-height:102px;padding:15px 12px;border-radius:15px}
+  .stat span{font-size:10px;line-height:1.7}
+  .stat strong{font-size:25px;margin-top:8px}
+  #dashboard>.panel{padding:15px;border-radius:17px}
+  #dashboard .panel>.top{align-items:flex-start}
+  #dashboard .panel>.top .sub{font-size:11px}
+  #dashboard .panel>.top button{padding:9px 10px;font-size:11px;white-space:nowrap}
+  .pricing-grid{grid-template-columns:1fr 1fr;gap:4px 10px}
+  .field{font-size:12px}
+  input,select{padding:11px 10px;font-size:13px}
+  .admin-section-heading h2,#dashboard .panel>.top h2{font-size:16px}
+  th,td{padding:11px 9px;font-size:11px}
+  .profile-review-card{padding:13px}
+}
+@media(max-width:430px){
+  #dashboard:not(.hidden){gap:10px}
+  .stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .stat{padding:12px 9px}
+  .stat span{font-size:9px}
+  .stat strong{font-size:22px}
+  .pricing-grid{grid-template-columns:1fr}
+  .admin-overview{padding:17px}
+  #loginPanel{padding:22px}
+  .actions button{max-width:100%}
+}
+
+</style></head>
 <body><main>
-<header class="top"><div><div class="brand">ROHNY <span>روحني</span></div><div class="sub">لوحة الإدارة — الرحلات وتسعير المدن</div></div><div id="headerActions" class="actions hidden"><button class="secondary" id="refreshBtn">تحديث الرحلات</button><button class="secondary" id="logoutBtn">تسجيل الخروج</button></div></header>
+<header class="top"><div><div class="brand">ROHNY <span>روحني</span></div><div class="sub">مركز التحكم · الرحلات والكباتن والمحافظ وتسعير المدن</div></div><div id="headerActions" class="actions hidden"><button class="secondary" id="refreshBtn">تحديث الرحلات</button><button class="secondary" id="logoutBtn">تسجيل الخروج</button></div></header>
 <section id="loginPanel" class="panel login"><h2>تسجيل دخول الإدارة</h2><p class="sub">استخدم حسابًا مُفعّلًا بصلاحية admin.</p><form id="loginForm"><label class="field">البريد الإلكتروني<input id="email" type="email" autocomplete="username" required maxlength="254"></label><label class="field">كلمة المرور<input id="password" type="password" autocomplete="current-password" required minlength="12" maxlength="128"></label><button id="loginBtn" type="submit">دخول لوحة الإدارة</button><div id="loginMsg" class="msg" role="status"></div></form></section>
 <section id="dashboard" class="hidden">
+<div class="admin-overview">
+  <div class="admin-overview-copy">
+    <div class="admin-eyebrow"><span class="admin-eyebrow-dot"></span> ROHNY · ADMIN CONSOLE</div>
+    <h1>مركز إدارة روحني</h1>
+    <p>إدارة الرحلات والكباتن والتسعير والمحافظ من مساحة عمل واحدة.</p>
+  </div>
+  <div class="admin-overview-brand"><span class="admin-overview-mark">R</span><div><strong>ROHNY</strong><small>لوحة التحكم الرئيسية</small></div></div>
+</div>
+<nav class="admin-nav" aria-label="التنقل بين أقسام لوحة الإدارة">
+  <a href="#admin-trips"><span>01</span> الرحلات</a>
+  <a href="#admin-pricing"><span>02</span> تسعير المدن</a>
+  <a href="#admin-driver-create"><span>03</span> إضافة كابتن</a>
+  <a href="#admin-driver-profiles"><span>04</span> ملفات الكباتن</a>
+  <a href="#admin-wallet-deposits"><span>05</span> طلبات الإيداع</a>
+  <a href="#admin-wallet-ledger"><span>06</span> سجل المحافظ</a>
+</nav>
 <div class="stats"><div class="stat"><span>إجمالي الرحلات المعروضة</span><strong id="total">—</strong></div><div class="stat"><span>قيد الانتظار</span><strong id="pending">—</strong></div><div class="stat"><span>حالات أخرى</span><strong id="other">—</strong></div></div>
 
-<section class="panel" style="margin-bottom:16px">
-<h2>إضافة كابتن جديد</h2>
+<section id="admin-driver-create" class="panel admin-section" style="margin-bottom:16px">
+<div class="admin-section-heading"><span class="admin-section-icon">＋</span><div><h2>إضافة كابتن جديد</h2><p class="help">إنشاء حساب كابتن وتجهيزه للدخول إلى التطبيق.</p></div></div>
 <p class="help">أنشئ حساب كابتن مفعّلًا لتجربة تطبيق الكابتن. كلمة المرور لا تقل عن 12 حرفًا، ولن تظهر مرة أخرى بعد الحفظ.</p>
 <form id="driverForm">
 <div class="pricing-grid">
@@ -29,7 +240,7 @@ main{max-width:1200px;margin:auto;padding:24px}.top{display:flex;align-items:cen
 </form>
 </section>
 
-<section class="panel" style="margin-bottom:16px"><h2>إعداد تسعير مدينة</h2><p class="help">السعر = الأكبر بين الحد الأدنى، ومجموع سعر البداية + (المسافة بالكيلومتر × سعر الكيلومتر) + (المدة بالدقيقة × سعر الدقيقة)، ثم يُطبق معامل نوع الرحلة. استخدم العملة المحلية للدولة (مثل EGP أو SAR أو USD). لا توجد أسعار افتراضية مفروضة.</p>
+<section id="admin-pricing" class="panel admin-section" style="margin-bottom:16px"><div class="admin-section-heading"><span class="admin-section-icon">⌖</span><div><h2>إعداد تسعير مدينة</h2><p class="help">إدارة المدن والأسعار وقواعد أنواع الرحلات.</p></div></div><p class="help">السعر = الأكبر بين الحد الأدنى، ومجموع سعر البداية + (المسافة بالكيلومتر × سعر الكيلومتر) + (المدة بالدقيقة × سعر الدقيقة)، ثم يُطبق معامل نوع الرحلة. استخدم العملة المحلية للدولة (مثل EGP أو SAR أو USD). لا توجد أسعار افتراضية مفروضة.</p>
 <form id="pricingForm">
 <div class="pricing-grid">
 <label class="field">رمز المدينة (فريد، مثل CAI)<input id="cityCode" required maxlength="12" pattern="[A-Za-z0-9_-]{2,12}" placeholder="CAI"></label>
@@ -49,9 +260,10 @@ main{max-width:1200px;margin:auto;padding:24px}.top{display:flex;align-items:cen
 </form>
 <div class="tablewrap"><table style="min-width:900px"><thead><tr><th>المدينة</th><th>الدولة</th><th>العملة</th><th>البداية</th><th>/ كم</th><th>/ دقيقة</th><th>الحد الأدنى</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="pricingRows"><tr><td colspan="9" class="empty">جارٍ تحميل الإعدادات…</td></tr></tbody></table></div>
 </section>
-<section class="panel" style="margin-bottom:16px"><div class="top"><div><h2 style="margin:0">ملفات الكباتن والمستندات</h2><div class="sub">راجع البيانات والصور ثم اعتمد الملف أو اطلب تعديله. الصور لا تُتاح إلا للإدارة والكابتن صاحب الملف.</div></div><button class="secondary" id="refreshDriverProfiles" type="button">تحديث الملفات</button></div><div id="driverProfilesMsg" class="msg" role="status"></div><div id="driverProfilesList"><div class="empty">اضغط تحديث الملفات لعرض الطلبات.</div></div></section>\n<section class="panel" style="margin-bottom:16px"><div class="top"><div><h2 style="margin:0">طلبات إيداع المحافظ</h2><div class="sub">طلبات الركاب والكباتن. راجع الطلب وتأكد من استلام المبلغ فعليًا قبل الموافقة؛ الموافقة تضيف الرصيد مرة واحدة.</div></div><button class="secondary" id="refreshWalletDeposits" type="button">تحديث الطلبات</button></div><div id="walletDepositsMsg" class="msg" role="status"></div><div class="tablewrap"><table><thead><tr><th>صاحب المحفظة</th><th>المبلغ</th><th>ملاحظة الراكب</th><th>الحالة</th><th>تاريخ الطلب</th><th>رد الإدارة</th><th>الإجراء</th></tr></thead><tbody id="walletDepositRows"><tr><td colspan="7" class="empty">اضغط تحديث الطلبات لعرضها.</td></tr></tbody></table></div></section>
-<section class="panel" style="margin-bottom:16px"><div class="top"><div><h2 style="margin:0">سجل حركات المحافظ</h2><div class="sub">كل حركة مالية مسجلة: المرسل والمستلم ونوع العملية والرحلة المرتبطة بها.</div></div><button class="secondary" id="refreshWalletTransactions" type="button">تحديث الحركات</button></div><div id="walletTransactionsMsg" class="msg" role="status"></div><div class="tablewrap"><table style="min-width:1100px"><thead><tr><th>نوع الحركة</th><th>من</th><th>إلى</th><th>المبلغ</th><th>رقم الرحلة</th><th>منفذ العملية</th><th>التفاصيل</th><th>التاريخ</th></tr></thead><tbody id="adminWalletTransactionRows"><tr><td colspan="8" class="empty">اضغط تحديث الحركات لعرض سجل المحافظ.</td></tr></tbody></table></div></section>
-<section class="panel"><div class="top"><div><h2 style="margin:0">الرحلات</h2><div class="sub">سجل الرحلات متضمنًا بيانات الراكب والكابتن.</div></div><div class="sub" id="lastUpdated"></div></div><div class="tablewrap"><table style="min-width:1250px"><thead><tr><th>رقم الرحلة</th><th>الراكب</th><th>الكابتن</th><th>الانطلاق</th><th>الوجهة</th><th>النوع</th><th>السعر</th><th>الدفع</th><th>الحالة</th><th>وقت الطلب</th></tr></thead><tbody id="tripRows"><tr><td colspan="10" class="empty">جارٍ تحميل الرحلات…</td></tr></tbody></table></div><div id="dashMsg" class="msg" role="status"></div></section>
+<section id="admin-driver-profiles" class="panel admin-section" style="margin-bottom:16px"><div class="top"><div><h2 style="margin:0">ملفات الكباتن والمستندات</h2><div class="sub">راجع البيانات والصور ثم اعتمد الملف أو اطلب تعديله. الصور لا تُتاح إلا للإدارة والكابتن صاحب الملف.</div></div><button class="secondary" id="refreshDriverProfiles" type="button">تحديث الملفات</button></div><div id="driverProfilesMsg" class="msg" role="status"></div><div id="driverProfilesList"><div class="empty">اضغط تحديث الملفات لعرض الطلبات.</div></div></section>
+<section id="admin-wallet-deposits" class="panel admin-section" style="margin-bottom:16px"><div class="top"><div><h2 style="margin:0">طلبات إيداع المحافظ</h2><div class="sub">طلبات الركاب والكباتن. راجع الطلب وتأكد من استلام المبلغ فعليًا قبل الموافقة؛ الموافقة تضيف الرصيد مرة واحدة.</div></div><button class="secondary" id="refreshWalletDeposits" type="button">تحديث الطلبات</button></div><div id="walletDepositsMsg" class="msg" role="status"></div><div class="tablewrap"><table><thead><tr><th>صاحب المحفظة</th><th>المبلغ</th><th>ملاحظة الراكب</th><th>الحالة</th><th>تاريخ الطلب</th><th>رد الإدارة</th><th>الإجراء</th></tr></thead><tbody id="walletDepositRows"><tr><td colspan="7" class="empty">اضغط تحديث الطلبات لعرضها.</td></tr></tbody></table></div></section>
+<section id="admin-wallet-ledger" class="panel admin-section" style="margin-bottom:16px"><div class="top"><div><h2 style="margin:0">سجل حركات المحافظ</h2><div class="sub">كل حركة مالية مسجلة: المرسل والمستلم ونوع العملية والرحلة المرتبطة بها.</div></div><button class="secondary" id="refreshWalletTransactions" type="button">تحديث الحركات</button></div><div id="walletTransactionsMsg" class="msg" role="status"></div><div class="tablewrap"><table style="min-width:1100px"><thead><tr><th>نوع الحركة</th><th>من</th><th>إلى</th><th>المبلغ</th><th>رقم الرحلة</th><th>منفذ العملية</th><th>التفاصيل</th><th>التاريخ</th></tr></thead><tbody id="adminWalletTransactionRows"><tr><td colspan="8" class="empty">اضغط تحديث الحركات لعرض سجل المحافظ.</td></tr></tbody></table></div></section>
+<section id="admin-trips" class="panel admin-section"><div class="top"><div><h2 style="margin:0">الرحلات</h2><div class="sub">سجل الرحلات متضمنًا بيانات الراكب والكابتن.</div></div><div class="sub" id="lastUpdated"></div></div><div class="tablewrap"><table style="min-width:1250px"><thead><tr><th>رقم الرحلة</th><th>الراكب</th><th>الكابتن</th><th>الانطلاق</th><th>الوجهة</th><th>النوع</th><th>السعر</th><th>الدفع</th><th>الحالة</th><th>وقت الطلب</th></tr></thead><tbody id="tripRows"><tr><td colspan="10" class="empty">جارٍ تحميل الرحلات…</td></tr></tbody></table></div><div id="dashMsg" class="msg" role="status"></div></section>
 </section></main>
 <script>
 const API_BASE='';
