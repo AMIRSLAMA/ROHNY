@@ -231,17 +231,7 @@
 
         <section id="trip-history-panel" class="ride-review" aria-labelledby="trip-history-title">
           <h3 id="trip-history-title">رحلاتي</h3><p id="trip-history-status" class="note" role="status" aria-live="polite">سجّل الدخول لعرض رحلاتك السابقة.</p>
-          <section id="trip-live-tracking" class="rider-live-tracking" hidden aria-labelledby="trip-live-title">
-            <div class="rider-live-heading"><div><span class="rider-live-kicker">ROHNY LIVE TRIP</span><h4 id="trip-live-title">متابعة الرحلة الحالية</h4></div><span id="trip-live-status-badge" class="rider-live-status">—</span></div>
-            <p id="trip-live-message" class="rider-live-message" role="status" aria-live="polite">جارٍ تحميل بيانات الرحلة…</p>
-            <div id="trip-live-stages" class="rider-trip-stages" role="list" aria-label="مراحل رحلتك"></div>
-            <div id="trip-live-map-section">
-              <div class="map-brandbar"><span class="map-brand-symbol">R</span><span class="map-brand-copy"><strong>ROHNY MAP</strong><small id="trip-live-map-subtitle">خريطة رحلتك المباشرة</small></span><span class="map-brand-live"><i></i> مباشر</span></div>
-              <div id="rider-live-map" class="map-canvas" role="application" aria-label="خريطة متابعة موقع الكابتن ومسار الرحلة"></div>
-              <p id="trip-live-updated" class="rider-live-updated" aria-live="polite">في انتظار تحديث موقع الكابتن.</p>
-            </div>
-          </section>
-          <div id="trip-history-list"></div><button type="button" id="refresh-trip-history" class="map-toolbar-button" hidden>تحديث سجل الرحلات</button>
+</div><button type="button" id="refresh-trip-history" class="map-toolbar-button" hidden>تحديث سجل الرحلات</button>
         </section>
         <section id="wallet-panel" class="ride-review rider-wallet-panel" aria-labelledby="wallet-title">
           <div class="rider-wallet-heading">
@@ -289,6 +279,17 @@
           <div class="route-line" aria-hidden="true"></div>
           <div class="field"><label for="destination">رايح فين؟</label><span class="pin" aria-hidden="true">◎</span><input id="destination" name="destination" placeholder="اكتب وجهتك" required><button type="button" class="search-place-button" data-search-place="destination">🔎 ابحث عن الوجهة</button><div id="destination-search-results" class="place-results" hidden></div></div>
           <button type="button" id="swap-locations" class="map-toolbar-button swap-locations" aria-label="تبديل نقطة الانطلاق والوجهة">↕ تبديل نقطة الانطلاق والوجهة</button>
+          <section id="trip-live-tracking" class="rider-live-tracking" hidden aria-labelledby="trip-live-title">
+            <div class="rider-live-heading"><div><span class="rider-live-kicker">ROHNY LIVE TRIP</span><h4 id="trip-live-title">متابعة الرحلة الحالية</h4></div><span id="trip-live-status-badge" class="rider-live-status">—</span></div>
+            <p id="trip-live-message" class="rider-live-message" role="status" aria-live="polite">جارٍ تحميل بيانات الرحلة…</p>
+            <div id="trip-live-stages" class="rider-trip-stages" role="list" aria-label="مراحل رحلتك"></div>
+            <div id="trip-live-map-section">
+              <div class="map-brandbar"><span class="map-brand-symbol">R</span><span class="map-brand-copy"><strong>ROHNY MAP</strong><small id="trip-live-map-subtitle">خريطة رحلتك المباشرة</small></span><span class="map-brand-live"><i></i> مباشر</span></div>
+              <div id="rider-live-map" class="map-canvas" role="application" aria-label="خريطة متابعة موقع الكابتن ومسار الرحلة"></div>
+              <p id="trip-live-updated" class="rider-live-updated" aria-live="polite">في انتظار تحديث موقع الكابتن.</p>
+            </div>
+          </section>
+          <div id="trip-history-list">
           <div class="field"><label for="city-code">الدولة والمدينة</label><select id="city-code" name="cityCode" required><option value="">جارٍ تحميل المدن المتاحة…</option></select><small id="city-hint" class="field-hint">السعر والعملة حسب إعدادات المدينة.</small></div>
           <div class="section-title">اختار نوع الرحلة</div>
           <div class="rides" role="group" aria-label="نوع الرحلة">
