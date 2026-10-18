@@ -7,6 +7,7 @@ import {
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateTripDto } from './dto/create-trip.dto';
+import { UpdateDriverLocationDto } from './dto/update-driver-location.dto';
 import { Trip, TripPaymentMethod, TripStatus } from './entities/trip.entity';
 import { PricingService } from '../pricing/pricing.service';
 
