@@ -458,7 +458,21 @@
   function ensureDriverMap() {
     if (driverMap || !window.L || !$('driverNavigationMap')) return;
     driverMap = L.map('driverNavigationMap', { zoomControl: true }).setView([30.0131, 31.2089], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(driverMap);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      className: 'rohny-map-tiles',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>'
+    }).addTo(driverMap);
+  }
+
+  function rohnyMapPinIcon(kind, label) {
+    return L.divIcon({
+      className: 'rohny-leaflet-marker',
+      html: '<span class="rohny-map-pin rohny-map-pin--' + kind + '"><span>' + label + '</span></span>',
+      iconSize: [42, 48],
+      iconAnchor: [21, 42],
+      popupAnchor: [0, -38]
+    });
   }
 
   function requestDriverLocation(onReady) {
@@ -488,9 +502,18 @@
     driverMapMarkers.forEach(marker => driverMap.removeLayer(marker));
     driverMapMarkers = [];
     if (driverRouteLine) { driverMap.removeLayer(driverRouteLine); driverRouteLine = null; }
-    driverMapMarkers.push(L.marker(pickup).addTo(driverMap).bindPopup('نقطة ركوب الراكب: ' + (trip.pickupAddress || 'نقطة الركوب')));
-    driverMapMarkers.push(L.marker(destination).addTo(driverMap).bindPopup('وجهة الراكب: ' + (trip.destinationAddress || 'الوجهة')));
-    if (location) driverMapMarkers.push(L.circleMarker([location.lat, location.lng], { radius: 8, color: '#ffffff', weight: 3, fillColor: '#287cff', fillOpacity: 1 }).addTo(driverMap).bindPopup('موقعك الحالي'));
+    driverMapMarkers.push(L.marker(pickup, { icon: rohnyMapPinIcon('pickup', 'A'), zIndexOffset: 300 }).addTo(driverMap).bindPopup('نقطة ركوب الراكب: ' + (trip.pickupAddress || 'نقطة الركوب')));
+    driverMapMarkers.push(L.marker(destination, { icon: rohnyMapPinIcon('destination', 'B'), zIndexOffset: 300 }).addTo(driverMap).bindPopup('وجهة الراكب: ' + (trip.destinationAddress || 'الوجهة')));
+    if (location) {
+      const currentIcon = L.divIcon({
+        className: 'rohny-leaflet-marker',
+        html: '<span class="rohny-map-pin rohny-map-pin--captain"><span>R</span></span>',
+        iconSize: [42, 48],
+        iconAnchor: [21, 42],
+        popupAnchor: [0, -38]
+      });
+      driverMapMarkers.push(L.marker([location.lat, location.lng], { icon: currentIcon, zIndexOffset: 700 }).addTo(driverMap).bindPopup('موقعك الحالي — الكابتن'));
+    }
     const waypoints = [origin, target];
     try {
       const coords = waypoints.map(point => point[1] + ',' + point[0]).join(';');
@@ -500,7 +523,7 @@
       if (data.code !== 'Ok' || !data.routes || !data.routes.length) throw new Error('route');
       const route = data.routes[0];
       const points = route.geometry.coordinates.map(point => [point[1], point[0]]);
-      driverRouteLine = L.polyline(points, { color: '#c4ff62', weight: 6, opacity: 0.95 }).addTo(driverMap);
+      driverRouteLine = L.polyline(points, { color: '#c8f58c', weight: 7, opacity: 1, className: 'rohny-route-line', lineCap: 'round', lineJoin: 'round' }).addTo(driverMap);
       driverMap.fitBounds(driverRouteLine.getBounds(), { padding: [25, 25], maxZoom: 16 });
       const km = (route.distance / 1000).toLocaleString('ar-EG', { maximumFractionDigits: 1 });
       const mins = Math.max(1, Math.round(route.duration / 60)).toLocaleString('ar-EG');
