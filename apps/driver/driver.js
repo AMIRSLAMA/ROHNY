@@ -217,6 +217,7 @@
       amount.type = 'number';
       amount.min = '0.01';
       amount.step = '0.01';
+      if (trip.fareAmount != null) amount.max = String(trip.fareAmount);
       amount.required = true;
       amount.inputMode = 'decimal';
       amount.placeholder = 'قيمة الباقي (' + trip.fareCurrency + ')';
@@ -269,7 +270,8 @@
           transferredTripIds.add(trip.id);
           status.textContent = 'تم تحويل الباقي إلى محفظة الراكب بنجاح.';
           form.replaceChildren(status);
-          await Promise.all([loadAccount(), loadTrips()]);
+          await loadAccount();
+          await loadTrips();
         } catch (error) {
           status.textContent = error.message || 'تعذّر تحويل الباقي. لم يتم تأكيد نجاح العملية.';
           submit.disabled = false;
