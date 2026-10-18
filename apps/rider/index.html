@@ -133,7 +133,33 @@
     @media(max-width:480px){.wallet-card-grid{grid-template-columns:1fr}}
     #auth-panel{display:none}
     @media(max-width:800px){.rider-login-screen{padding:20px 14px}.login-card{border-radius:24px}.rider-bottom-nav button{font-size:10px}}
-  </style>
+  
+    /* ROHNY branded live map skin — keeps OpenStreetMap attribution visible. */
+    .map-brandbar{display:flex;align-items:center;gap:11px;padding:13px 15px;background:linear-gradient(100deg,#183d2b,#0b2119);border-bottom:1px solid #355748}
+    .map-brand-symbol{display:grid;place-items:center;flex:0 0 38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#d2ff91,#a8e965);color:#102317;font-weight:1000;font-size:20px;box-shadow:0 5px 18px #b8ef6120}
+    .map-brand-copy{display:flex;flex-direction:column;gap:3px;min-width:0}
+    .map-brand-copy strong{font-size:12px;letter-spacing:1.2px;color:#d7ffab}
+    .map-brand-copy small{font-size:11px;color:#afc7b9}
+    .map-brand-live{display:inline-flex;align-items:center;gap:7px;margin-inline-start:auto;padding:7px 10px;white-space:nowrap;border:1px solid #426442;border-radius:999px;color:#d1f4a3;background:#b8ef610d;font-size:10px;font-weight:800}
+    .map-brand-live i{width:7px;height:7px;border-radius:50%;background:#b8ef61;box-shadow:0 0 10px #b8ef61a0}
+    .map-canvas{position:relative;isolation:isolate;background:#0b1f17}
+    .map-canvas .rohny-map-tiles{filter:grayscale(.76) brightness(.72) sepia(.24) hue-rotate(65deg) saturate(.78) contrast(1.12)}
+    .map-canvas .leaflet-control-zoom{border:1px solid #42604e!important;border-radius:12px;overflow:hidden;box-shadow:0 5px 18px #0005}
+    .map-canvas .leaflet-control-zoom a{background:#10291f!important;color:#d4ffa0!important;border-bottom:1px solid #34503e!important;width:32px!important;height:32px!important;line-height:32px!important}
+    .map-canvas .leaflet-control-zoom a:hover{background:#214632!important}
+    .map-canvas .leaflet-control-attribution{background:#07140edb!important;color:#c8d8cb!important;font-size:9px!important}
+    .map-canvas .leaflet-control-attribution a{color:#d0f3a6!important}
+    .rohny-leaflet-marker{background:transparent!important;border:0!important}
+    .rohny-map-pin{position:absolute;left:6px;top:2px;display:grid;place-items:center;width:30px;height:30px;border:3px solid #f7fff0;border-radius:50% 50% 50% 7px;transform:rotate(-45deg);box-shadow:0 5px 14px #0009}
+    .rohny-map-pin>span{display:grid;place-items:center;width:100%;height:100%;transform:rotate(45deg);font-size:11px;font-weight:1000;color:#122018}
+    .rohny-map-pin--pickup{background:#b8ef61}
+    .rohny-map-pin--destination{background:#ff957d}
+    .rohny-route-line{filter:drop-shadow(0 0 3px #b8ef61a8)}
+    .map-canvas .leaflet-popup-content-wrapper,.map-canvas .leaflet-popup-tip{background:#102b20;color:#f5fbf4;border:1px solid #456644;box-shadow:0 9px 22px #0006}
+    .map-canvas .leaflet-popup-content{font-size:12px;line-height:1.8}
+    .map-canvas .leaflet-bar a,.map-canvas .leaflet-bar a:hover{border-bottom-color:#34503e}
+    @media(max-width:480px){.map-brandbar{padding:11px 10px;gap:8px}.map-brand-symbol{flex-basis:34px;height:34px}.map-brand-copy small{font-size:10px}.map-brand-live{padding:6px 8px;font-size:9px}}
+</style>
 </head>
 <body>
   <section id="riderLoginScreen" class="rider-login-screen">
@@ -177,7 +203,7 @@
         <h1>كل مشوار له طريق…<br><span>وروحني معاك.</span></h1>
         <p class="lead">تجربة تنقّل بسيطة وواضحة، من نقطة الانطلاق لحد وجهتك. اختار مشوارك وخلي الباقي علينا.</p>
         <div class="features"><div class="feature">✦ خطوات سهلة</div><div class="feature">⌖ تحديد الرحلة</div><div class="feature">◷ تفاصيل واضحة</div></div>
-        <div class="map-card" aria-label="خريطة اختيار الرحلة"><div class="map-toolbar"><button type="button" id="choose-pickup" aria-pressed="true">📍 اختار نقطة الانطلاق</button><button type="button" id="choose-destination" aria-pressed="false">🏁 اختار الوجهة</button><button type="button" id="clear-locations" class="map-toolbar-button">مسح النقطتين</button></div><div id="location-options" class="map-toolbar" hidden><button type="button" id="use-current-location">◎ استخدام موقعي الحالي</button><button type="button" id="choose-on-map">⌖ اختيار من الخريطة</button></div><div class="map-help">اختار نقطة الانطلاق أو الوجهة، وبعدها اختار استخدام موقعك الحالي أو تحديد المكان من الخريطة.</div><div id="map" class="map-canvas" role="application" aria-label="خريطة تفاعلية لاختيار الانطلاق والوجهة"></div><div id="map-status" class="map-status" role="status" aria-live="polite">جاري تحميل الخريطة…</div><div id="route-summary" class="route-summary" aria-live="polite" hidden></div><div class="map-legend"><span><i class="legend-dot" style="background:#24a148"></i>نقطة الانطلاق</span><span><i class="legend-dot" style="background:#e05252"></i>الوجهة</span></div></div>
+        <div class="map-card" aria-label="خريطة اختيار الرحلة"><div class="map-brandbar"><span class="map-brand-symbol">R</span><span class="map-brand-copy"><strong>ROHNY MAP</strong><small>خريطتك · طريقك · رحلتك</small></span><span class="map-brand-live"><i></i> خريطة مباشرة</span></div><div class="map-toolbar"><button type="button" id="choose-pickup" aria-pressed="true">📍 اختار نقطة الانطلاق</button><button type="button" id="choose-destination" aria-pressed="false">🏁 اختار الوجهة</button><button type="button" id="clear-locations" class="map-toolbar-button">مسح النقطتين</button></div><div id="location-options" class="map-toolbar" hidden><button type="button" id="use-current-location">◎ استخدام موقعي الحالي</button><button type="button" id="choose-on-map">⌖ اختيار من الخريطة</button></div><div class="map-help">اختار نقطة الانطلاق أو الوجهة، وبعدها اختار استخدام موقعك الحالي أو تحديد المكان من الخريطة.</div><div id="map" class="map-canvas" role="application" aria-label="خريطة تفاعلية لاختيار الانطلاق والوجهة"></div><div id="map-status" class="map-status" role="status" aria-live="polite">جاري تحميل الخريطة…</div><div id="route-summary" class="route-summary" aria-live="polite" hidden></div><div class="map-legend"><span><i class="legend-dot" style="background:#24a148"></i>نقطة الانطلاق</span><span><i class="legend-dot" style="background:#e05252"></i>الوجهة</span></div></div>
       </section>
       <section class="booking" aria-labelledby="booking-title">
         <div class="booking-head"><div><h2 id="booking-title">احجز مشوارك</h2><p>ابدأ بتحديد مكانك ووجهتك</p></div><div class="badge">روحني معاك</div></div>
@@ -360,6 +386,7 @@
     const map = L.map('map', { zoomControl: true }).setView([30.0131, 31.2089], 12);
     const mapTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
+      className: 'rohny-map-tiles',
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>'
     });
     mapTiles.on('load', () => {
@@ -370,8 +397,16 @@
       if (!mapInitialized) setMapStatus('الخريطة بتواجه مشكلة في تحميل الصور. تأكد من الاتصال، أو أعد تحميل الصفحة.');
     });
     mapTiles.addTo(map);
-    const pickupIcon = L.divIcon({className:'',html:'<div style="width:20px;height:20px;border:3px solid white;border-radius:50%;background:#24a148;box-shadow:0 1px 7px #0008"></div>',iconSize:[20,20],iconAnchor:[10,10]});
-    const destinationIcon = L.divIcon({className:'',html:'<div style="width:20px;height:20px;border:3px solid white;border-radius:50%;background:#e05252;box-shadow:0 1px 7px #0008"></div>',iconSize:[20,20],iconAnchor:[10,10]});
+    const pickupIcon = L.divIcon({
+      className: 'rohny-leaflet-marker',
+      html: '<span class="rohny-map-pin rohny-map-pin--pickup"><span>A</span></span>',
+      iconSize: [42, 48], iconAnchor: [21, 42], popupAnchor: [0, -38]
+    });
+    const destinationIcon = L.divIcon({
+      className: 'rohny-leaflet-marker',
+      html: '<span class="rohny-map-pin rohny-map-pin--destination"><span>B</span></span>',
+      iconSize: [42, 48], iconAnchor: [21, 42], popupAnchor: [0, -38]
+    });
     function setActiveTarget(target, showOptions = true) {
       activeTarget = target;
       choosePickup.setAttribute('aria-pressed', String(target === 'pickup'));
@@ -404,7 +439,7 @@
       routeDistanceLabel = '';
       routeTimeLabel = '';
       if (points.length !== 2) return;
-      routeLine = L.polyline(points, {color:'#a8f06a',weight:4,dashArray:'7 7',opacity:.85}).addTo(map);
+      routeLine = L.polyline(points, {color:'#b8ef61',weight:4,dashArray:'7 7',opacity:.9,className:'rohny-route-line',lineCap:'round',lineJoin:'round'}).addTo(map);
       mapStatus.textContent = 'تم تحديد النقطتين. جاري حساب مسار الطريق والمسافة التقريبية…';
       const start = points[0];
       const end = points[1];
@@ -422,7 +457,7 @@
           const route = data.routes[0];
           const roadPoints = route.geometry.coordinates.map(([lng, lat]) => [lat, lng]);
           if (routeLine) map.removeLayer(routeLine);
-          routeLine = L.polyline(roadPoints, {color:'#a8f06a',weight:5,opacity:.95}).addTo(map);
+          routeLine = L.polyline(roadPoints, {color:'#c8f58c',weight:6,opacity:1,className:'rohny-route-line',lineCap:'round',lineJoin:'round'}).addTo(map);
           map.fitBounds(routeLine.getBounds(), {padding:[28,28],maxZoom:15});
           const km = route.distance / 1000;
           const mins = Math.max(1, Math.round(route.duration / 60));
