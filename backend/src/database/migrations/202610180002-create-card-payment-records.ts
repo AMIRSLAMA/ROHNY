@@ -5,8 +5,8 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
  * This migration does not contact a payment gateway or move any money.
  * Never store PAN, CVV, PIN, or raw gateway secrets in these tables.
  */
-export class CreateCardPaymentRecords202610180002 implements MigrationInterface {
-  name = 'CreateCardPaymentRecords202610180002';
+export class CreateCardPaymentRecords2026101800020 implements MigrationInterface {
+  name = 'CreateCardPaymentRecords2026101800020';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
