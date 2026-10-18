@@ -198,14 +198,7 @@
         }
       }
       window.setTimeout(() => map && map.invalidateSize(), 100);
-      const previous = window.__rohnyLastTrackedStatus || '';
-      const priorTripId = window.__rohnyLastTrackedTripId || '';
-      window.__rohnyLastTrackedStatus = trip.status;
-      window.__rohnyLastTrackedTripId = trip.id;
-      if (pendingOrActive.has(trip.status) && (priorTripId !== trip.id || (!previous && trip.status !== 'pending') || (previous === 'pending' && trip.status === 'accepted'))) {
-        const tab = document.querySelector('[data-rider-tab="trips"]');
-        if (tab) tab.click();
-      }
+      // Keep the rider on the booking screen; the live map and stage list are embedded in this form.
     } catch (e) {
       const updated = $('trip-live-updated');
       if (updated) updated.textContent = e.message || 'تعذّر تحديث الموقع؛ ستتم إعادة المحاولة تلقائيًا.';
