@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 /** Keep only the most recent GPS point for each active trip; do not retain location history. */
-export class CreateTripDriverLocations202610180003 implements MigrationInterface {
-  name='CreateTripDriverLocations202610180003';
+export class CreateTripDriverLocations2026101800030 implements MigrationInterface {
+  name='CreateTripDriverLocations2026101800030';
   public async up(queryRunner:QueryRunner):Promise<void>{
     await queryRunner.query(`CREATE TABLE IF NOT EXISTS trip_driver_locations(
       trip_id uuid PRIMARY KEY REFERENCES trips(id) ON DELETE CASCADE,
