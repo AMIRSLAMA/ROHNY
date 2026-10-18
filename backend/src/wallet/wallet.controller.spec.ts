@@ -53,10 +53,10 @@ describe('WalletController', () => {
   it('allows only drivers to request a customer wallet transfer', async () => {
     const request = { authUser: { sub: 'driver-id', role: 'driver' } } as any;
     const input = {
-      recipientUserId: '00000000-0000-4000-8000-000000000001',
+      tripId: '00000000-0000-4000-8000-000000000003',
       amountMinor: 100,
+      consentConfirmed: true,
       idempotencyKey: '00000000-0000-4000-8000-000000000002',
-      description: 'Fare difference',
     };
     await controller.transferToCustomer(request, input);
     expect(wallets.transferDriverToRider).toHaveBeenCalledWith('driver-id', input);
