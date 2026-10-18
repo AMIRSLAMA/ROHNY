@@ -125,6 +125,12 @@
     .wallet-topup-card input{background:#10241e;color:#f5fbf7;border-color:#29473b}.rider-wallet-form-actions{display:flex;gap:10px;flex-wrap:wrap}.rider-wallet-cancel{padding:11px 18px;border-radius:12px;border:1px solid #29473b;background:#152e26;color:#f5fbf7}
     .rider-wallet-subpanel{margin-top:18px;padding:17px;border:1px solid #29473b;border-radius:17px;background:#0b1d17}.rider-wallet-subheading{margin-bottom:12px}.rider-wallet-subheading span{font-size:11px;color:#a8bbb1}
     .rider-wallet-panel .review-row{border-color:#29473b;color:#f5fbf7}.rider-wallet-panel .note{color:#a8bbb1}.rider-wallet-note{margin:16px 0 0;padding:13px 15px;border:1px solid #4e5430;background:#c4ff620c;color:#cbd9b5;border-radius:14px;font-size:12px;line-height:1.8}
+    .wallet-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .wallet-card-grid .field{margin:8px 0}
+    .wallet-card-grid input:disabled{opacity:.68;cursor:not-allowed;border-style:dashed}
+    .wallet-card-badge{display:inline-block;border:1px solid #45683e;border-radius:999px;padding:4px 9px;color:#c4ff62;font-size:11px;white-space:nowrap}
+    .wallet-card-status{margin-top:12px;padding:12px 14px;border:1px solid #45683e;border-radius:12px;background:#c4ff620c;color:#cbd9b5;font-size:12px;line-height:1.8}
+    @media(max-width:480px){.wallet-card-grid{grid-template-columns:1fr}}
     #auth-panel{display:none}
     @media(max-width:800px){.rider-login-screen{padding:20px 14px}.login-card{border-radius:24px}.rider-bottom-nav button{font-size:10px}}
   </style>
@@ -200,6 +206,20 @@
               <p id="wallet-deposit-form-status" class="note" role="status" aria-live="polite"></p>
             </form>
           </div>
+          <section class="rider-wallet-subpanel wallet-card-registration" aria-labelledby="wallet-card-title">
+            <div class="rider-wallet-subheading"><h4 id="wallet-card-title">تسجيل بطاقة بنكية (فيزا)</h4><span class="wallet-card-badge">قريبًا</span></div>
+            <p class="note">خانات تسجيل البطاقة جاهزة. سيتم تفعيلها بأمان بعد ربط بوابة Yalla Cash؛ لا تدخل بيانات بطاقة حقيقية قبل التفعيل.</p>
+            <form id="wallet-card-form" autocomplete="off">
+              <div class="wallet-card-grid">
+                <label class="field">اسم حامل البطاقة<input type="text" placeholder="كما هو مطبوع على البطاقة" autocomplete="cc-name" disabled></label>
+                <label class="field">رقم البطاقة<input type="text" inputmode="numeric" placeholder="•••• •••• •••• ••••" autocomplete="cc-number" disabled></label>
+                <label class="field">تاريخ الانتهاء<input type="text" placeholder="MM/YY" autocomplete="cc-exp" disabled></label>
+                <label class="field">رمز الأمان<input type="password" placeholder="CVV" autocomplete="off" disabled></label>
+              </div>
+              <button type="button" class="rider-wallet-cancel" disabled>تسجيل البطاقة</button>
+              <div class="wallet-card-status" role="status">تسجيل البطاقة غير مفعّل حاليًا. لن يحفظ ROHNY رقم البطاقة أو رمز الأمان؛ سيتم ربط التسجيل الآمن بمزوّد الدفع في المرحلة الأخيرة.</div>
+            </form>
+          </section>
           <section class="rider-wallet-subpanel"><div class="rider-wallet-subheading"><h4>طلبات الإيداع</h4><span>متابعة الحالة</span></div><div id="wallet-deposit-requests"><p class="note">سجّل الدخول لعرض طلبات الإيداع.</p></div></section>
           <section class="rider-wallet-subpanel"><div class="rider-wallet-subheading"><h4>حركات المحفظة</h4><span>آخر العمليات</span></div><p id="wallet-status" class="note" role="status" aria-live="polite">سجّل الدخول لعرض محفظتك.</p><div id="wallet-transactions"></div></section>
           <p class="rider-wallet-note">الإيداع قيد المراجعة حتى تؤكد الإدارة استلام المبلغ. محفظة الراكب لا تتضمن خاصية السحب.</p>
