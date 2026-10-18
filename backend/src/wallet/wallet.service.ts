@@ -117,26 +117,37 @@ export class WalletService {
   }
 
   async transferDriverToRider(senderId: string, input: TransferWalletDto) {
-    if (senderId === input.recipientUserId) {
-      throw new BadRequestException('You cannot transfer to your own wallet');
+    if (!input.consentConfirmed) {
+      throw new BadRequestException('The rider verbal consent must be confirmed before transfer');
     }
     const currency = this.normalizeCurrency(input.currency);
     const amount = BigInt(input.amountMinor);
     if (amount <= 0n) throw new BadRequestException('Transfer amount must be positive');
 
-    const recipient = await this.users.findOne({
-      select: { id: true, role: true, isActive: true },
-      where: { id: input.recipientUserId },
-    });
-    if (!recipient || !recipient.isActive) throw new NotFoundException('Recipient account not found');
-    if (recipient.role !== UserRole.RIDER) {
-      throw new BadRequestException('Wallet transfers can only be sent to a customer account');
-    }
-
     return this.dataSource.transaction(async (manager) => {
+      // Lock the trip so the same completed trip cannot issue more than one change transfer.
+      const tripRows = await manager.query(
+        'SELECT id, rider_id, driver_id, status, fare_currency FROM trips WHERE id=$1 FOR UPDATE',
+        [input.tripId],
+      );
+      const trip = tripRows[0];
+      if (!trip) throw new NotFoundException('Trip not found');
+      if (trip.driver_id !== senderId) {
+        throw new BadRequestException('Only the captain assigned to this trip can transfer change');
+      }
+      if (trip.status !== 'completed') {
+        throw new BadRequestException('Change can be transferred only after the trip is completed');
+      }
+      if (trip.fare_currency !== currency) {
+        throw new BadRequestException('Transfer currency must match the trip currency');
+      }
+      if (!trip.rider_id || trip.rider_id === senderId) {
+        throw new BadRequestException('Trip customer account is not valid for this transfer');
+      }
+
       await manager.query('SELECT pg_advisory_xact_lock(hashtext($1))', [input.idempotencyKey]);
       const senderAccount = await this.ensureUserAccount(senderId, currency, manager);
-      const recipientAccount = await this.ensureUserAccount(input.recipientUserId, currency, manager);
+      const recipientAccount = await this.ensureUserAccount(trip.rider_id, currency, manager);
       const existing = await manager.getRepository(WalletTransaction).findOne({
         where: { idempotencyKey: input.idempotencyKey },
       });
@@ -147,11 +158,13 @@ export class WalletService {
           existing.toAccountId === recipientAccount.id &&
           existing.amountMinor === amount.toString() &&
           existing.currency === currency &&
-          existing.type === WalletTransactionType.TRANSFER
+          existing.type === WalletTransactionType.TRANSFER &&
+          existing.relatedTripId === input.tripId
         ) {
           const formatted = this.formatMoney(existing.amountMinor, currency);
           return {
             transactionId: existing.id,
+            tripId: input.tripId,
             status: 'completed',
             amountMinor: existing.amountMinor,
             amount: formatted,
@@ -162,19 +175,32 @@ export class WalletService {
         }
         throw new ConflictException('Idempotency key has already been used for a different transaction');
       }
+
+      const previousTripTransfer = await manager.getRepository(WalletTransaction).findOne({
+        where: {
+          relatedTripId: input.tripId,
+          fromAccountId: senderAccount.id,
+          toAccountId: recipientAccount.id,
+          type: WalletTransactionType.TRANSFER,
+        },
+      });
+      if (previousTripTransfer) {
+        throw new ConflictException('Change has already been transferred for this trip');
+      }
+
       const ids = [senderAccount.id, recipientAccount.id].sort();
       const locked = await manager.query(
         'SELECT "id", "owner_user_id", "balance_minor", "currency" FROM "wallet_accounts" WHERE "id" = ANY($1::uuid[]) ORDER BY "id" FOR UPDATE',
         [ids],
       );
       const senderRow = locked.find((row: { owner_user_id: string }) => row.owner_user_id === senderId);
-      const recipientRow = locked.find((row: { owner_user_id: string }) => row.owner_user_id === input.recipientUserId);
+      const recipientRow = locked.find((row: { owner_user_id: string }) => row.owner_user_id === trip.rider_id);
       if (!senderRow || !recipientRow) throw new NotFoundException('Wallet account not found');
       if (senderRow.currency !== currency || recipientRow.currency !== currency) {
         throw new BadRequestException('Transfers require both wallets to use the same currency');
       }
       if (BigInt(senderRow.balance_minor) < amount) {
-        throw new BadRequestException('Insufficient wallet balance');
+        throw new BadRequestException('Insufficient wallet balance to transfer the rider change');
       }
 
       await manager.query(
@@ -194,13 +220,15 @@ export class WalletService {
           amountMinor: amount.toString(),
           currency,
           idempotencyKey: input.idempotencyKey,
-          description: input.description.trim() || 'Driver-to-customer wallet transfer',
+          relatedTripId: input.tripId,
+          description: 'تسوية باقي نقدي للراكب بعد موافقته الشفهية',
         }),
       );
       const formatted = this.formatMoney(saved.amountMinor, currency);
 
       return {
         transactionId: saved.id,
+        tripId: input.tripId,
         status: 'completed',
         amountMinor: saved.amountMinor,
         amount: formatted,
