@@ -33,10 +33,10 @@
         const onRide=d.status==='in_progress',from=onRide?p:cur,to=onRide?dest:p,moved=distance(lastOrigin,cur),need=!routeKey||(!onRide&&moved>180)||Date.now()-routeAt>25000|| (onRide&&routeKey.indexOf(':destination:')<0);
         if(need){routeKey=d.tripId+(onRide?':destination:':':pickup:')+Date.now();lastOrigin=cur;routeAt=Date.now();void route(from,to,routeKey);}
         const when=loc.recordedAt?new Date(loc.recordedAt):null;$('trip-live-updated').textContent=when&&!Number.isNaN(when.getTime())?'آخر تحديث لموقع الكابتن: '+when.toLocaleTimeString('ar-EG'):'موقع الكابتن بيتحدّث تلقائيًا.';
-      }else{$('trip-live-updated').textContent='في انتظار أول تحديث لموقع الكابتن. تأكد أن تطبيق الكابتن مفتوح وإذن الموقع مسموح.';if(!routeKey){map.fitBounds([p,dest],{padding:[28,28],maxZoom:15});}}
+      }else{$('trip-live-updated').textContent='في انتظار أول تحديث لموقع الكابتن. تأكد أن تطبيق الكابتن مفتوح وإذن الموقع مسموح.';if(!routeKey){map.fitBounds([p,dest],{padding:[28,28],maxZoom:15});routeKey=d.tripId+':waiting:'+Date.now();routeAt=Date.now();void route(p,dest,routeKey);}}
       window.setTimeout(()=>map&&map.invalidateSize(),100);
       const previous=window.__rohnyLastTrackedStatus||'';window.__rohnyLastTrackedStatus=trip.status;
-      if((!previous&&trip.status==='accepted')||(previous==='pending'&&trip.status==='accepted')){const tab=document.querySelector('[data-rider-tab="trips"]');if(tab)tab.click();}
+      const priorTripId=window.__rohnyLastTrackedTripId||'';window.__rohnyLastTrackedTripId=trip.id;if(priorTripId!==trip.id||(!previous&&trip.status==='accepted')||(previous==='pending'&&trip.status==='accepted')){const tab=document.querySelector('[data-rider-tab="trips"]');if(tab)tab.click();}
     }catch(e){$('trip-live-updated').textContent=e.message||'تعذّر تحديث الموقع؛ ستتم إعادة المحاولة تلقائيًا.';}
     finally{busy=false;}
   }
