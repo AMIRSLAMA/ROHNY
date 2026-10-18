@@ -231,7 +231,8 @@
 
         <section id="trip-history-panel" class="ride-review" aria-labelledby="trip-history-title">
           <h3 id="trip-history-title">رحلاتي</h3><p id="trip-history-status" class="note" role="status" aria-live="polite">سجّل الدخول لعرض رحلاتك السابقة.</p>
-</div><button type="button" id="refresh-trip-history" class="map-toolbar-button" hidden>تحديث سجل الرحلات</button>
+          
+          <div id="trip-history-list"></div><button type="button" id="refresh-trip-history" class="map-toolbar-button" hidden>تحديث سجل الرحلات</button>
         </section>
         <section id="wallet-panel" class="ride-review rider-wallet-panel" aria-labelledby="wallet-title">
           <div class="rider-wallet-heading">
@@ -289,7 +290,6 @@
               <p id="trip-live-updated" class="rider-live-updated" aria-live="polite">في انتظار تحديث موقع الكابتن.</p>
             </div>
           </section>
-          <div id="trip-history-list">
           <div class="field"><label for="city-code">الدولة والمدينة</label><select id="city-code" name="cityCode" required><option value="">جارٍ تحميل المدن المتاحة…</option></select><small id="city-hint" class="field-hint">السعر والعملة حسب إعدادات المدينة.</small></div>
           <div class="section-title">اختار نوع الرحلة</div>
           <div class="rides" role="group" aria-label="نوع الرحلة">
