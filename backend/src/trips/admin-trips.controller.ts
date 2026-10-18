@@ -5,19 +5,14 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { AuthTokenGuard, AuthenticatedRequest } from '../auth/auth-token.guard';
 import { UserRole } from '../users/entities/user.entity';
-import { Trip } from './entities/trip.entity';
 
 @Controller('admin/trips')
 @UseGuards(AuthTokenGuard)
 export class AdminTripsController {
-  constructor(
-    @InjectRepository(Trip)
-    private readonly trips: Repository<Trip>,
-  ) {}
+  constructor(private readonly dataSource: DataSource) {}
 
   @Get()
   async list(@Req() request: AuthenticatedRequest) {
@@ -25,9 +20,21 @@ export class AdminTripsController {
       throw new ForbiddenException('Admin access required');
     }
 
-    return this.trips.find({
-      order: { createdAt: 'DESC' },
-      take: 200,
-    });
+    // Include both account identities so the admin can audit who rode with whom.
+    return this.dataSource.query(`
+      SELECT
+        t.*,
+        rider.email AS rider_email,
+        rider.phone AS rider_phone,
+        rider.role AS rider_role,
+        driver.email AS driver_email,
+        driver.phone AS driver_phone,
+        driver.role AS driver_role
+      FROM trips t
+      LEFT JOIN users rider ON rider.id = t.rider_id
+      LEFT JOIN users driver ON driver.id = t.driver_id
+      ORDER BY t.created_at DESC
+      LIMIT 200
+    `);
   }
 }
