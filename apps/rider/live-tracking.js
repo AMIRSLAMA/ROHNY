@@ -45,24 +45,6 @@
       request.setAttribute('role', 'listitem');
       request.innerHTML = '<span class="rider-trip-stage-dot" aria-hidden="true">✓</span><span class="rider-trip-stage-copy"><strong>تم إرسال طلب الرحلة</strong><small>تم تسجيل طلبك على ROHNY.</small></span>';
       container.append(request);
-      steps.slice(1).forEach((step, i) => {
-        const item = document.createElement('div');
-        item.className = 'rider-trip-stage';
-        item.setAttribute('role', 'listitem');
-        const dot = document.createElement('span');
-        dot.className = 'rider-trip-stage-dot';
-        dot.setAttribute('aria-hidden', 'true');
-        dot.textContent = String(i + 2);
-        const copy = document.createElement('span');
-        copy.className = 'rider-trip-stage-copy';
-        const title = document.createElement('strong');
-        title.textContent = step.title;
-        const detail = document.createElement('small');
-        detail.textContent = step.detail;
-        copy.append(title, detail);
-        item.append(dot, copy);
-        container.append(item);
-      });
       const cancelled = document.createElement('div');
       cancelled.className = 'rider-trip-stage rider-trip-stage--cancelled';
       cancelled.setAttribute('role', 'listitem');
