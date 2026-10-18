@@ -16,6 +16,7 @@ import {
 } from '../auth/auth-token.guard';
 import { UserRole } from '../users/entities/user.entity';
 import { CreateTripDto } from './dto/create-trip.dto';
+import { UpdateDriverLocationDto } from './dto/update-driver-location.dto';
 import { UpdateDriverTripStatusDto } from './dto/update-driver-trip-status.dto';
 import { TripsService } from './trips.service';
 
@@ -97,6 +98,18 @@ export class TripsController {
       tripId,
       input.status,
     );
+  }
+
+  @Patch(':tripId/location')
+  updateDriverLocation(@Req() request: AuthenticatedRequest, @Param('tripId', new ParseUUIDPipe()) tripId: string, @Body() input: UpdateDriverLocationDto) {
+    if (request.authUser!.role !== UserRole.DRIVER) throw new ForbiddenException('Only assigned drivers can publish trip location');
+    return this.tripsService.updateDriverLocation(request.authUser!.sub, tripId, input);
+  }
+
+  @Get(':tripId/location')
+  getRiderTripLocation(@Req() request: AuthenticatedRequest, @Param('tripId', new ParseUUIDPipe()) tripId: string) {
+    if (request.authUser!.role !== UserRole.RIDER) throw new ForbiddenException('Only the rider can view trip location');
+    return this.tripsService.getRiderTripLocation(request.authUser!.sub, tripId);
   }
 
   @Post(':tripId/cancel')
