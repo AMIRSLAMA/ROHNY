@@ -234,6 +234,43 @@ export class TripsService {
     return trip;
   }
 
+
+  async updateDriverLocation(driverId: string, tripId: string, input: UpdateDriverLocationDto) {
+    const rows = await this.dataSource.query('SELECT id, driver_id, status FROM trips WHERE id=$1',[tripId]);
+    const trip=rows[0];
+    if(!trip)throw new NotFoundException('Trip not found');
+    if(trip.driver_id!==driverId||!['accepted','driver_arriving','in_progress'].includes(trip.status))throw new ConflictException('Trip is not assigned to you or is no longer active');
+    const saved=await this.dataSource.query(`
+      INSERT INTO trip_driver_locations(trip_id,driver_id,latitude,longitude,accuracy_meters,heading_degrees,speed_meters_per_second,recorded_at)
+      VALUES($1,$2,$3,$4,$5,$6,$7,now())
+      ON CONFLICT(trip_id) DO UPDATE SET driver_id=EXCLUDED.driver_id,latitude=EXCLUDED.latitude,longitude=EXCLUDED.longitude,
+        accuracy_meters=EXCLUDED.accuracy_meters,heading_degrees=EXCLUDED.heading_degrees,
+        speed_meters_per_second=EXCLUDED.speed_meters_per_second,recorded_at=now()
+      WHERE trip_driver_locations.driver_id=EXCLUDED.driver_id
+      RETURNING trip_id AS "tripId",recorded_at AS "recordedAt"`,
+      [tripId,driverId,input.latitude,input.longitude,input.accuracyMeters??null,input.headingDegrees??null,input.speedMetersPerSecond??null]);
+    if(!saved.length)throw new ConflictException('Could not update trip location');
+    return {tripId:saved[0].tripId,recordedAt:saved[0].recordedAt};
+  }
+
+  async getRiderTripLocation(riderId: string, tripId: string) {
+    const rows=await this.dataSource.query(`
+      SELECT t.id AS "tripId",t.status,t.pickup_address AS "pickupAddress",t.pickup_latitude AS "pickupLatitude",
+        t.pickup_longitude AS "pickupLongitude",t.destination_address AS "destinationAddress",
+        t.destination_latitude AS "destinationLatitude",t.destination_longitude AS "destinationLongitude",
+        l.latitude AS "driverLatitude",l.longitude AS "driverLongitude",l.accuracy_meters AS "accuracyMeters",
+        l.heading_degrees AS "headingDegrees",l.speed_meters_per_second AS "speedMetersPerSecond",l.recorded_at AS "recordedAt"
+      FROM trips t LEFT JOIN trip_driver_locations l ON l.trip_id=t.id AND l.driver_id=t.driver_id
+      WHERE t.id=$1 AND t.rider_id=$2 LIMIT 1`,[tripId,riderId]);
+    const t=rows[0];if(!t)throw new NotFoundException('Trip not found');
+    if(!['accepted','driver_arriving','in_progress'].includes(t.status)){
+      await this.dataSource.query('DELETE FROM trip_driver_locations WHERE trip_id=$1',[tripId]);
+      return {tripId:t.tripId,status:t.status,pickupAddress:t.pickupAddress,pickupLatitude:Number(t.pickupLatitude),pickupLongitude:Number(t.pickupLongitude),destinationAddress:t.destinationAddress,destinationLatitude:Number(t.destinationLatitude),destinationLongitude:Number(t.destinationLongitude),driverLocation:null};
+    }
+    const has=t.driverLatitude!==null&&t.driverLatitude!==undefined&&t.driverLongitude!==null&&t.driverLongitude!==undefined;
+    return {tripId:t.tripId,status:t.status,pickupAddress:t.pickupAddress,pickupLatitude:Number(t.pickupLatitude),pickupLongitude:Number(t.pickupLongitude),destinationAddress:t.destinationAddress,destinationLatitude:Number(t.destinationLatitude),destinationLongitude:Number(t.destinationLongitude),driverLocation:has?{latitude:Number(t.driverLatitude),longitude:Number(t.driverLongitude),accuracyMeters:t.accuracyMeters===null?null:Number(t.accuracyMeters),headingDegrees:t.headingDegrees===null?null:Number(t.headingDegrees),speedMetersPerSecond:t.speedMetersPerSecond===null?null:Number(t.speedMetersPerSecond),recordedAt:t.recordedAt}:null};
+  }
+
   async updateStatusForDriver(driverId: string, tripId: string, nextStatus: TripStatus) {
     const previousStatus: Partial<Record<TripStatus, TripStatus>> = {
       [TripStatus.DRIVER_ARRIVING]: TripStatus.ACCEPTED,
@@ -374,6 +411,7 @@ export class TripsService {
         "UPDATE trips SET status=$1, platform_commission_amount=$2, accounting_processed_at=now(), updated_at=now() WHERE id=$3",
         [TripStatus.COMPLETED, (Number(commission) / (10 ** this.currencyDigits(currency))).toFixed(this.currencyDigits(currency)), tripId],
       );
+      await manager.query('DELETE FROM trip_driver_locations WHERE trip_id=$1',[tripId]);
 
       const riderCountRows = await manager.query("SELECT COUNT(*)::int AS count FROM trips WHERE rider_id=$1 AND status='completed'", [trip.rider_id]);
       const riderCompletedCount = Number(riderCountRows[0]?.count ?? 0);
@@ -434,6 +472,7 @@ export class TripsService {
       throw new ConflictException('This trip can no longer be cancelled');
     }
 
+    await this.dataSource.query('DELETE FROM trip_driver_locations WHERE trip_id=$1',[tripId]);
     return this.tripsRepository.findOne({ where: { id: tripId, riderId } });
   }
 }
