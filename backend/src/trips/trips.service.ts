@@ -7,7 +7,7 @@ import {
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateTripDto } from './dto/create-trip.dto';
-import { Trip, TripStatus } from './entities/trip.entity';
+import { Trip, TripPaymentMethod, TripStatus } from './entities/trip.entity';
 import { PricingService } from '../pricing/pricing.service';
 
 type WalletRow = { id: string; balance_minor: string; currency: string };
@@ -299,8 +299,35 @@ export class TripsService {
       const commission = await this.requiredCommissionMinor(manager, trip);
       const driverWallet = await this.ensureWallet(manager, driverId, currency);
       const driverBalance = BigInt(driverWallet.balance_minor);
-      if (driverBalance < commission) {
+      const fareMinor = this.toMinor(fare, currency);
+      let riderWallet: WalletRow | null = null;
+      if (trip.payment_method === TripPaymentMethod.WALLET && !trip.rider_free_ride) {
+        riderWallet = await this.ensureWallet(manager, String(trip.rider_id), currency);
+        if (BigInt(riderWallet.balance_minor) < fareMinor) {
+          throw new ConflictException('Insufficient rider wallet balance to pay for this trip');
+        }
+      }
+      const availableForCommission = driverBalance + (riderWallet ? fareMinor : 0n);
+      if (availableForCommission < commission) {
         throw new ConflictException('Insufficient wallet balance to settle platform commission; deposit funds then retry trip completion');
+      }
+
+      // For wallet-paid trips, transfer the fare from the rider to the captain exactly once.
+      // This runs in the same transaction as completion and platform commission accounting.
+      if (riderWallet && fareMinor > 0n) {
+        await manager.query(
+          'UPDATE wallet_accounts SET balance_minor=balance_minor-$1, updated_at=now() WHERE id=$2',
+          [fareMinor.toString(), riderWallet.id],
+        );
+        await manager.query(
+          'UPDATE wallet_accounts SET balance_minor=balance_minor+$1, updated_at=now() WHERE id=$2',
+          [fareMinor.toString(), driverWallet.id],
+        );
+        await manager.query(
+          `INSERT INTO wallet_transactions (from_account_id, to_account_id, created_by_user_id, type, amount_minor, currency, idempotency_key, related_trip_id, description)
+           VALUES ($1, $2, $3, 'trip_payment', $4, $5, $6, $7, $8)`,
+          [riderWallet.id, driverWallet.id, trip.rider_id, fareMinor.toString(), currency, 'trip-payment:' + tripId, tripId, 'ROHNY wallet trip fare paid by rider'],
+        );
       }
 
       await manager.query(
@@ -327,7 +354,6 @@ export class TripsService {
       }
 
       if (trip.rider_free_ride) {
-        const fareMinor = this.toMinor(fare, currency);
         if (fareMinor > 0n) {
           await manager.query('UPDATE wallet_accounts SET balance_minor=balance_minor+$1, updated_at=now() WHERE id=$2', [fareMinor.toString(), driverWallet.id]);
           await manager.query(
