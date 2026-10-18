@@ -31,6 +31,7 @@
   const toggleHistory = $('toggleHistory');
   const historyArrow = $('historyArrow');
   let historyTrips = [];
+  const transferredTripIds = new Set();
   const statusLabels = {
     pending: 'قيد الانتظار',
     accepted: 'تم قبول الرحلة',
@@ -192,6 +193,91 @@
       }
     }
     if (actions.childElementCount) card.append(actions);
+
+    if (
+      assigned &&
+      trip.status === 'completed' &&
+      trip.paymentMethod === 'cash' &&
+      !trip.riderFreeRide &&
+      trip.fareCurrency &&
+      !transferredTripIds.has(trip.id)
+    ) {
+      const settlement = document.createElement('section');
+      settlement.className = 'account-note';
+      settlement.style.marginTop = '14px';
+      const heading = document.createElement('strong');
+      heading.textContent = 'تحويل باقي الأجرة إلى محفظة الراكب';
+      const explanation = document.createElement('p');
+      explanation.style.margin = '8px 0';
+      explanation.textContent = 'استخدم هذا الإجراء فقط إذا دفع الراكب نقدًا ولم يتوفر معك الباقي، وبعد موافقته الشفهية. سيُخصم المبلغ من محفظتك ويُضاف إلى محفظة الراكب.';
+      const form = document.createElement('form');
+      form.style.display = 'grid';
+      form.style.gap = '10px';
+      const amount = document.createElement('input');
+      amount.type = 'number';
+      amount.min = '0.01';
+      amount.step = '0.01';
+      amount.required = true;
+      amount.inputMode = 'decimal';
+      amount.placeholder = 'قيمة الباقي (' + trip.fareCurrency + ')';
+      amount.setAttribute('aria-label', 'قيمة الباقي الذي سيُحوّل للراكب');
+      amount.style.cssText = 'width:100%;padding:12px;border-radius:12px;border:1px solid #2a4a3a;background:#071b15;color:var(--text)';
+      const consentLabel = document.createElement('label');
+      consentLabel.style.cssText = 'display:flex;align-items:flex-start;gap:8px;line-height:1.7';
+      const consent = document.createElement('input');
+      consent.type = 'checkbox';
+      consent.required = true;
+      consent.style.marginTop = '5px';
+      const consentText = document.createElement('span');
+      consentText.textContent = 'أؤكد أن الراكب وافق شفهيًا على إضافة الباقي إلى محفظته في ROHNY.';
+      consentLabel.append(consent, consentText);
+      const submit = document.createElement('button');
+      submit.type = 'submit';
+      submit.className = 'btn primary';
+      submit.textContent = 'تأكيد تحويل الباقي';
+      const status = document.createElement('div');
+      status.className = 'msg';
+      status.setAttribute('role', 'status');
+      status.setAttribute('aria-live', 'polite');
+      form.append(amount, consentLabel, submit, status);
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const value = Number(amount.value);
+        const digits = new Intl.NumberFormat('en-US', { style: 'currency', currency: trip.fareCurrency }).resolvedOptions().maximumFractionDigits ?? 2;
+        const amountMinor = Math.round(value * (10 ** digits));
+        if (!Number.isFinite(value) || value <= 0 || !Number.isSafeInteger(amountMinor)) {
+          status.textContent = 'أدخل قيمة صحيحة للباقي.';
+          return;
+        }
+        if (!consent.checked) {
+          status.textContent = 'يجب تأكيد موافقة الراكب الشفهية أولًا.';
+          return;
+        }
+        submit.disabled = true;
+        status.textContent = 'جارٍ تنفيذ التحويل…';
+        try {
+          await api('/wallet/transfers', {
+            method: 'POST',
+            body: JSON.stringify({
+              tripId: trip.id,
+              amountMinor,
+              currency: trip.fareCurrency,
+              consentConfirmed: true,
+              idempotencyKey: crypto.randomUUID()
+            })
+          });
+          transferredTripIds.add(trip.id);
+          status.textContent = 'تم تحويل الباقي إلى محفظة الراكب بنجاح.';
+          form.replaceChildren(status);
+          await Promise.all([loadAccount(), loadTrips()]);
+        } catch (error) {
+          status.textContent = error.message || 'تعذّر تحويل الباقي. لم يتم تأكيد نجاح العملية.';
+          submit.disabled = false;
+        }
+      });
+      settlement.append(heading, explanation, form);
+      card.append(settlement);
+    }
     return card;
   }
 
@@ -238,7 +324,13 @@
       $('walletBalance').textContent = amount + ' ' + (wallet.currency || 'EGP');
       const list = $('walletTransactions');
       list.replaceChildren();
-      const labels = { transfer: 'تحويل محفظة', trip_payment: 'دفع رحلة', platform_commission: 'عمولة المنصة', card_top_up: 'إضافة رصيد', refund: 'استرداد', cash_out: 'سحب رصيد' };
+      transferredTripIds.clear();
+      if (Array.isArray(transactions)) {
+        transactions.forEach((tx) => {
+          if (tx.type === 'transfer' && tx.direction === 'debit' && tx.relatedTripId) transferredTripIds.add(tx.relatedTripId);
+        });
+      }
+      const labels = { transfer: 'تحويل باقي للراكب', trip_payment: 'دفع رحلة', platform_commission: 'عمولة المنصة', card_top_up: 'إضافة رصيد', refund: 'استرداد', cash_out: 'سحب رصيد' };
       if (!Array.isArray(transactions) || !transactions.length) {
         const empty = document.createElement('div'); empty.className = 'empty'; empty.textContent = 'لا توجد حركات على المحفظة حتى الآن.'; list.append(empty);
       } else transactions.forEach((tx) => {
@@ -662,11 +754,6 @@
   });
 
   $('refreshDriverDeposits').addEventListener('click', loadDriverDepositRequests);
-  $('withdrawAction').addEventListener('click', () => {
-    const notice = $('walletActionNotice');
-    notice.classList.remove('hidden');
-    notice.textContent = 'طلبات السحب لم تُفعّل بعد. لن يتم خصم أي رصيد قبل إعداد مسار سحب آمن وموافقة الإدارة.';
-  });
   document.querySelectorAll('.nav-item[data-target]').forEach((item) => item.addEventListener('click', () => {
     const target = $(item.dataset.target);
     if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
