@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { TripsModule } from './trips/trips.module';
 import { WalletModule } from './wallet/wallet.module';
 import { PricingModule } from './pricing/pricing.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { PricingModule } from './pricing/pricing.module';
     TripsModule,
     WalletModule,
     PricingModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
