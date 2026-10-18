@@ -253,12 +253,14 @@
   });
 
   const walletTransactionLabels = {
-    transfer: 'تحويل محفظة',
-    trip_payment: 'دفع رحلة',
+    transfer: 'استلام/تحويل باقي الكاش من الكابتن',
+    trip_payment: 'دفع أجرة رحلة من المحفظة',
     platform_commission: 'عمولة المنصة',
     card_top_up: 'شحن إلكتروني',
     refund: 'استرداد',
-    cash_out: 'سحب'
+    cash_out: 'سحب',
+    platform_reward: 'مكافأة ممولة من ROHNY',
+    captain_bonus: 'مكافأة كابتن'
   };
 
   async function loadWallet() {
@@ -285,6 +287,18 @@
         const label = document.createElement('span');
         label.textContent = (entry.direction === 'credit' ? '＋ ' : '− ') +
           (walletTransactionLabels[entry.type] || 'حركة مالية');
+        const detail = document.createElement('small');
+        detail.style.display = 'block';
+        detail.style.marginTop = '5px';
+        detail.style.fontSize = '11px';
+        detail.style.lineHeight = '1.7';
+        detail.style.opacity = '.78';
+        detail.textContent = [
+          entry.description || '',
+          entry.relatedTripId ? 'رقم الرحلة: ' + entry.relatedTripId : '',
+          entry.createdAt ? new Date(entry.createdAt).toLocaleString('ar-EG') : ''
+        ].filter(Boolean).join(' • ');
+        label.append(detail);
         const amount = document.createElement('strong');
         amount.textContent = new Intl.NumberFormat('ar-EG', {
           style: 'currency', currency: entry.currency
