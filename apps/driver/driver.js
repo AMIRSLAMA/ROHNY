@@ -478,9 +478,25 @@
   function requestDriverLocation(onReady) {
     if (!navigator.geolocation) { onReady(null); return; }
     navigator.geolocation.getCurrentPosition(position => {
-      driverLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+      driverLocation = { lat: position.coords.latitude, lng: position.coords.longitude,
+        accuracy: Number.isFinite(position.coords.accuracy) ? position.coords.accuracy : null,
+        heading: Number.isFinite(position.coords.heading) ? position.coords.heading : null,
+        speed: Number.isFinite(position.coords.speed) ? position.coords.speed : null };
       onReady(driverLocation);
     }, () => onReady(driverLocation), { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 });
+  }
+
+  let locationPublishTripId = '', locationPublishAt = 0, locationPublishPoint = null, locationPublishBusy = false;
+  async function publishDriverLocation(trip, location) {
+    if (!token || !trip || !location || !['accepted','driver_arriving','in_progress'].includes(trip.status) || !Number.isFinite(location.lat) || !Number.isFinite(location.lng) || locationPublishBusy) return;
+    const rad=x=>x*Math.PI/180;
+    let moved=Infinity;
+    if(locationPublishPoint){const a1=rad(location.lat-locationPublishPoint.lat),a2=rad(location.lng-locationPublishPoint.lng),h=Math.sin(a1/2)**2+Math.cos(rad(locationPublishPoint.lat))*Math.cos(rad(location.lat))*Math.sin(a2/2)**2;moved=12742000*Math.atan2(Math.sqrt(h),Math.sqrt(Math.max(0,1-h)));}
+    if(locationPublishTripId===trip.id&&Date.now()-locationPublishAt<4500&&moved<20)return;
+    locationPublishBusy=true;
+    try{await api('/trips/'+encodeURIComponent(trip.id)+'/location',{method:'PATCH',body:JSON.stringify({latitude:location.lat,longitude:location.lng,accuracyMeters:location.accuracy,headingDegrees:location.heading,speedMetersPerSecond:location.speed})});locationPublishTripId=trip.id;locationPublishAt=Date.now();locationPublishPoint={lat:location.lat,lng:location.lng};}
+    catch(error){console.warn('ROHNY GPS update failed:',error.message);}
+    finally{locationPublishBusy=false;}
   }
 
   async function drawDriverRoute(trip, location) {
@@ -550,6 +566,7 @@
     panel.classList.remove('hidden');
     ensureDriverMap();
     requestDriverLocation(location => {
+      if (location) publishDriverLocation(trip, location);
       if (driverNavigationTripId !== trip.id || driverNavigationStatus !== trip.status || !driverRouteKey) {
         drawDriverRoute(trip, location);
         return;
@@ -586,6 +603,7 @@
       historyTrips = assigned.filter((trip) => ['completed', 'cancelled'].includes(trip.status));
       const activeTrips = assigned.filter((trip) => !['completed', 'cancelled'].includes(trip.status));
       window.__rohnyActiveDriverTrip = activeTrips.find(item => ['accepted', 'driver_arriving', 'in_progress'].includes(item.status)) || null;
+      if (!window.__rohnyActiveDriverTrip) { locationPublishTripId=''; locationPublishAt=0; locationPublishPoint=null; }
       renderDriverNavigation(activeTrips);
       assignedCount.textContent = String(activeTrips.length);
       historyCount.textContent = String(historyTrips.length);
