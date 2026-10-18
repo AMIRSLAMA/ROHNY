@@ -4,6 +4,7 @@ import { WalletService } from './wallet.service';
 
 describe('WalletController', () => {
   let controller: WalletController;
+  let dataSource: { query: jest.Mock };
   let wallets: {
     getMyWallet: jest.Mock;
     listMyTransactions: jest.Mock;
@@ -16,7 +17,8 @@ describe('WalletController', () => {
       listMyTransactions: jest.fn(async () => []),
       transferDriverToRider: jest.fn(async () => ({ status: 'completed' })),
     };
-    controller = new WalletController(wallets as unknown as WalletService);
+    dataSource = { query: jest.fn(async () => []) };
+    controller = new WalletController(wallets as unknown as WalletService, dataSource as any);
   });
 
   it('allows a rider to view their own wallet', async () => {
@@ -40,10 +42,10 @@ describe('WalletController', () => {
   it('rejects wallet transfer requests from riders', () => {
     const request = { authUser: { sub: 'rider-id', role: 'rider' } } as any;
     expect(() => controller.transferToCustomer(request, {
-      recipientUserId: '00000000-0000-4000-8000-000000000001',
+      tripId: '00000000-0000-4000-8000-000000000003',
       amountMinor: 100,
+      consentConfirmed: true,
       idempotencyKey: '00000000-0000-4000-8000-000000000002',
-      description: 'Fare difference',
     })).toThrow(ForbiddenException);
     expect(wallets.transferDriverToRider).not.toHaveBeenCalled();
   });
@@ -58,6 +60,16 @@ describe('WalletController', () => {
     };
     await controller.transferToCustomer(request, input);
     expect(wallets.transferDriverToRider).toHaveBeenCalledWith('driver-id', input);
+  });
+
+  it('allows only admins to list all wallet movements', async () => {
+    const adminRequest = { authUser: { sub: 'admin-id', role: 'admin' } } as any;
+    dataSource.query.mockResolvedValue([{ id: 'tx-1' }]);
+    await expect(controller.listAllTransactions(adminRequest)).resolves.toEqual([{ id: 'tx-1' }]);
+    expect(dataSource.query).toHaveBeenCalledTimes(1);
+
+    const riderRequest = { authUser: { sub: 'rider-id', role: 'rider' } } as any;
+    await expect(controller.listAllTransactions(riderRequest)).rejects.toThrow(ForbiddenException);
   });
 
   it('rejects invalid transaction history limits', () => {
