@@ -141,6 +141,14 @@ export class WalletService {
       if (trip.fare_currency !== currency) {
         throw new BadRequestException('Transfer currency must match the trip currency');
       }
+      const fareValue = Number(trip.fare_amount);
+      if (!Number.isFinite(fareValue) || fareValue <= 0) {
+        throw new BadRequestException('Trip fare is not valid for a change transfer');
+      }
+      const fareMinor = BigInt(Math.round(fareValue * (10 ** this.fractionDigits(currency))));
+      if (amount > fareMinor) {
+        throw new BadRequestException('Change transfer cannot exceed the trip fare');
+      }
       if (!trip.rider_id || trip.rider_id === senderId) {
         throw new BadRequestException('Trip customer account is not valid for this transfer');
       }
