@@ -57,6 +57,8 @@ jobs:
 
       - name: Check rider booking JavaScript syntax
         run: node --check ../apps/rider/booking-api.js
+      - name: Check rider live tracking JavaScript syntax
+        run: node --check ../apps/rider/live-tracking.js
 
       - name: Check preview server JavaScript syntax
         run: node --check ../apps/preview-server.cjs
