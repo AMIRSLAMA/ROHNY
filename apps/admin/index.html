@@ -106,22 +106,22 @@ input[type=checkbox]{accent-color:var(--green)}
   padding:8px;border:1px solid #213e33;border-radius:16px;
   background:#0b201a;overflow-x:auto;scrollbar-width:thin;
 }
-.admin-nav a{
+.admin-nav button{
   display:inline-flex;align-items:center;gap:9px;flex:0 0 auto;
   padding:10px 13px;border-radius:10px;text-decoration:none;
   color:#c4d6cc;font-size:12px;font-weight:750;white-space:nowrap;
-  border:1px solid transparent;transition:background .15s,color .15s,border-color .15s;
+  border:1px solid transparent;background:transparent;box-shadow:none;
+  transition:background .15s,color .15s,border-color .15s;
 }
-.admin-nav a span{font-size:10px;color:var(--green);font-weight:900;letter-spacing:.5px}
-.admin-nav a:hover{background:#17362b;border-color:#294e3c;color:#fff}
+.admin-nav button span{font-size:10px;color:var(--green);font-weight:900;letter-spacing:.5px}
+.admin-nav button:hover,.admin-nav button.is-active{background:#17362b;border-color:#476a39;color:var(--green);box-shadow:none;transform:none}
 .stats{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:0}
 .stat{position:relative;overflow:hidden;min-height:120px;padding:20px 22px}
 .stat:after{content:"";position:absolute;left:-23px;bottom:-45px;width:105px;height:105px;border:1px solid #b8ef6117;border-radius:35px;transform:rotate(25deg);pointer-events:none}
 .stat span{display:block;color:#a8c0b5;font-size:12px;font-weight:650}
 .stat strong{display:block;color:var(--green);font-size:32px;line-height:1.2;margin-top:12px;letter-spacing:-1px}
 #dashboard>.panel{min-width:0;margin:0!important;scroll-margin-top:110px}
-#admin-driver-create{grid-column:span 5}
-#admin-pricing{grid-column:span 7}
+#admin-driver-create,#admin-pricing{grid-column:1/-1}
 #admin-driver-profiles,#admin-wallet-deposits,#admin-wallet-ledger,#admin-trips{grid-column:1/-1}
 .admin-section-heading{display:flex;align-items:center;gap:12px;margin-bottom:18px}
 .admin-section-heading h2{margin:0;font-size:18px}
@@ -175,7 +175,7 @@ tbody tr:hover td{background:#d8f6d405}
   .admin-overview h1{font-size:24px}
   .admin-overview p{font-size:12px}
   .admin-nav{padding:6px;border-radius:13px}
-  .admin-nav a{padding:9px 10px;font-size:11px}
+  .admin-nav button{padding:9px 10px;font-size:11px}
   .stats{gap:8px}
   .stat{min-height:102px;padding:15px 12px;border-radius:15px}
   .stat span{font-size:10px;line-height:1.7}
@@ -191,6 +191,32 @@ tbody tr:hover td{background:#d8f6d405}
   th,td{padding:11px 9px;font-size:11px}
   .profile-review-card{padding:13px}
 }
+.admin-page-hidden{display:none!important}
+.platform-wallet-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px}
+.platform-wallet-card{border:1px solid #355441;background:linear-gradient(145deg,#17382c,#0a211a);border-radius:17px;padding:18px;min-width:0}
+.platform-wallet-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--muted);font-size:12px}
+.platform-wallet-card-head strong{color:var(--green);font-size:13px}
+.platform-wallet-balance{display:block;font-size:clamp(25px,3vw,34px);font-weight:900;line-height:1.35;margin:16px 0 14px;color:var(--green);overflow-wrap:anywhere}
+.platform-wallet-detail{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid #294537;font-size:12px}
+.platform-wallet-detail span{color:var(--muted)}
+.platform-wallet-detail strong{text-align:left;overflow-wrap:anywhere}
+.trip-filter-row{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+.trip-filter-row .field{width:min(100%,300px);margin:0}
+.payment-method-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.payment-method-card{border:1px solid #2b4c3a;background:#0a2119;border-radius:16px;padding:18px;min-width:0}
+.payment-method-icon{display:grid;place-items:center;width:43px;height:43px;border-radius:13px;background:#b8ef6114;border:1px solid #b8ef6120;font-size:22px}
+.payment-method-card h3{margin:13px 0 9px;font-size:16px}
+.payment-state{display:inline-block;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:850}
+.payment-state-active{background:#173a2a;color:#b8ef61;border:1px solid #477342}
+.payment-state-pending{background:#3a3018;color:#f5d982;border:1px solid #766329}
+.payment-method-card p{font-size:12px;color:var(--muted);line-height:1.9;margin:12px 0 0}
+.payment-stats-title{font-size:15px;margin:24px 0 12px}
+.payment-count-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.payment-count{border:1px solid var(--line);border-radius:14px;background:#091c16;padding:16px}
+.payment-count span{display:block;color:var(--muted);font-size:12px}
+.payment-count strong{display:block;color:var(--green);font-size:26px;margin-top:8px}
+@media(max-width:800px){.payment-method-grid{grid-template-columns:1fr}.payment-count-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:430px){.payment-count-grid{grid-template-columns:1fr}.trip-filter-row .field{width:100%}}
 @media(max-width:430px){
   #dashboard:not(.hidden){gap:10px}
   .stats{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -205,10 +231,10 @@ tbody tr:hover td{background:#d8f6d405}
 
 </style></head>
 <body><main>
-<header class="top"><div><div class="brand">ROHNY <span>روحني</span></div><div class="sub">مركز التحكم · الرحلات والكباتن والمحافظ وتسعير المدن</div></div><div id="headerActions" class="actions hidden"><button class="secondary" id="refreshBtn">تحديث الرحلات</button><button class="secondary" id="logoutBtn">تسجيل الخروج</button></div></header>
+<header class="top"><div><div class="brand">ROHNY <span>روحني</span></div><div class="sub">مركز التحكم · الرحلات والكباتن والمحافظ وتسعير المدن</div></div><div id="headerActions" class="actions hidden"><button class="secondary" id="refreshBtn">تحديث البيانات</button><button class="secondary" id="logoutBtn">تسجيل الخروج</button></div></header>
 <section id="loginPanel" class="panel login"><h2>تسجيل دخول الإدارة</h2><p class="sub">استخدم حسابًا مُفعّلًا بصلاحية admin.</p><form id="loginForm"><label class="field">البريد الإلكتروني<input id="email" type="email" autocomplete="username" required maxlength="254"></label><label class="field">كلمة المرور<input id="password" type="password" autocomplete="current-password" required minlength="12" maxlength="128"></label><button id="loginBtn" type="submit">دخول لوحة الإدارة</button><div id="loginMsg" class="msg" role="status"></div></form></section>
 <section id="dashboard" class="hidden">
-<div class="admin-overview">
+<div class="admin-overview" data-admin-page="overview">
   <div class="admin-overview-copy">
     <div class="admin-eyebrow"><span class="admin-eyebrow-dot"></span> ROHNY · ADMIN CONSOLE</div>
     <h1>مركز إدارة روحني</h1>
@@ -216,17 +242,20 @@ tbody tr:hover td{background:#d8f6d405}
   </div>
   <div class="admin-overview-brand"><span class="admin-overview-mark">R</span><div><strong>ROHNY</strong><small>لوحة التحكم الرئيسية</small></div></div>
 </div>
-<nav class="admin-nav" aria-label="التنقل بين أقسام لوحة الإدارة">
-  <a href="#admin-trips"><span>01</span> الرحلات</a>
-  <a href="#admin-pricing"><span>02</span> تسعير المدن</a>
-  <a href="#admin-driver-create"><span>03</span> إضافة كابتن</a>
-  <a href="#admin-driver-profiles"><span>04</span> ملفات الكباتن</a>
-  <a href="#admin-wallet-deposits"><span>05</span> طلبات الإيداع</a>
-  <a href="#admin-wallet-ledger"><span>06</span> سجل المحافظ</a>
+<nav class="admin-nav" aria-label="صفحات لوحة الإدارة">
+  <button type="button" data-admin-nav="overview" class="is-active" aria-pressed="true"><span>00</span> الرئيسية</button>
+  <button type="button" data-admin-nav="trips" aria-pressed="false"><span>01</span> الرحلات</button>
+  <button type="button" data-admin-nav="pricing" aria-pressed="false"><span>02</span> تسعير المدن</button>
+  <button type="button" data-admin-nav="driver-create" aria-pressed="false"><span>03</span> إضافة كابتن</button>
+  <button type="button" data-admin-nav="driver-profiles" aria-pressed="false"><span>04</span> ملفات الكباتن</button>
+  <button type="button" data-admin-nav="wallet-platform" aria-pressed="false"><span>05</span> محفظة الإدارة</button>
+  <button type="button" data-admin-nav="wallet-deposits" aria-pressed="false"><span>06</span> طلبات الإيداع</button>
+  <button type="button" data-admin-nav="wallet-ledger" aria-pressed="false"><span>07</span> سجل الحركات</button>
+  <button type="button" data-admin-nav="payments" aria-pressed="false"><span>08</span> طرق الدفع</button>
 </nav>
-<div class="stats"><div class="stat"><span>إجمالي الرحلات المعروضة</span><strong id="total">—</strong></div><div class="stat"><span>قيد الانتظار</span><strong id="pending">—</strong></div><div class="stat"><span>حالات أخرى</span><strong id="other">—</strong></div></div>
+<div class="stats" data-admin-page="overview"><div class="stat"><span>إجمالي الرحلات المعروضة</span><strong id="total">—</strong></div><div class="stat"><span>قيد الانتظار</span><strong id="pending">—</strong></div><div class="stat"><span>حالات أخرى</span><strong id="other">—</strong></div></div>
 
-<section id="admin-driver-create" class="panel admin-section" style="margin-bottom:16px">
+<section id="admin-driver-create" class="panel admin-section" data-admin-page="driver-create" style="margin-bottom:16px">
 <div class="admin-section-heading"><span class="admin-section-icon">＋</span><div><h2>إضافة كابتن جديد</h2><p class="help">إنشاء حساب كابتن وتجهيزه للدخول إلى التطبيق.</p></div></div>
 <p class="help">أنشئ حساب كابتن مفعّلًا لتجربة تطبيق الكابتن. كلمة المرور لا تقل عن 12 حرفًا، ولن تظهر مرة أخرى بعد الحفظ.</p>
 <form id="driverForm">
@@ -240,7 +269,7 @@ tbody tr:hover td{background:#d8f6d405}
 </form>
 </section>
 
-<section id="admin-pricing" class="panel admin-section" style="margin-bottom:16px"><div class="admin-section-heading"><span class="admin-section-icon">⌖</span><div><h2>إعداد تسعير مدينة</h2><p class="help">إدارة المدن والأسعار وقواعد أنواع الرحلات.</p></div></div><p class="help">السعر = الأكبر بين الحد الأدنى، ومجموع سعر البداية + (المسافة بالكيلومتر × سعر الكيلومتر) + (المدة بالدقيقة × سعر الدقيقة)، ثم يُطبق معامل نوع الرحلة. استخدم العملة المحلية للدولة (مثل EGP أو SAR أو USD). لا توجد أسعار افتراضية مفروضة.</p>
+<section id="admin-pricing" class="panel admin-section" data-admin-page="pricing" style="margin-bottom:16px"><div class="admin-section-heading"><span class="admin-section-icon">⌖</span><div><h2>إعداد تسعير مدينة</h2><p class="help">إدارة المدن والأسعار وقواعد أنواع الرحلات.</p></div></div><p class="help">السعر = الأكبر بين الحد الأدنى، ومجموع سعر البداية + (المسافة بالكيلومتر × سعر الكيلومتر) + (المدة بالدقيقة × سعر الدقيقة)، ثم يُطبق معامل نوع الرحلة. استخدم العملة المحلية للدولة (مثل EGP أو SAR أو USD). لا توجد أسعار افتراضية مفروضة.</p>
 <form id="pricingForm">
 <div class="pricing-grid">
 <label class="field">رمز المدينة (فريد، مثل CAI)<input id="cityCode" required maxlength="12" pattern="[A-Za-z0-9_-]{2,12}" placeholder="CAI"></label>
@@ -260,26 +289,81 @@ tbody tr:hover td{background:#d8f6d405}
 </form>
 <div class="tablewrap"><table style="min-width:900px"><thead><tr><th>المدينة</th><th>الدولة</th><th>العملة</th><th>البداية</th><th>/ كم</th><th>/ دقيقة</th><th>الحد الأدنى</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="pricingRows"><tr><td colspan="9" class="empty">جارٍ تحميل الإعدادات…</td></tr></tbody></table></div>
 </section>
-<section id="admin-driver-profiles" class="panel admin-section" style="margin-bottom:16px"><div class="top"><div><h2 style="margin:0">ملفات الكباتن والمستندات</h2><div class="sub">راجع البيانات والصور ثم اعتمد الملف أو اطلب تعديله. الصور لا تُتاح إلا للإدارة والكابتن صاحب الملف.</div></div><button class="secondary" id="refreshDriverProfiles" type="button">تحديث الملفات</button></div><div id="driverProfilesMsg" class="msg" role="status"></div><div id="driverProfilesList"><div class="empty">اضغط تحديث الملفات لعرض الطلبات.</div></div></section>
-<section id="admin-wallet-deposits" class="panel admin-section" style="margin-bottom:16px"><div class="top"><div><h2 style="margin:0">طلبات إيداع المحافظ</h2><div class="sub">طلبات الركاب والكباتن. راجع الطلب وتأكد من استلام المبلغ فعليًا قبل الموافقة؛ الموافقة تضيف الرصيد مرة واحدة.</div></div><button class="secondary" id="refreshWalletDeposits" type="button">تحديث الطلبات</button></div><div id="walletDepositsMsg" class="msg" role="status"></div><div class="tablewrap"><table><thead><tr><th>صاحب المحفظة</th><th>المبلغ</th><th>ملاحظة الراكب</th><th>الحالة</th><th>تاريخ الطلب</th><th>رد الإدارة</th><th>الإجراء</th></tr></thead><tbody id="walletDepositRows"><tr><td colspan="7" class="empty">اضغط تحديث الطلبات لعرضها.</td></tr></tbody></table></div></section>
-<section id="admin-wallet-ledger" class="panel admin-section" style="margin-bottom:16px"><div class="top"><div><h2 style="margin:0">سجل حركات المحافظ</h2><div class="sub">كل حركة مالية مسجلة: المرسل والمستلم ونوع العملية والرحلة المرتبطة بها.</div></div><button class="secondary" id="refreshWalletTransactions" type="button">تحديث الحركات</button></div><div id="walletTransactionsMsg" class="msg" role="status"></div><div class="tablewrap"><table style="min-width:1100px"><thead><tr><th>نوع الحركة</th><th>من</th><th>إلى</th><th>المبلغ</th><th>رقم الرحلة</th><th>منفذ العملية</th><th>التفاصيل</th><th>التاريخ</th></tr></thead><tbody id="adminWalletTransactionRows"><tr><td colspan="8" class="empty">اضغط تحديث الحركات لعرض سجل المحافظ.</td></tr></tbody></table></div></section>
-<section id="admin-trips" class="panel admin-section"><div class="top"><div><h2 style="margin:0">الرحلات</h2><div class="sub">سجل الرحلات متضمنًا بيانات الراكب والكابتن.</div></div><div class="sub" id="lastUpdated"></div></div><div class="tablewrap"><table style="min-width:1250px"><thead><tr><th>رقم الرحلة</th><th>الراكب</th><th>الكابتن</th><th>الانطلاق</th><th>الوجهة</th><th>النوع</th><th>السعر</th><th>الدفع</th><th>الحالة</th><th>وقت الطلب</th></tr></thead><tbody id="tripRows"><tr><td colspan="10" class="empty">جارٍ تحميل الرحلات…</td></tr></tbody></table></div><div id="dashMsg" class="msg" role="status"></div></section>
+<section id="admin-driver-profiles" class="panel admin-section" data-admin-page="driver-profiles" style="margin-bottom:16px"><div class="top"><div><h2 style="margin:0">ملفات الكباتن والمستندات</h2><div class="sub">راجع البيانات والصور ثم اعتمد الملف أو اطلب تعديله. الصور لا تُتاح إلا للإدارة والكابتن صاحب الملف.</div></div><button class="secondary" id="refreshDriverProfiles" type="button">تحديث الملفات</button></div><div id="driverProfilesMsg" class="msg" role="status"></div><div id="driverProfilesList"><div class="empty">اضغط تحديث الملفات لعرض الطلبات.</div></div></section>
+<section id="admin-wallet-platform" class="panel admin-section" data-admin-page="wallet-platform" style="margin-bottom:16px">
+  <div class="top"><div><h2>محفظة الإدارة — ROHNY</h2><div class="sub">أرصدة حسابات المنصة المسجلة فعليًا في قاعدة البيانات، مرتبة حسب العملة. هذه الصفحة للعرض والمراجعة فقط.</div></div><button class="secondary" id="refreshAdminWallet" type="button">تحديث الأرصدة</button></div>
+  <div id="platformWalletCards" class="platform-wallet-grid"><div class="empty">جارٍ تحميل أرصدة المنصة…</div></div>
+  <div id="platformWalletMsg" class="msg" role="status" aria-live="polite"></div>
+</section>
+
+<section id="admin-wallet-deposits" class="panel admin-section" data-admin-page="wallet-deposits" style="margin-bottom:16px"><div class="top"><div><h2 style="margin:0">طلبات إيداع المحافظ</h2><div class="sub">طلبات الركاب والكباتن. راجع الطلب وتأكد من استلام المبلغ فعليًا قبل الموافقة؛ الموافقة تضيف الرصيد مرة واحدة.</div></div><button class="secondary" id="refreshWalletDeposits" type="button">تحديث الطلبات</button></div><div id="walletDepositsMsg" class="msg" role="status"></div><div class="tablewrap"><table><thead><tr><th>صاحب المحفظة</th><th>المبلغ</th><th>ملاحظة الراكب</th><th>الحالة</th><th>تاريخ الطلب</th><th>رد الإدارة</th><th>الإجراء</th></tr></thead><tbody id="walletDepositRows"><tr><td colspan="7" class="empty">اضغط تحديث الطلبات لعرضها.</td></tr></tbody></table></div></section>
+<section id="admin-wallet-ledger" class="panel admin-section" data-admin-page="wallet-ledger" style="margin-bottom:16px"><div class="top"><div><h2 style="margin:0">سجل حركات المحافظ</h2><div class="sub">كل حركة مالية مسجلة: المرسل والمستلم ونوع العملية والرحلة المرتبطة بها.</div></div><button class="secondary" id="refreshWalletTransactions" type="button">تحديث الحركات</button></div><div id="walletTransactionsMsg" class="msg" role="status"></div><div class="tablewrap"><table style="min-width:1100px"><thead><tr><th>نوع الحركة</th><th>من</th><th>إلى</th><th>المبلغ</th><th>رقم الرحلة</th><th>منفذ العملية</th><th>التفاصيل</th><th>التاريخ</th></tr></thead><tbody id="adminWalletTransactionRows"><tr><td colspan="8" class="empty">اضغط تحديث الحركات لعرض سجل المحافظ.</td></tr></tbody></table></div></section>
+<section id="admin-payment-methods" class="panel admin-section" data-admin-page="payments" style="margin-bottom:16px">
+  <div class="top"><div><h2>طرق الدفع</h2><div class="sub">متابعة وسائل الدفع المعروضة للراكب، ومعرفة عدد الرحلات التي اختارت كل وسيلة ضمن سجل الرحلات الحالي.</div></div><button class="secondary" type="button" id="refreshPaymentSummary">تحديث الإحصائيات</button></div>
+  <div class="payment-method-grid">
+    <article class="payment-method-card"><div class="payment-method-icon">💵</div><h3>كاش</h3><span class="payment-state payment-state-active">متاح</span><p>طريقة دفع نقدي عند الرحلة، وتظهر للراكب عند طلب المشوار.</p></article>
+    <article class="payment-method-card"><div class="payment-method-icon">▣</div><h3>المحفظة الإلكترونية</h3><span class="payment-state payment-state-active">متاحة</span><p>الدفع من الرصيد الداخلي، وتُسجّل حركات المحفظة في دفتر الحركات.</p></article>
+    <article class="payment-method-card"><div class="payment-method-icon">💳</div><h3>بطاقة بنكية</h3><span class="payment-state payment-state-pending">ربط التحصيل مطلوب</span><p>اختيار البطاقة ظاهر في الواجهة، لكن تحصيل البطاقة الفعلي يحتاج ربط بوابة الدفع في المرحلة النهائية.</p></article>
+  </div>
+  <h3 class="payment-stats-title">الرحلات حسب وسيلة الدفع</h3>
+  <div class="payment-count-grid">
+    <div class="payment-count"><span>رحلات الكاش</span><strong id="paymentCashCount">—</strong></div>
+    <div class="payment-count"><span>رحلات المحفظة</span><strong id="paymentWalletCount">—</strong></div>
+    <div class="payment-count"><span>رحلات البطاقة</span><strong id="paymentCardCount">—</strong></div>
+  </div>
+  <div id="paymentMethodsSummary" class="msg" role="status" aria-live="polite">ستظهر الإحصائيات بعد تحميل الرحلات.</div>
+</section>
+
+<section id="admin-trips" class="panel admin-section" data-admin-page="trips"><div class="top"><div><h2 style="margin:0">الرحلات</h2><div class="sub">سجل الرحلات متضمنًا بيانات الراكب والكابتن.</div></div><div class="sub" id="lastUpdated"></div></div><div class="trip-filter-row"><label class="field" for="tripPaymentFilter">تصفية الرحلات حسب وسيلة الدفع<select id="tripPaymentFilter"><option value="">كل وسائل الدفع</option><option value="cash">كاش</option><option value="wallet">محفظة إلكترونية</option><option value="card">بطاقة بنكية</option></select></label><button type="button" class="secondary" id="clearTripFilter">عرض كل الرحلات</button></div><div class="tablewrap"><table style="min-width:1250px"><thead><tr><th>رقم الرحلة</th><th>الراكب</th><th>الكابتن</th><th>الانطلاق</th><th>الوجهة</th><th>النوع</th><th>السعر</th><th>الدفع</th><th>الحالة</th><th>وقت الطلب</th></tr></thead><tbody id="tripRows"><tr><td colspan="10" class="empty">جارٍ تحميل الرحلات…</td></tr></tbody></table></div><div id="dashMsg" class="msg" role="status"></div></section>
 </section></main>
 <script>
 const API_BASE='';
 const $=id=>document.getElementById(id);
-let token=null, pricingCities=[];
+let token=null, pricingCities=[], cachedTrips=[];
 function safe(value){return String(value??'—').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function when(v){if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleString('ar-EG');}
 async function request(path,options={}){const response=await fetch(API_BASE+path,{...options,headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{}),...(options.headers||{})}});const body=await response.json().catch(()=>({message:'استجابة غير مفهومة'}));if(!response.ok)throw new Error(Array.isArray(body.message)?body.message.join('، '):(body.message||'تعذر إكمال الطلب'));return body;}
 function showLogin(message='',isError=false){$('loginPanel').classList.remove('hidden');$('dashboard').classList.add('hidden');$('headerActions').classList.add('hidden');$('loginMsg').textContent=message;$('loginMsg').classList.toggle('error',isError);}
+function showAdminPage(page){
+  document.querySelectorAll('[data-admin-page]').forEach(view=>{
+    const active=view.dataset.adminPage===page;
+    view.classList.toggle('hidden',!active);
+  });
+  document.querySelectorAll('[data-admin-nav]').forEach(button=>{
+    const active=button.dataset.adminNav===page;
+    button.classList.toggle('is-active',active);
+    button.setAttribute('aria-pressed',String(active));
+  });
+  if(page==='wallet-platform') loadPlatformWallet();
+}
+document.querySelectorAll('[data-admin-nav]').forEach(button=>{
+  button.addEventListener('click',()=>showAdminPage(button.dataset.adminNav));
+});
+
+const paymentMethodLabels={cash:'كاش',wallet:'محفظة إلكترونية',card:'بطاقة بنكية'};
+function renderTripRows(){
+  const filter=$('tripPaymentFilter')?.value||'';
+  const rows=cachedTrips.filter(t=>!filter||(t.payment_method||t.paymentMethod)===filter);
+  const identity=(name,email,phone,id,vehicle)=>[name,phone,email,vehicle,id?'ID: '+id:null].filter(Boolean).join(' • ')||'—';
+  $('tripRows').innerHTML=rows.length?rows.map(t=>{
+    const method=t.payment_method||t.paymentMethod;
+    return '<tr><td dir="ltr">'+safe(String(t.id||'').slice(0,12))+'</td><td>'+safe(identity(t.rider_name,t.rider_email,t.rider_phone,t.rider_id,null))+'</td><td>'+safe(identity(t.driver_name,t.driver_email,t.driver_phone,t.driver_id,[t.driver_vehicle_type,t.driver_vehicle_plate].filter(Boolean).join(' / ')))+'</td><td>'+safe(t.pickup_address||t.pickupAddress)+'</td><td>'+safe(t.destination_address||t.destinationAddress)+'</td><td>'+safe(t.ride_type||t.rideType)+'</td><td>'+safe((t.fare_amount??t.fareAmount)==null?'—':new Intl.NumberFormat('ar',{style:'currency',currency:t.fare_currency||t.fareCurrency||'USD'}).format(Number(t.fare_amount??t.fareAmount)))+'</td><td>'+safe(paymentMethodLabels[method]||method||'—')+'</td><td><span class="pill">'+safe(t.status)+'</span></td><td>'+safe(when(t.created_at||t.createdAt))+'</td></tr>';
+  }).join(''):'<tr><td colspan="10" class="empty">لا توجد رحلات مطابقة لوسيلة الدفع المحددة.</td></tr>';
+  $('paymentCashCount').textContent=cachedTrips.filter(t=>(t.payment_method||t.paymentMethod)==='cash').length;
+  $('paymentWalletCount').textContent=cachedTrips.filter(t=>(t.payment_method||t.paymentMethod)==='wallet').length;
+  $('paymentCardCount').textContent=cachedTrips.filter(t=>(t.payment_method||t.paymentMethod)==='card').length;
+  $('paymentMethodsSummary').textContent='الإحصائيات محسوبة من '+cachedTrips.length+' رحلة يعرضها سجل الإدارة الحالي. الكاش متاح كطريقة دفع؛ تحصيل البطاقة البنكية ينتظر ربط بوابة الدفع.';
+}
+$('tripPaymentFilter').addEventListener('change',renderTripRows);
+$('clearTripFilter').addEventListener('click',()=>{$('tripPaymentFilter').value='';renderTripRows();});
+$('refreshPaymentSummary').addEventListener('click',loadTrips);
+
 async function loadTrips(){
   $('dashMsg').textContent='جارٍ تحميل الرحلات…';$('dashMsg').classList.remove('error');
   try{
-    const trips=await request('/admin/trips');const rows=Array.isArray(trips)?trips:[];
-    $('total').textContent=rows.length;$('pending').textContent=rows.filter(t=>t.status==='pending').length;$('other').textContent=rows.filter(t=>t.status!=='pending').length;
-    const identity=(name,email,phone,id,vehicle)=>[name,phone,email,vehicle,id?'ID: '+id:null].filter(Boolean).join(' • ')||'—';
-    $('tripRows').innerHTML=rows.length?rows.map(t=>'<tr><td dir="ltr">'+safe(String(t.id||'').slice(0,12))+'</td><td>'+safe(identity(t.rider_name,t.rider_email,t.rider_phone,t.rider_id,null))+'</td><td>'+safe(identity(t.driver_name,t.driver_email,t.driver_phone,t.driver_id,[t.driver_vehicle_type,t.driver_vehicle_plate].filter(Boolean).join(' / ')))+'</td><td>'+safe(t.pickup_address||t.pickupAddress)+'</td><td>'+safe(t.destination_address||t.destinationAddress)+'</td><td>'+safe(t.ride_type||t.rideType)+'</td><td>'+safe((t.fare_amount??t.fareAmount)==null?'—':new Intl.NumberFormat('ar',{style:'currency',currency:t.fare_currency||t.fareCurrency||'USD'}).format(Number(t.fare_amount??t.fareAmount)))+'</td><td>'+safe(t.payment_method||t.paymentMethod)+'</td><td><span class="pill">'+safe(t.status)+'</span></td><td>'+safe(when(t.created_at||t.createdAt))+'</td></tr>').join(''):'<tr><td colspan="10" class="empty">لا توجد رحلات حتى الآن.</td></tr>';
+    const trips=await request('/admin/trips');cachedTrips=Array.isArray(trips)?trips:[];
+    $('total').textContent=cachedTrips.length;$('pending').textContent=cachedTrips.filter(t=>t.status==='pending').length;$('other').textContent=cachedTrips.filter(t=>t.status!=='pending').length;
+    renderTripRows();
     $('lastUpdated').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar-EG');$('dashMsg').textContent='';
   }catch(e){$('dashMsg').textContent=e.message;$('dashMsg').classList.add('error');if(/token|unauthorized|expired/i.test(e.message)) {token=null;showLogin('انتهت الجلسة أو يلزم تسجيل الدخول مرة أخرى.',true);}}
 }
@@ -322,6 +406,44 @@ $('driverForm').addEventListener('submit',async e=>{
 $('pricingForm').addEventListener('submit',async e=>{e.preventDefault();$('savePricingBtn').disabled=true;$('pricingMsg').textContent='جارٍ حفظ إعدادات التسعير…';$('pricingMsg').classList.remove('error');try{const payload={cityCode:$('cityCode').value.trim().toUpperCase(),cityName:$('cityName').value.trim(),countryCode:$('countryCode').value.trim().toUpperCase(),currency:$('currency').value.trim().toUpperCase(),baseFare:Number($('baseFare').value),perKilometer:Number($('perKilometer').value),perMinute:Number($('perMinute').value),minimumFare:Number($('minimumFare').value),rideMultipliers:{economy:Number($('economyMultiplier').value),scooter:Number($('scooterMultiplier').value),comfort:Number($('comfortMultiplier').value),family:Number($('familyMultiplier').value)},isActive:$('cityActive').checked};await request('/admin/pricing/cities',{method:'POST',body:JSON.stringify(payload)});$('pricingMsg').textContent='تم حفظ إعدادات المدينة بنجاح.';await loadPricing();}catch(e){$('pricingMsg').textContent=e.message;$('pricingMsg').classList.add('error');}finally{$('savePricingBtn').disabled=false;}});
 $('clearPricingBtn').addEventListener('click',clearPricingForm);
 
+
+async function loadPlatformWallet(){
+  const msg=$('platformWalletMsg');const cards=$('platformWalletCards');
+  msg.textContent='جارٍ تحميل أرصدة محفظة ROHNY…';msg.classList.remove('error');
+  try{
+    const accounts=await request('/wallet/admin/summary');
+    cards.replaceChildren();
+    if(!Array.isArray(accounts)||!accounts.length){
+      cards.innerHTML='<div class="empty">لا توجد حسابات منصة مسجلة حتى الآن؛ لن يتم إنشاء رصيد افتراضي من هذه الشاشة.</div>';
+      msg.textContent='لم يرجع الخادم أي حساب محفظة للمنصة.';
+      return;
+    }
+    accounts.forEach(account=>{
+      const card=document.createElement('article');card.className='platform-wallet-card';
+      const head=document.createElement('div');head.className='platform-wallet-card-head';
+      const label=document.createElement('span');label.textContent='رصيد محفظة ROHNY';
+      const currency=document.createElement('strong');currency.textContent=account.currency||'—';
+      head.append(label,currency);
+      const balance=document.createElement('strong');balance.className='platform-wallet-balance';balance.textContent=walletMoney(account.balanceMinor,account.currency);
+      const details=document.createElement('div');
+      const rows=[
+        ['إجمالي المبالغ الداخلة',walletMoney(account.totalCreditsMinor,account.currency)],
+        ['إجمالي المبالغ الخارجة',walletMoney(account.totalDebitsMinor,account.currency)],
+        ['عدد الحركات المسجلة',String(account.transactionCount??0)],
+        ['آخر تحديث',when(account.updatedAt)]
+      ];
+      rows.forEach(([key,value])=>{
+        const row=document.createElement('div');row.className='platform-wallet-detail';
+        const name=document.createElement('span');name.textContent=key;
+        const val=document.createElement('strong');val.textContent=value;
+        row.append(name,val);details.append(row);
+      });
+      card.append(head,balance,details);cards.append(card);
+    });
+    msg.textContent='الأرصدة المعروضة من قاعدة البيانات مباشرة، وهي للقراءة فقط ولا تُعدّل الرصيد.';
+  }catch(e){cards.innerHTML='<div class="empty">تعذّر تحميل أرصدة محفظة المنصة.</div>';msg.textContent=e.message;msg.classList.add('error');}
+}
+$('refreshAdminWallet').addEventListener('click',loadPlatformWallet);
 
 async function loadWalletDeposits(){
   $('walletDepositsMsg').textContent='جارٍ تحميل طلبات الإيداع…';
@@ -390,6 +512,6 @@ async function reviewDriverProfile(id,status,note){
 }
 $('refreshDriverProfiles').addEventListener('click',loadDriverProfiles);
 
-$('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBtn').disabled=true;$('loginMsg').textContent='جارٍ التحقق من الحساب…';$('loginMsg').classList.remove('error');try{const data=await request('/auth/login',{method:'POST',body:JSON.stringify({email:$('email').value.trim(),password:$('password').value})});if(data.user?.role!=='admin')throw new Error('هذا الحساب ليس حساب إدارة. يلزم حساب بصلاحية admin.');token=data.accessToken;$('loginPanel').classList.add('hidden');$('dashboard').classList.remove('hidden');$('headerActions').classList.remove('hidden');await Promise.all([loadTrips(),loadPricing(),loadDriverProfiles(),loadWalletDeposits(),loadWalletTransactions()]);}catch(e){$('loginMsg').textContent=e.message;$('loginMsg').classList.add('error');}finally{$('loginBtn').disabled=false;}});
-$('refreshWalletTransactions').addEventListener('click',loadWalletTransactions);$('refreshBtn').addEventListener('click',()=>Promise.all([loadTrips(),loadPricing(),loadDriverProfiles(),loadWalletDeposits(),loadWalletTransactions()]));$('logoutBtn').addEventListener('click',()=>{token=null;showLogin('تم تسجيل الخروج.');$('password').value='';});
+$('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBtn').disabled=true;$('loginMsg').textContent='جارٍ التحقق من الحساب…';$('loginMsg').classList.remove('error');try{const data=await request('/auth/login',{method:'POST',body:JSON.stringify({email:$('email').value.trim(),password:$('password').value})});if(data.user?.role!=='admin')throw new Error('هذا الحساب ليس حساب إدارة. يلزم حساب بصلاحية admin.');token=data.accessToken;$('loginPanel').classList.add('hidden');$('dashboard').classList.remove('hidden');$('headerActions').classList.remove('hidden');showAdminPage('overview');await Promise.all([loadTrips(),loadPricing(),loadDriverProfiles(),loadWalletDeposits(),loadWalletTransactions(),loadPlatformWallet()]);}catch(e){$('loginMsg').textContent=e.message;$('loginMsg').classList.add('error');}finally{$('loginBtn').disabled=false;}});
+$('refreshWalletTransactions').addEventListener('click',loadWalletTransactions);$('refreshBtn').addEventListener('click',()=>Promise.all([loadTrips(),loadPricing(),loadDriverProfiles(),loadWalletDeposits(),loadWalletTransactions(),loadPlatformWallet()]));$('logoutBtn').addEventListener('click',()=>{token=null;showLogin('تم تسجيل الخروج.');$('password').value='';});
 </script></body></html>
