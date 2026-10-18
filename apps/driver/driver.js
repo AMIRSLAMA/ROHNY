@@ -332,7 +332,7 @@
           if (tx.type === 'transfer' && tx.direction === 'debit' && tx.relatedTripId) transferredTripIds.add(tx.relatedTripId);
         });
       }
-      const labels = { transfer: 'تحويل باقي للراكب', trip_payment: 'دفع رحلة', platform_commission: 'عمولة المنصة', card_top_up: 'إضافة رصيد', refund: 'استرداد', cash_out: 'سحب رصيد' };
+      const labels = { transfer: 'تحويل باقي الكاش للراكب', trip_payment: 'تسوية أجرة رحلة من المحفظة', platform_commission: 'عمولة المنصة', card_top_up: 'إضافة رصيد', refund: 'استرداد', cash_out: 'سحب رصيد', platform_reward: 'مكافأة ممولة من ROHNY', captain_bonus: 'مكافأة كابتن' };
       if (!Array.isArray(transactions) || !transactions.length) {
         const empty = document.createElement('div'); empty.className = 'empty'; empty.textContent = 'لا توجد حركات على المحفظة حتى الآن.'; list.append(empty);
       } else transactions.forEach((tx) => {
