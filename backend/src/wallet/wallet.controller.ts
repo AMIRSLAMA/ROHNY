@@ -48,6 +48,29 @@ export class WalletController {
     return this.wallets.listMyTransactions(user.sub, parsedLimit, currency);
   }
 
+  @Get('admin/summary')
+  async getPlatformWalletSummary(@Req() request: AuthenticatedRequest) {
+    if (request.authUser?.role !== UserRole.ADMIN) {
+      throw new ForbiddenException('Admin access required');
+    }
+    return this.dataSource.query(`
+      SELECT
+        account.id AS "walletId",
+        account.currency,
+        account.balance_minor AS "balanceMinor",
+        account.updated_at AS "updatedAt",
+        COALESCE(SUM(tx.amount_minor) FILTER (WHERE tx.to_account_id = account.id), 0)::text AS "totalCreditsMinor",
+        COALESCE(SUM(tx.amount_minor) FILTER (WHERE tx.from_account_id = account.id), 0)::text AS "totalDebitsMinor",
+        COUNT(tx.id)::int AS "transactionCount"
+      FROM wallet_accounts account
+      LEFT JOIN wallet_transactions tx
+        ON tx.to_account_id = account.id OR tx.from_account_id = account.id
+      WHERE account.account_type = 'platform'
+      GROUP BY account.id
+      ORDER BY account.currency ASC
+    `);
+  }
+
   @Get('admin/transactions')
   async listAllTransactions(@Req() request: AuthenticatedRequest) {
     if (request.authUser?.role !== UserRole.ADMIN) {
