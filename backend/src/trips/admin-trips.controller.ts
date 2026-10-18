@@ -29,10 +29,14 @@ export class AdminTripsController {
         rider.role AS rider_role,
         driver.email AS driver_email,
         driver.phone AS driver_phone,
-        driver.role AS driver_role
+        driver.role AS driver_role,
+        driver_profile.full_name AS driver_name,
+        driver_profile.vehicle_type AS driver_vehicle_type,
+        driver_profile.vehicle_plate AS driver_vehicle_plate
       FROM trips t
       LEFT JOIN users rider ON rider.id = t.rider_id
       LEFT JOIN users driver ON driver.id = t.driver_id
+      LEFT JOIN driver_profiles driver_profile ON driver_profile.user_id = driver.id
       ORDER BY t.created_at DESC
       LIMIT 200
     `);
