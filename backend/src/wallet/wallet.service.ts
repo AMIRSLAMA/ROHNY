@@ -127,7 +127,7 @@ export class WalletService {
     return this.dataSource.transaction(async (manager) => {
       // Lock the trip so the same completed trip cannot issue more than one change transfer.
       const tripRows = await manager.query(
-        'SELECT id, rider_id, driver_id, status, fare_currency FROM trips WHERE id=$1 FOR UPDATE',
+        'SELECT id, rider_id, driver_id, status, fare_currency, fare_amount FROM trips WHERE id=$1 FOR UPDATE',
         [input.tripId],
       );
       const trip = tripRows[0];
