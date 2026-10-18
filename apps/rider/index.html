@@ -159,7 +159,7 @@
     .map-canvas .leaflet-popup-content{font-size:12px;line-height:1.8}
     .map-canvas .leaflet-bar a,.map-canvas .leaflet-bar a:hover{border-bottom-color:#34503e}
     @media(max-width:480px){.map-brandbar{padding:11px 10px;gap:8px}.map-brand-symbol{flex-basis:34px;height:34px}.map-brand-copy small{font-size:10px}.map-brand-live{padding:6px 8px;font-size:9px}}
-</style>
+.rider-live-tracking{margin:18px 0;padding:15px;border:1px solid #426344;border-radius:20px;background:linear-gradient(150deg,#102b20,#091b14);box-shadow:0 16px 38px #0003}.rider-live-tracking[hidden]{display:none!important}.rider-live-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}.rider-live-kicker{display:block;color:#b8ef61;font-size:10px;font-weight:900;letter-spacing:1.2px;margin-bottom:5px}.rider-live-heading h4{font-size:19px;margin:0;color:#f5fbf4}.rider-live-status{padding:7px 11px;border:1px solid #527545;border-radius:999px;background:#b8ef6112;color:#d6f5ad;font-size:11px;font-weight:850;text-align:center}.rider-live-message{margin:10px 0 13px;padding:11px 13px;border:1px solid #294737;border-radius:12px;background:#0b2118;color:#c3d8c8;font-size:12px;line-height:1.9}#rider-live-map{height:clamp(290px,56vw,470px);min-height:270px;width:100%;border-radius:0 0 15px 15px;background:#0b1f17}#rider-live-map .rohny-map-tiles{filter:grayscale(.76) brightness(.72) sepia(.24) hue-rotate(65deg) saturate(.78) contrast(1.12)}#rider-live-map .leaflet-control-zoom a{background:#10291f!important;color:#d4ffa0!important}#rider-live-map .leaflet-control-attribution{background:#07140edb!important;color:#c8d8cb!important;font-size:9px!important}#rider-live-map .leaflet-control-attribution a{color:#d0f3a6!important}#rider-live-map .leaflet-popup-content-wrapper,#rider-live-map .leaflet-popup-tip{background:#102b20;color:#f5fbf4;border:1px solid #456644}.rider-live-updated{margin:10px 2px 0;color:#8fae9c;font-size:11px;line-height:1.8}@media(max-width:480px){.rider-live-tracking{padding:11px;margin:14px 0;border-radius:17px}.rider-live-heading h4{font-size:16px}#rider-live-map{height:320px}}</style>
 </head>
 <body>
   <section id="riderLoginScreen" class="rider-login-screen">
@@ -208,7 +208,17 @@
       <section class="booking" aria-labelledby="booking-title">
         <div class="booking-head"><div><h2 id="booking-title">احجز مشوارك</h2><p>ابدأ بتحديد مكانك ووجهتك</p></div><div class="badge">روحني معاك</div></div>
 
-        <section id="trip-history-panel" class="ride-review" aria-labelledby="trip-history-title"><h3 id="trip-history-title">رحلاتي</h3><p id="trip-history-status" class="note" role="status" aria-live="polite">سجّل الدخول لعرض رحلاتك السابقة.</p><div id="trip-history-list"></div><button type="button" id="refresh-trip-history" class="map-toolbar-button" hidden>تحديث سجل الرحلات</button></section>
+        <section id="trip-history-panel" class="ride-review" aria-labelledby="trip-history-title">
+          <h3 id="trip-history-title">رحلاتي</h3><p id="trip-history-status" class="note" role="status" aria-live="polite">سجّل الدخول لعرض رحلاتك السابقة.</p>
+          <section id="trip-live-tracking" class="rider-live-tracking" hidden aria-labelledby="trip-live-title">
+            <div class="rider-live-heading"><div><span class="rider-live-kicker">ROHNY LIVE TRIP</span><h4 id="trip-live-title">متابعة الرحلة الحالية</h4></div><span id="trip-live-status-badge" class="rider-live-status">—</span></div>
+            <p id="trip-live-message" class="rider-live-message" role="status" aria-live="polite">جارٍ تحميل بيانات الرحلة…</p>
+            <div class="map-brandbar"><span class="map-brand-symbol">R</span><span class="map-brand-copy"><strong>ROHNY MAP</strong><small id="trip-live-map-subtitle">خريطة رحلتك المباشرة</small></span><span class="map-brand-live"><i></i> مباشر</span></div>
+            <div id="rider-live-map" class="map-canvas" role="application" aria-label="خريطة متابعة موقع الكابتن ومسار الرحلة"></div>
+            <p id="trip-live-updated" class="rider-live-updated" aria-live="polite">في انتظار تحديث موقع الكابتن.</p>
+          </section>
+          <div id="trip-history-list"></div><button type="button" id="refresh-trip-history" class="map-toolbar-button" hidden>تحديث سجل الرحلات</button>
+        </section>
         <section id="wallet-panel" class="ride-review rider-wallet-panel" aria-labelledby="wallet-title">
           <div class="rider-wallet-heading">
             <div><h3 id="wallet-title">محفظتي</h3><p>رصيدك وحركات المحفظة وطلبات الإيداع</p></div>
@@ -797,5 +807,6 @@
   </script>
 
   <script src="./booking-api.js"></script>
+<script src="./live-tracking.js" defer></script>
 </body>
 </html>
